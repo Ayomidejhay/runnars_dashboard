@@ -110,7 +110,7 @@ const page = () => {
         </h1>
         <div className="flex gap-6">
           <Link
-            href=""
+            href="/challenges/managebadge"
             className="w-[163px] h-[44px]  bg-transparent border border-brightblue text-brightblue rounded-[32px] flex items-center justify-center"
           >
             <span className="text-[14px] flex items-center gap-[2px] font-bold">
@@ -119,7 +119,7 @@ const page = () => {
             </span>
           </Link>
           <Link
-            href=""
+            href="/challenges/new-challenge"
             className="w-[163px] h-[44px] text-white bg-brightblue rounded-[32px] flex items-center justify-center"
           >
             <span className="text-[14px] flex items-center gap-[2px] font-bold">

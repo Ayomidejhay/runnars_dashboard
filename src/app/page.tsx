@@ -59,7 +59,7 @@ export default function Home() {
         </h1>
         <div className="w-[163px] h-[44px] text-white bg-brightblue rounded-[32px] flex items-center justify-center">
           <Link
-            href=""
+            href="/challenges/new-challenge"
             className="text-[14px] flex items-center gap-[2px] font-bold"
           >
             <Image src="/add.svg" alt="add" width={24} height={24} />

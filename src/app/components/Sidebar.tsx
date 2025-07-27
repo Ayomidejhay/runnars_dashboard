@@ -65,7 +65,7 @@ const mainItems = [
 ];
 
 export default function Sidebar() {
-      const pathname = usePathname();
+  const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [submenuOpen, setSubmenuOpen] = useState<{ [key: string]: boolean }>({
     Users: pathname.startsWith("/users"),
@@ -77,6 +77,7 @@ export default function Sidebar() {
       [title]: !prev[title],
     }));
   };
+
   return (
     <aside
       className={`h-screen px-5 bg-[#263238] transition-all duration-300 fixed ${
@@ -99,10 +100,13 @@ export default function Sidebar() {
       <div className="py-6 flex flex-col text-[14px]">
         {mainItems.map((item) => {
           const isSubmenuActive =
-            item.submenu?.some((sub) => pathname === sub.url) ?? false;
+            item.submenu?.some((sub) => pathname.startsWith(sub.url)) ?? false;
 
+          // ✅ Updated: parent is active if pathname starts with parent's url
           const isParentActive =
-            pathname === item.url || isSubmenuActive;
+            pathname === item.url ||
+            pathname.startsWith(item.url + "/") ||
+            isSubmenuActive;
 
           const isOpen = submenuOpen[item.title];
 
@@ -142,19 +146,19 @@ export default function Sidebar() {
                   </div>
 
                   {isOpen && !isCollapsed && (
-                    <div className="  ml-1.5 flex flex-col gap-2">
+                    <div className="ml-1.5 flex flex-col gap-2">
                       {item.submenu?.map((sub) => (
                         <Link
                           key={sub.url}
                           href={sub.url}
-                          className={`flex items-center  gap-2 px-1 h-10 rounded text-sm transition ${
-                            pathname === sub.url
+                          className={`flex items-center gap-2 px-1 h-10 rounded text-sm transition ${
+                            pathname.startsWith(sub.url)
                               ? "text-white font-bold"
                               : "text-[#8E98A8]"
                           }`}
                         >
-                            <div className="border border-white bg-white h-10 w-[2px]"></div>
-                            <span>{sub.title}</span>
+                          <div className="border border-white bg-white h-10 w-[2px]"></div>
+                          <span>{sub.title}</span>
                         </Link>
                       ))}
                     </div>
@@ -164,14 +168,16 @@ export default function Sidebar() {
                 <Link
                   href={item.url}
                   className={`flex items-center gap-3 py-3 rounded transition ${
-                    pathname === item.url
+                    pathname === item.url ||
+                    pathname.startsWith(item.url + "/")
                       ? "text-white font-bold"
                       : "text-[#8E98A8]"
                   }`}
                 >
                   <Image
                     src={
-                      pathname === item.url
+                      pathname === item.url ||
+                      pathname.startsWith(item.url + "/")
                         ? item.activeIcon
                         : item.icon
                     }
@@ -187,5 +193,5 @@ export default function Sidebar() {
         })}
       </div>
     </aside>
-  )
+  );
 }

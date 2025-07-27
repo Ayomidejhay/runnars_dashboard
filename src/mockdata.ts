@@ -426,3 +426,57 @@ export const distanceData = [
   { range: "5-6km", value: 35 },
   { range: "6-7km", value: 72 },
 ];
+
+//badges
+export const mockBadges = [
+  {
+    id: 1,
+    badgeName: "First Challenge Completed",
+    dateCreated: "2025-01-15",
+  },
+  {
+    id: 2,
+    badgeName: "10,000 Steps in a Day",
+    dateCreated: "2025-02-10",
+  },
+  {
+    id: 3,
+    badgeName: "Consistency Champion",
+    dateCreated: "2025-03-05",
+  },
+  {
+    id: 4,
+    badgeName: "Early Bird",
+    dateCreated: "2025-03-20",
+  },
+  {
+    id: 5,
+    badgeName: "Community Helper",
+    dateCreated: "2025-04-12",
+  },
+  {
+    id: 6,
+    badgeName: "Pet Walk Pro",
+    dateCreated: "2025-05-01",
+  },
+  {
+    id: 7,
+    badgeName: "Step Master",
+    dateCreated: "2025-06-18",
+  },
+  {
+    id: 8,
+    badgeName: "Hydration Hero",
+    dateCreated: "2025-07-02",
+  },
+  {
+    id: 9,
+    badgeName: "Challenge Veteran",
+    dateCreated: "2025-07-15",
+  },
+  {
+    id: 10,
+    badgeName: "Social Butterfly",
+    dateCreated: "2025-07-22",
+  },
+];
