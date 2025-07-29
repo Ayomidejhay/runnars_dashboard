@@ -103,7 +103,7 @@ const page = () => {
   }, []);
 
   return (
-    <div>
+    <div className="px-10">
       <div className="flex justify-between items-center">
         <h1 className="capitalize text-[34px] font-bold text-deepblue">
           challenges
@@ -131,8 +131,9 @@ const page = () => {
       </div>
 
       <div>
-        <div className="flex space-x-4 border-b">
-          {["all", "featured", "community"].map((tab) => (
+        <div className="border-b">
+          <div className="flex space-x-4 px-5">
+            {["all", "featured", "community"].map((tab) => (
             <button
               key={tab}
               className={`py-2 px-4 text-sm font-medium ${
@@ -145,6 +146,7 @@ const page = () => {
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
+          </div>
         </div>
 
         <div className="bg-white p-4 rounded mt-6">

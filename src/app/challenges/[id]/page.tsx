@@ -147,7 +147,7 @@ const page = () => {
   }
 
   return (
-    <div>
+    <div className="px-10">
       <div>
         <button
           //cursor-pointer

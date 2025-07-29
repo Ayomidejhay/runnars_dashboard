@@ -52,7 +52,7 @@ export default function Home() {
   };
 
   return (
-    <div>
+    <div className="px-10">
       <div className="flex justify-between items-center">
         <h1 className="capitalize text-[34px] font-bold text-deepblue">
           dashboard
@@ -168,15 +168,15 @@ export default function Home() {
                           ref={dropdownRef}
                           className="absolute left-[-10rem] top-0 w-40 bg-white shadow-lg rounded-md z-10"
                         >
-                          <button className="w-full text-left px-4 py-2 text-sm flex gap-2 items-center ">
-                            <Image
-                              src="/eye.svg"
-                              alt="icon"
-                              width={24}
-                              height={24}
-                            />
-                            See Details
-                          </button>
+                          <Link href={`/challenges/${challenge.id}`}  className="w-full text-left px-4 py-2 text-sm flex gap-2 items-center ">
+                              <Image
+                                src="/eye.svg"
+                                alt="icon"
+                                width={24}
+                                height={24}
+                              />
+                              See Details
+                            </Link>
                           <button className="w-full text-left px-4 py-2 text-sm flex gap-2 items-center ">
                             <Image
                               src="/edit.svg"

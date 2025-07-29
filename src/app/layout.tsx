@@ -1,9 +1,15 @@
+
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "./components/Sidebar";
 import Image from "next/image";
 import localFont from "next/font/local";
+import Header from "./components/Header";
+import HideHeader from "./components/HideHeader";
+
+
 
 const satoshi = localFont({
   src: [
@@ -72,6 +78,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
   return (
     <html lang="en">
       <body
@@ -79,38 +87,8 @@ export default function RootLayout({
       >
         <Sidebar />
         <div className="w-full bg-[#FBFBFD] ml-64 text-gray pb-20">
-          <div className="py-3 px-10 border-b border-[#E1E1E1] flex justify-end">
-            <div className="flex gap-4 items-center justify-center">
-              <div>
-                
-                  <Image
-                  src="/notification.svg"
-                  alt="notification icon"
-                  width={40}
-                  height={40}
-                />
-                
-              </div>
-              <div className="flex gap-2">
-                <Image src="avatar.svg" alt="avatar" width={40} height={40} />
-                <div className="flex items-center gap-1">
-                  <div className="flex flex-col text-xs w-[112px]">
-                    <p className="font-bold text-deepblue">Einstein O.</p>
-                    <p>Admin</p>
-                  </div>
-                  <button>
-                    <Image
-                      src="/dropdown.svg"
-                      alt="button"
-                      width={16}
-                      height={16}
-                    />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="mt-6 px-10">
+          <HideHeader />
+          <div className="mt-3">
             {children}
           </div>
         </div>

@@ -32,7 +32,7 @@ export default function page() {
 
   return (
     <div>
-      <div className="flex justify-between items-center border-b border-[#E1E1E1]">
+      <div className="flex justify-between items-center border-b border-[#E1E1E1] px-10">
         <div className="flex gap-4 items-center h-14 ">
           <button onClick={() => router.back()}>
             <Image src="/close.svg" alt="close" width={24} height={24} />
@@ -66,7 +66,7 @@ export default function page() {
       </div>
       {/* Navigation Buttons */}
       <div
-        className={`flex mt-6 ${
+        className={`flex mt-6 px-10 ${
           step === 1 ? "justify-end" : "justify-between"
         }`}
       >
