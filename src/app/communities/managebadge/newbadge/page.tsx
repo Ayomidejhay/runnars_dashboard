@@ -28,7 +28,7 @@ const Page = () => {
 
   return (
     <div>
-      <div className="flex gap-4 items-center h-14 border-b px-10 border-[#E1E1E1]">
+      <div className="flex gap-4 items-center h-14 border-b border-[#E1E1E1] px-10">
         <button onClick={() => router.back()}>
           <Image src="/close.svg" alt="close" width={24} height={24} />
         </button>

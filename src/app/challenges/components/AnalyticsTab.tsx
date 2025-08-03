@@ -140,26 +140,7 @@ export default function AnalyticsTab() {
 
           {/* line chart */}
           <div className="py-2 ">
-            {/* <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="time" />
-                <YAxis domain={[0, 70]} />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="engagementRate"
-                  stroke="#FF9800"
-                />
-                <Line type="monotone" dataKey="avgDistance" stroke="#2196F3" />
-                <Line
-                  type="monotone"
-                  dataKey="completionRate"
-                  stroke="#40B773"
-                />
-              </LineChart>
-            </ResponsiveContainer> */}
+            
 
             <ResponsiveContainer width="100%" height={300}>
               <LineChart

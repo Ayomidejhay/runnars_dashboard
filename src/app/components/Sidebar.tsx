@@ -52,7 +52,7 @@ const mainItems = [
   },
   {
     title: "Push Notifications",
-    url: "/notifications",
+    url: "/notification",
     icon: "/sms-tracking.svg",
     activeIcon: "/sms-tracking2.svg",
   },

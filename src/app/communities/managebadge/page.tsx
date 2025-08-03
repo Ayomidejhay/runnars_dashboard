@@ -5,8 +5,10 @@ import Link from "next/link";
 import React, { useRef, useState } from "react";
 import { mockBadges } from "@/mockdata";
 import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const page = () => {
+    const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("");
   const [openRow, setOpenRow] = useState<number | null>(null);
   const dropdownRef = useRef(null);
@@ -34,13 +36,17 @@ const page = () => {
   }
   return (
     <div className="px-10">
+        <button className="flex items-center gap-2" onClick={() => router.back()}>
+            <Image src='/back-arrow.svg' alt="icon" height={17} width={13}/>
+            <p className="text-deepblue text-[14px]">Back</p>
+        </button>
       <div className="flex justify-between items-center">
-        <h1 className="capitalize text-[34px] font-bold text-deepblue">
-          manage challenge badges
+        <h1 className="capitalize text-[24px] font-bold text-deepblue">
+          manage community badges
         </h1>
         <div className="flex gap-6">
           <Link
-            href="/challenges/managebadge/newbadge"
+            href="/communities/managebadge/newbadge"
             className="w-[163px] h-[44px] text-white bg-brightblue rounded-[32px] flex items-center justify-center"
           >
             <span className="text-[14px] flex items-center gap-[2px] font-bold">

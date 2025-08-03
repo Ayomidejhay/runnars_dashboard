@@ -42,3 +42,13 @@ export interface PetChallenge {
   eligibleParticipants: string;
   users: ChallengeUser[];
 }
+
+export type Community = {
+  id: string;
+  name: string;
+  creator: string;
+  createdDate: string; // ISO date string (e.g. "2023-04-12")
+  members: number;
+  location: string;
+  status: "active" | "inactive";
+};
