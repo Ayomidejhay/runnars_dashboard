@@ -13,7 +13,7 @@ export default function page() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
 
-  const [openRow, setOpenRow] = useState<number | null>(null);
+ const [openRow, setOpenRow] = useState<string | null>(null);
   const dropdownRef = useRef(null);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -187,7 +187,7 @@ export default function page() {
                               
                               <td className="relative px-4 py-4">
                                 <button
-                                  onClick={() => setOpenRow(Number(user.id))}
+                                  onClick={() => setOpenRow((user.id))}
                                 >
                                   <Image
                                     src="/Button-table.svg"
@@ -198,7 +198,7 @@ export default function page() {
                                   />
                                 </button>
         
-                                {openRow === Number(user.id) && (
+                                {openRow === (user.id) && (
                                   <div
                                     ref={dropdownRef}
                                     className="absolute left-[-10rem] top-0 w-40 bg-white shadow-lg rounded-md -mt-12 z-10"

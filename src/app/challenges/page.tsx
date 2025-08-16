@@ -12,7 +12,6 @@ const page = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("all");
-  //const [searchTerm, setSearchTerm] = useState("");
   const [openRow, setOpenRow] = useState<number | null>(null);
   const dropdownRef = useRef(null);
 
