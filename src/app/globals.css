@@ -26,6 +26,9 @@
   --color-gray: #8E98A8;
   --color-brightblue: #1570EF;
   --color-lightblue: #F0F6FF;
+  --color-border: #E1E1E1;
+  --color-tableheader: #f4f4f4;
+  --color-tableheadertext: #8E98A8;
 }
 
 body {
