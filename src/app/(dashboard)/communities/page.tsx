@@ -7,7 +7,7 @@ import StatCard from "./components/StatCard";
 import { communityMockData } from "@/mockdata";
 import { Calendar, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import PaginationControls from "@/app/components/PaginationControls";
+import PaginationControls from "../components/PaginationControls";
 
 export default function Page() {
   const [searchTerm, setSearchTerm] = useState("");
