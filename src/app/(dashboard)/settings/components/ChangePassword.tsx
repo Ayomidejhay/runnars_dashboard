@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useChangePassword } from "@/hooks/useCurrentAdmin";
 
 export default function ChangePassword() {
   // Password fields
@@ -14,12 +15,15 @@ export default function ChangePassword() {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // Error messages
+  // Client-side errors
   const [errors, setErrors] = useState({
     oldPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+
+  // const mutation = useChangePassword();
+  const changePasswordMutation = useChangePassword();
 
   const validate = () => {
     let valid = true;
@@ -44,12 +48,29 @@ export default function ChangePassword() {
     return valid;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
-      console.log("Password updated:", { oldPassword, newPassword });
-      // ✅ Make API call here
-    }
+    if (!validate()) return;
+
+    changePasswordMutation.mutate(
+      { oldPassword, newPassword, confirmPassword },
+      {
+        onSuccess: (res) => {
+          alert(res.message || "Password updated successfully!");
+          setOldPassword("");
+          setNewPassword("");
+          setConfirmPassword("");
+          setErrors({ oldPassword: "", newPassword: "", confirmPassword: "" });
+        },
+        onError: (err: any) => {
+          if (err.response?.data?.message) {
+            alert(err.response.data.message);
+          } else {
+            alert("Failed to update password. Try again.");
+          }
+        },
+      }
+    );
   };
 
   return (
@@ -136,19 +157,21 @@ export default function ChangePassword() {
               {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
             {errors.confirmPassword && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.confirmPassword}
-              </p>
+              <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
             )}
           </div>
         </div>
 
         <button
-          className="bg-brightblue text-white rounded-[32px] text-[14px] h-[48px] w-[138px] flex items-center justify-center mt-4"
-          type="submit"
-        >
-          Save changes
-        </button>
+  type="submit"
+  disabled={changePasswordMutation.status === "pending"}
+  className={`bg-brightblue text-white rounded-[32px] h-[48px] w-[138px] mt-4 flex items-center justify-center ${
+    changePasswordMutation.status === "pending" ? "opacity-60 cursor-not-allowed" : ""
+  }`}
+>
+  {changePasswordMutation.status === "pending" ? "Saving..." : "Save changes"}
+</button>
+
       </form>
     </div>
   );

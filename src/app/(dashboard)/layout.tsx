@@ -4,7 +4,7 @@ import localFont from "next/font/local";
 import Sidebar from "./components/Sidebar";
 import HideHeader from "./components/HideHeader";
 import QueryProvider from "../providers/QueryProvider";
-
+import { Toaster } from "react-hot-toast";
 
 const satoshi = localFont({
   src: [
@@ -18,7 +18,6 @@ const satoshi = localFont({
     { path: "../../../public/fonts/Satoshi-BoldItalic.woff2", weight: "700", style: "italic" },
     { path: "../../../public/fonts/Satoshi-Black.woff2", weight: "900", style: "normal" },
     { path: "../../../public/fonts/Satoshi-BlackItalic.woff2", weight: "900", style: "italic" },
-    
   ],
   variable: "--font-satoshi",
   display: "swap",
@@ -29,7 +28,9 @@ export const metadata: Metadata = {
   description: "Runnars Admin Dashboard",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+
+
   return (
     <html lang="en">
       <body className={`${satoshi.variable} flex antialiased`}>
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="w-full bg-[#FBFBFD] ml-64 text-gray pb-20">
             <HideHeader />
             <div className="mt-3">{children}</div>
+            <Toaster position="top-right" />
           </div>
         </QueryProvider>
       </body>

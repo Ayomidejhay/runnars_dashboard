@@ -78,9 +78,9 @@ export default function BasicInfo({
           >
             <option value="">Select</option>
             <option value="walk">Walk</option>
-            <option value="social">Social</option>
+            {/* <option value="social">Social</option>
             <option value="health">Health</option>
-            <option value="training">Training</option>
+            <option value="training">Training</option> */}
           </select>
         </div>
 

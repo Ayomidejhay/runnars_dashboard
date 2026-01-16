@@ -7,21 +7,7 @@ const api = axios.create({
   },
 });
 
-//  attach token automatically (localStorage/cookie)
-// api.interceptors.request.use((config) => {
-//   try {
-//     const token =
-//       typeof window !== "undefined"
-//         ? localStorage.getItem(
-//             process.env.NEXT_PUBLIC_TOKEN_KEY || "auth_token"
-//           )
-//         : null;
-//     if (token) config.headers.Authorization = `Bearer ${token}`;
-//   } catch (e) {
-//     // noop
-//   }
-//   return config;
-// });
+
 
 //  attach token automatically (localStorage/cookie)
 api.interceptors.request.use((config) => {

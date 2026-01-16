@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
-import { login } from "@/services/authService";
+// import { login } from "@/services/authService";
 import { loginAdmin } from "@/services/authService";
 import axios from "axios";
 
@@ -26,72 +26,44 @@ const Page = () => {
 
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    let isValid: boolean = true;
-    setLoading(true);
-    setError("");
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-    try {
-      const response = await loginAdmin({ email, password });
+  try {
+    const response = await loginAdmin({ email, password });
 
-      // Save token + admin in localStorage
-      localStorage.setItem("admin_token", response.token);
-      localStorage.setItem("admin_data", JSON.stringify(response.admin));
+    // ✅ VERIFIED LOGIN
+    localStorage.setItem("admin_token", response.token);
+    localStorage.setItem("admin_data", JSON.stringify(response.adminId));
 
-      // Redirect to dashboard home page
-      router.push("/");
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Login failed");
-    } finally {
-      setLoading(false);
+    router.replace("/");
+  } catch (err: any) {
+    const data = err?.response?.data;
+
+    // UNVERIFIED ACCOUNT → ROUTE TO VERIFY PAGE
+     
+    if (data?.requiresVerification) {
+      router.replace(`/verifyAccount?adminId=${data.adminId}`);
+
+      return;
     }
 
-    if (!isValid) return;
-  };
+    setError(data?.message || "Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
-  //   const handleLogin = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   setError("");
 
-  //   try {
-  //     const response = await axios.post(
-  //       "http://api.runnars.com/api/admin/auth/login",
-  //       {
-  //         email,
-  //         password,
-  //       },
-  //       {
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           "Accept": "application/json",
-  //         },
-  //       }
-  //     );
 
-  //     // Save token + admin in localStorage
-  //     localStorage.setItem("admin_token", response.data.token);
-  //     localStorage.setItem("admin_data", JSON.stringify(response.data.admin));
-
-  //     // Redirect to dashboard home page
-  //     router.push("/");
-  //   } catch (err: any) {
-  //     console.log("Login error:", err);
-  //     setError(
-  //       err?.response?.data?.message ||
-  //         "Login failed. Please check your credentials."
-  //     );
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const isFormFilled = email !== "" && password !== "";
 
   return (
     <div className="pt-14 bg-[#e8f1fd] min-h-screen flex items-center justify-center">
       <div className="flex flex-col gap-10 items-center justify-center mx-auto">
         <div>
-          <Image src="/Runnars 1.svg" alt="Logo" width={64} height={41} />
+          <Image src="/Runnars-1.svg" alt="Logo" width={64} height={41} />
         </div>
 
         <div className="flex flex-col gap-6 w-[596px] h-[488px] bg-white rounded-3xl shadow-md p-10 justify-center">
