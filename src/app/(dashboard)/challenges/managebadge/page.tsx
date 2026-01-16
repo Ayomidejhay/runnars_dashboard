@@ -5,7 +5,7 @@ import Link from "next/link";
 import React, { useRef, useState } from "react";
 import { mockBadges } from "@/mockdata";
 import { Search } from "lucide-react";
-import PaginationControls from "@/app/components/PaginationControls";
+import PaginationControls from "../../components/PaginationControls";
 
 const page = () => {
   const [searchTerm, setSearchTerm] = useState("");

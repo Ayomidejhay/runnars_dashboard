@@ -42,7 +42,7 @@ export default function Page() {
     <div className="min-h-screen flex items-center justify-center bg-[#e8f1fd] px-4">
       <div>
         <div className="mb-10">
-        <Image src="/Runnars-1.svg" alt="Logo" width={64} height={41} />
+        <Image src="/Runnars.svg" alt="Logo" width={64} height={41} />
       </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}

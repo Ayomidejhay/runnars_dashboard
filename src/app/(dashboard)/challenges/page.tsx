@@ -330,7 +330,7 @@ const Page = () => {
                       <td className="px-4 py-4 font-bold text-deepblue">
                         <div className="flex gap-1.5 items-center">
                           <Image
-                            src="/image.jpg"
+                            src="/challenge.svg"
                             alt={challenge.name}
                             width={32}
                             height={32}

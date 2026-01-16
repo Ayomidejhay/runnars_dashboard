@@ -94,7 +94,7 @@ export default function Sidebar() {
       {/* Logo Header */}
       <div className="pt-[16px] pb-[8px] flex items-center gap-3">
         <div>
-          <Image src="/logo.png" width={50} height={32} alt="logo" />
+          <Image src="/newlogo.svg" width={50} height={32} alt="logo" />
         </div>
         {!isCollapsed && (
           <div className="rounded-[4px] bg-[#1570EF] w-[57px] h-[20px] flex items-center justify-center">

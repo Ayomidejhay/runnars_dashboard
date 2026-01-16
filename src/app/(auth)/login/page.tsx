@@ -63,7 +63,7 @@ const Page = () => {
     <div className="pt-14 bg-[#e8f1fd] min-h-screen flex items-center justify-center">
       <div className="flex flex-col gap-10 items-center justify-center mx-auto">
         <div>
-          <Image src="/Runnars-1.svg" alt="Logo" width={64} height={41} />
+          <Image src="/Runnars.svg" alt="Logo" width={64} height={41} />
         </div>
 
         <div className="flex flex-col gap-6 w-[596px] h-[488px] bg-white rounded-3xl shadow-md p-10 justify-center">

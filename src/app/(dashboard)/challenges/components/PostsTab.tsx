@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import UserPost from '@/app/content-moderation/components/UserPost'
-import CommentsModal from '@/app/content-moderation/components/CommentsModal'
+import UserPost from '../../content-moderation/components/UserPost'
+import CommentsModal from '../../content-moderation/components/CommentsModal'
 
 export default function PostsTab() {
   return (
