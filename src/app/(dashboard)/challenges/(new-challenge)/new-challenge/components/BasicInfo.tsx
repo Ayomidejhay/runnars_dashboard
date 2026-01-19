@@ -36,7 +36,7 @@ export default function BasicInfo() {
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
-        setBasicInfo({ file: acceptedFiles[0] });
+        setBasicInfo({ coverImage: acceptedFiles[0] });
       }
     },
     [setBasicInfo],
@@ -51,16 +51,16 @@ export default function BasicInfo() {
   /* ------------------ Preview Cleanup ------------------ */
 
   useEffect(() => {
-    if (!basicInfo.file) {
+    if (!basicInfo.coverImage) {
       setPreviewUrl(null);
       return;
     }
 
-    const url = URL.createObjectURL(basicInfo.file);
+    const url = URL.createObjectURL(basicInfo.coverImage);
     setPreviewUrl(url);
 
     return () => URL.revokeObjectURL(url);
-  }, [basicInfo.file]);
+  }, [basicInfo.coverImage]);
 
   return (
     <div className="flex flex-col gap-6">

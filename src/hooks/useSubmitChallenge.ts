@@ -40,8 +40,8 @@ export const useSubmitChallenge = () => {
      */
 
     // Append file
-    if (basicInfo.file instanceof File) {
-      formData.append("coverImage", basicInfo.file);
+    if (basicInfo.coverImage instanceof File) {
+      formData.append("coverImage", basicInfo.coverImage);
     }
     if (rewards.rewardFile instanceof File) {
       formData.append("badgeImage", rewards.rewardFile);

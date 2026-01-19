@@ -426,7 +426,7 @@ export interface BasicInfoState {
   challengeType: string;
   description: string;
   primaryHashtags: string[];
-  file: File | null;
+  coverImage?: File | null;
 }
 
 export interface GoalsAndMetricsState {
@@ -537,7 +537,7 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>((set) => (
     challengeType: "",
     description: "",
     primaryHashtags: [],
-    file: null,
+    coverImage: null,
   },
 
   /* ---------- Goals & Metrics ---------- */
@@ -650,7 +650,7 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>((set) => (
         challengeType: "",
         description: "",
         primaryHashtags: [],
-        file: null,
+        coverImage: null,
       },
       goalsAndMetrics: {
         selectedGoalTypes: ["distance"],
