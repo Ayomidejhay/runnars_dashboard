@@ -1,109 +1,80 @@
+
 "use client";
 
-import { div } from "framer-motion/client";
-import React, { useState } from "react";
+import React from "react";
 import Tabs from "./Tabs";
 import DistanceInputs from "./DistanceInputs";
-import FrequencyInputs from "./FrequencyInputs";
+import { useChallengeBuilderStore } from "@/stores/useChallengeBuilderStore";
 import TimeInputs from "./TimeInputs";
 import StreakInputs from "./StreakInputs";
+import FrequencyInputs from "./FrequencyInputs";
 import PhotoInputs from "./PhotoInputs";
 
-const goalConfiguration = [
-  "Total distance(Cumulative throughout challenge)",
-  "Weekly distance(Maintain each week)",
-  "Per-walk distance(Maintain per week)",
-  "Progressive distance(Increases over time)",
-];
-
-const frequencyConfiguration = [
-  "Total number of walks",
-  "Walk per week",
-  "Walks on specific days",
-  "Time-of-day walks",
-];
-
-const timeConfiguration = [
+const timeGoalOptions = [
   "Total time spent walking",
   "Time per walk",
   "Weekly walking time",
   "Progressive duration increase",
 ];
-
-const streakConfiguration = [
-  "Consecutive days",
-  "Weekly patterns",
-  "Longest streak achievement",
-  "Multiple day streak",
-];
-
-const photoConfiguration = [
+const streakGoalOptions = ["Consecutive days", "Weekly patterns", "Longest streak achievement", "Multiple day streak"];
+const photoGoalOptions = [
   "Total photo uploads",
   "Daily/weekly photo challenge",
 ];
 
-export default function GoalMetric({
-  activeTab,
-  setActiveTab,
-  selectedGoalConfiguration,
-  setSelectedGoalConfiguration,
-  selectedFrequencyConfiguration,
-  setSelectedFrequencyConfiguration,
-  selectedTimeConfiguration,
-  setSelectedTimeConfiguration,
-  selectedStreakConfiguration,
-  setSelectedStreakConfiguration,
-  selectedPhotoConfiguration,
-  setSelectedPhotoConfiguration,
-}: any) {
+  
+
+export default function GoalMetric() {
+
+  const { goalsAndMetrics, setGoalsAndMetrics } = useChallengeBuilderStore();
+  const activeTab = useChallengeBuilderStore(
+    (s) => s.goalsAndMetrics.selectedGoalTypes[0],
+  );
+
+  const selectedTimeConfiguration = goalsAndMetrics.selectedTimeConfiguration;
+  const selectedStreakConfiguration = goalsAndMetrics.selectedStreakConfiguration;
+  const selectedPhotoConfiguration = goalsAndMetrics.selectedPhotoConfiguration;
+    
+
   return (
     <div className="flex flex-col gap-6">
       <p className="text-[20px] font-bold text-deepblue">Goals & metrics</p>
+
       <div className="flex flex-col gap-5">
-        {/* Tabs */}
-        <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+        <Tabs />
 
-        {/* Distance tab content */}
-        {activeTab === "distance" && (
-          <DistanceInputs
-            configOptions={goalConfiguration}
-            selected={selectedGoalConfiguration}
-            onSelect={setSelectedGoalConfiguration}
-          />
-        )}
-
-        {/* Frequency tab content */}
-        {activeTab === "frequency" && (
-          <FrequencyInputs
-            configOptions={frequencyConfiguration}
-            selected={selectedFrequencyConfiguration}
-            onSelect={setSelectedFrequencyConfiguration}
-          />
-        )}
-
-        {/* Time tab content */}
+        {activeTab === "distance" && <DistanceInputs />}
         {activeTab === "time" && (
           <TimeInputs
-            configOptions={timeConfiguration}
+            configOptions={timeGoalOptions}
             selected={selectedTimeConfiguration}
-            onSelect={setSelectedTimeConfiguration}
-          />
-        )}
-        {/* Streak tab content */}
-        {activeTab === "streak" && (
-          <StreakInputs
-            configOptions={streakConfiguration}
-            selected={selectedStreakConfiguration}
-            onSelect={setSelectedStreakConfiguration}
+            onSelect={(value) =>
+              setGoalsAndMetrics({ selectedTimeConfiguration: value })
+            }
           />
         )}
 
-        {/* Photo tab content */}
+      
+       {activeTab === "streak" && (
+          <StreakInputs
+            configOptions={streakGoalOptions}
+            selected={selectedStreakConfiguration}
+            onSelect={(value) =>
+              setGoalsAndMetrics({ selectedStreakConfiguration: value })
+            }
+          />
+        )}
+
+        
+        {activeTab === "frequency" && <FrequencyInputs />}
+        
         {activeTab === "photo" && (
           <PhotoInputs
-            configOptions={photoConfiguration}
+            configOptions={photoGoalOptions}
             selected={selectedPhotoConfiguration}
-            onSelect={setSelectedPhotoConfiguration}
+            onSelect={(value) =>
+              setGoalsAndMetrics({ selectedPhotoConfiguration: value })
+            }
           />
         )}
       </div>

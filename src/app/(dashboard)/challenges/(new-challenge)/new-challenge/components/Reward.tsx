@@ -1,237 +1,207 @@
+
+
+
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
+import { useChallengeBuilderStore } from "@/stores/useChallengeBuilderStore";
 
-const options = [
-  "All users",
-  "New users",
-  "Users with specific pet type",
-  "Users with min. petfit score",
-];
+/* ------------------ UI Options ------------------ */
+
+const participationOptions = [
+  { label: "All users", value: "all_users" as const },
+  { label: "New users", value: "new_users" as const },
+  { label: "Specific pet type", value: "specific_pet_type" as const },
+  { label: "Users with minimum PetFit score", value: "users_with_min_fit_score" as const },
+] as const;
 
 const petTypes = ["Dog", "Cat", "Reptile", "Bird", "Others"];
 
-const scoreOptions = [
-  "Low score (below 60)",
-  "Moderate score (60-79)",
-  "High score (80 - 100)",
+const petFitScoreRanges = [
+  { label: "All scores", value: "all" as const },
+  { label: "Low (below 60)", value: "low" as const },
+  { label: "Medium (60–79)", value: "medium" as const },
+  { label: "High (80–100)", value: "high" as const },
 ];
 
-export default function Reward({
-  rewardSelected,
-  setRewardSelected,
-  rewardPetType,
-  setRewardPetType,
-  rewardScore,
-  setRewardScore,
-  rewardPoints,
-  setRewardPoints,
-  rewardBreed,
-  setRewardBreed,
-  rewardTarget,
-  setRewardTarget,
-  rewardFile,
-  setRewardFile,
-}: any) {
-  // --- Dropzone Setup ---
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      if (acceptedFiles.length > 0) setRewardFile(acceptedFiles[0]);
-    },
-    [setRewardFile]
+export default function Reward() {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const { points, participation, segmentCriteria } =
+    useChallengeBuilderStore((state) => state.rewards);
+
+  const setRewards = useChallengeBuilderStore(
+    (state) => state.rewardActions.setRewards,
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  /* ------------------ Dropzone ------------------ */
+
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      if (!acceptedFiles.length) return;
+
+      const file = acceptedFiles[0];
+      setPreviewUrl(URL.createObjectURL(file));
+
+      setRewards({ rewardFile: file });
+    },
+    [setRewards],
+  );
+
+  const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: { "image/*": [] },
     multiple: false,
   });
 
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  const participationType = participation.whoCanParticipate;
+
+  /* ------------------ Render ------------------ */
+
   return (
     <div className="flex flex-col gap-6">
       <p className="text-[20px] font-bold text-deepblue">Rewards</p>
 
-      <div className="flex flex-col gap-5">
-        {/* Upload Badge Image */}
-        <div className="flex flex-col gap-2">
-          <label className="text-[16px] text-deepblue">
-            Achievement Badge Image{" "}
-            <span className="text-[12px] text-[#8E98A8]">(Optional)</span>
-          </label>
+      {/* Badge Upload */}
+      <div className="flex flex-col gap-2">
+        <label className="text-[16px] text-deepblue">
+          Achievement Badge Image <span className="text-[12px] text-[#8E98A8]">(Optional)</span>
+        </label>
 
-          <div
-            {...getRootProps()}
-            className="relative border-2 border-dashed h-[162px] rounded-[8px] p-6 cursor-pointer transition-all border-[#1570EF] bg-[#F4F8FD]"
-          >
-            <input {...getInputProps()} />
+        <div
+          {...getRootProps()}
+          className="relative border-2 border-dashed h-[162px] rounded-[8px] p-6 cursor-pointer border-[#1570EF] bg-[#F4F8FD]"
+        >
+          <input {...getInputProps()} />
 
-            {rewardFile ? (
-              <Image
-                src={URL.createObjectURL(rewardFile)}
-                alt="preview"
-                fill
-                className="rounded-[6px] object-cover"
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full">
-                <Image
-                  src="/document-upload.svg"
-                  alt="upload"
-                  width={24}
-                  height={24}
+          {previewUrl ? (
+            <Image src={previewUrl} alt="Badge preview" fill className="rounded-[6px] object-cover" />
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full">
+              <Image src="/document-upload.svg" alt="upload" width={24} height={24} />
+              <p className="text-[14px] mt-4">Drag and drop your badge</p>
+              <p className="text-[14px] mt-1">512 × 512px recommended.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Points */}
+      <div className="flex flex-col gap-2">
+        <label className="text-[16px] text-deepblue">Points</label>
+        <input
+          type="number"
+          className="border border-[#E1E1E1] rounded-md p-2"
+          value={points}
+          onChange={(e) =>
+            setRewards({ points: Number(e.target.value) || 0 })
+          }
+        />
+      </div>
+
+      {/* Participation */}
+      <div className="flex gap-5 items-start">
+        <div className="flex-1 border rounded-[16px] px-3 py-4">
+          <label className="text-[16px] text-deepblue">Who can participate</label>
+
+          {participationOptions.map((opt) => {
+            const selected = participationType === opt.value;
+
+            return (
+              <label
+                key={opt.value}
+                className={`flex items-center justify-between border rounded-lg px-4 py-3 cursor-pointer ${
+                  selected ? "border-blue-600 bg-blue-50" : "border-gray-300"
+                }`}
+              >
+                <span>{opt.label}</span>
+
+                <input
+                  type="radio"
+                  checked={selected}
+                  className="hidden"
+                  onChange={() =>
+                    setRewards({
+                      participation: { whoCanParticipate: opt.value },
+                      segmentCriteria: {
+                        petFitScoreRange: "all",
+                        specificPetTypes: [],
+                      },
+                    })
+                  }
                 />
-                <p className="text-[14px] mt-4">Drag and drop your badge</p>
-                <p className="text-[14px] mt-1">512 × 512px recommended.</p>
-              </div>
-            )}
-          </div>
+              </label>
+            );
+          })}
         </div>
 
-        {/* Points */}
-        <div className="flex flex-col gap-2">
-          <label className="text-[16px] text-deepblue">Points</label>
-          <input
-            type="number"
-            className="border border-[#E1E1E1] rounded-md p-2"
-            placeholder="E.g 100"
-            value={rewardPoints}
-            onChange={(e) =>
-              setRewardPoints(e.target.value === "" ? "" : Number(e.target.value))
-            }
-          />
-        </div>
-
-        {/* Participation */}
-        <div className="flex gap-5 items-start">
-          {/* Left: Options */}
-          <div className="flex-1 border border-[#E1E1E1] rounded-[16px] px-3 py-4">
-            <label className="text-[16px] text-deepblue">
-              Who can participate
+        {/* Segment Criteria */}
+        {(participationType === "specific_pet_type" ||
+          participationType === "users_with_min_fit_score") && (
+          <div className="flex-1 border rounded-[16px] px-3 py-4">
+            <label className="text-[16px] font-bold text-deepblue">
+              Segment Criteria
             </label>
 
-            {options.map((option) => {
-              const isSelected = rewardSelected === option;
+            {/* Pet Types */}
+            {participationType === "specific_pet_type" && (
+              <div className="mt-4 flex flex-col gap-2">
+                {petTypes.map((pet) => (
+                  <label key={pet} className="flex gap-3">
+                    <input
+                      type="checkbox"
+                      checked={segmentCriteria.specificPetTypes.includes(pet)}
+                      onChange={(e) => {
+                        const updated = e.target.checked
+                          ? [...segmentCriteria.specificPetTypes, pet]
+                          : segmentCriteria.specificPetTypes.filter((p) => p !== pet);
 
-              return (
-                <label
-                  key={option}
-                  className={`flex items-center justify-between border rounded-lg px-4 py-3 cursor-pointer ${
-                    isSelected
-                      ? "border-blue-600 bg-blue-50"
-                      : "border-gray-300"
-                  }`}
-                >
-                  <span>{option}</span>
-
-                  <span
-                    className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                      isSelected
-                        ? "border-2 border-blue-600"
-                        : "border border-gray-400"
-                    }`}
-                  >
-                    {isSelected && (
-                      <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-                    )}
-                  </span>
-
-                  <input
-                    type="radio"
-                    name="reward-option"
-                    value={option}
-                    className="hidden"
-                    checked={isSelected}
-                    onChange={() => setRewardSelected(option)}
-                  />
-                </label>
-              );
-            })}
-          </div>
-
-          {/* Right: Dynamic Segment */}
-          <div className="flex-1 border border-[#E1E1E1] rounded-[16px] px-3 py-4">
-            {/* If: Pet Type */}
-            {rewardSelected === "Users with specific pet type" && (
-              <div className="flex flex-col gap-4">
-                <label className="text-[16px] text-deepblue">
-                  Segment Criteria
-                </label>
-
-                {/* Pet Type */}
-                <div className="flex flex-col gap-2">
-                  {petTypes.map((pet) => (
-                    <label key={pet} className="flex gap-4 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="reward-pet"
-                        value={pet}
-                        checked={rewardPetType === pet}
-                        onChange={() => setRewardPetType(pet)}
-                      />
-                      <span>{pet}</span>
-                    </label>
-                  ))}
-                </div>
-
-                {/* Breed */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-[16px] text-deepblue">Breed</label>
-                  <select
-                    className="border border-gray-300 rounded-lg px-3 py-2"
-                    value={rewardBreed}
-                    onChange={(e) => setRewardBreed(e.target.value)}
-                  >
-                    <option value="">Select breed...</option>
-                    <option>Breed A</option>
-                    <option>Breed B</option>
-                    <option>Breed C</option>
-                  </select>
-                </div>
+                        setRewards({
+                          segmentCriteria: {
+                            petFitScoreRange: "all",
+                            specificPetTypes: updated,
+                          },
+                        });
+                      }}
+                    />
+                    {pet}
+                  </label>
+                ))}
               </div>
             )}
 
-            {/* If: Score */}
-            {rewardSelected === "Users with min. petfit score" && (
-              <div className="flex flex-col gap-4">
-                <label className="text-[16px] text-deepblue font-bold">
-                  Segment Criteria
-                </label>
-
-                {scoreOptions.map((score) => (
-                  <label key={score} className="flex items-center gap-4">
+            {/* PetFit Score */}
+            {participationType === "users_with_min_fit_score" && (
+              <div className="mt-4 flex flex-col gap-2">
+                {petFitScoreRanges.map((range) => (
+                  <label key={range.value} className="flex gap-3">
                     <input
                       type="radio"
-                      name="reward-score"
-                      value={score}
-                      checked={rewardScore === score}
-                      onChange={() => setRewardScore(score)}
+                      checked={segmentCriteria.petFitScoreRange === range.value}
+                      onChange={() =>
+                        setRewards({
+                          segmentCriteria: {
+                            petFitScoreRange: range.value,
+                            specificPetTypes: [],
+                          },
+                        })
+                      }
                     />
-                    <span>{score}</span>
+                    {range.label}
                   </label>
                 ))}
               </div>
             )}
           </div>
-        </div>
-
-        {/* Geographic Target */}
-        <div className="flex flex-col gap-2">
-          <label className="text-[16px] text-deepblue">
-            Geographic Targeting
-          </label>
-          <select
-            className="border border-gray-300 rounded-lg px-3 py-2"
-            value={rewardTarget}
-            onChange={(e) => setRewardTarget(e.target.value)}
-          >
-            <option>Global (Available worldwide)</option>
-            <option>Region A</option>
-            <option>Region B</option>
-            <option>Region C</option>
-          </select>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,9 @@
+
+
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useChallengeBuilderStore, GoalPayload, PhotoGoalConfig } from "@/stores/useChallengeBuilderStore";
 
 interface PhotoInputsProps {
   configOptions: string[];
@@ -9,13 +12,31 @@ interface PhotoInputsProps {
 }
 
 export default function PhotoInputs({ configOptions, selected, onSelect }: PhotoInputsProps) {
-  const [numberOfPhotos, setNumberOfPhotos] = useState("");
-  const [challengeDuration, setChallengeDuration] = useState("");
-  const [frequency, setFrequency] = useState("");
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const photoGoal = useChallengeBuilderStore((state) => state.goalsAndMetrics.photoGoal);
+  const setPhotoConfig = useChallengeBuilderStore((state) => state.setPhotoConfig);
+
+  // Local state synced with store
+  const [numberOfPhotos, setNumberOfPhotos] = useState(photoGoal?.config.numberOfPhotos || "");
+  const [challengeDuration, setChallengeDuration] = useState(photoGoal?.config.challengeDuration || "");
+  const [frequency, setFrequency] = useState(photoGoal?.config.frequency || "");
+  const [photoRequirements, setPhotoRequirements] = useState<string[]>(photoGoal?.config.photoRequirements || []);
+
+  // Sync local state to store whenever any value changes
+  useEffect(() => {
+    const payload: GoalPayload<PhotoGoalConfig> = {
+      configurationType: selected,
+      config: {
+        numberOfPhotos: Number(numberOfPhotos) || undefined,
+        challengeDuration: Number(challengeDuration) || undefined,
+        frequency,
+        photoRequirements: photoRequirements,
+      },
+    };
+    setPhotoConfig(payload);
+  }, [numberOfPhotos, challengeDuration, frequency, photoRequirements, selected, setPhotoConfig]);
 
   const toggleSelection = (option: string) => {
-    setSelectedOptions((prev) =>
+    setPhotoRequirements((prev) =>
       prev.includes(option) ? prev.filter((o) => o !== option) : [...prev, option]
     );
   };
@@ -32,11 +53,10 @@ export default function PhotoInputs({ configOptions, selected, onSelect }: Photo
                 type="number"
                 value={numberOfPhotos}
                 onChange={(e) => setNumberOfPhotos(e.target.value)}
-                required
                 className="border border-[#E1E1E1] rounded-[16px] p-2"
                 placeholder="E.g 7"
               />
-              <p className="text-[12px]">
+              <p className="text-[12px] text-[#8E98A8]">
                 Total number of photos to upload during the challenge
               </p>
             </div>
@@ -52,7 +72,7 @@ export default function PhotoInputs({ configOptions, selected, onSelect }: Photo
                     <input
                       type="checkbox"
                       value={option}
-                      checked={selectedOptions.includes(option)}
+                      checked={photoRequirements.includes(option)}
                       onChange={() => toggleSelection(option)}
                       className="h-4 w-4 accent-brightblue"
                     />
@@ -72,10 +92,9 @@ export default function PhotoInputs({ configOptions, selected, onSelect }: Photo
               <label className="text-[16px] text-deepblue">Challenge Duration</label>
               <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
                 <input
-                  type="text"
+                  type="number"
                   value={challengeDuration}
                   onChange={(e) => setChallengeDuration(e.target.value)}
-                  required
                   className="p-2 w-[80%] outline-none"
                   placeholder="E.g 7-30"
                 />
@@ -90,11 +109,10 @@ export default function PhotoInputs({ configOptions, selected, onSelect }: Photo
               <select
                 value={frequency}
                 onChange={(e) => setFrequency(e.target.value)}
-                required
                 className="p-2 w-full rounded-[16px] border outline-none"
               >
                 <option value="">Select</option>
-                {["1-3", "4-6", "7-9", "10-12"].map((option) => (
+                {["daily", "weekly"].map((option) => (
                   <option key={option} value={option}>
                     {option}
                   </option>
@@ -113,7 +131,7 @@ export default function PhotoInputs({ configOptions, selected, onSelect }: Photo
                     <input
                       type="checkbox"
                       value={option}
-                      checked={selectedOptions.includes(option)}
+                      checked={photoRequirements.includes(option)}
                       onChange={() => toggleSelection(option)}
                       className="h-4 w-4 accent-brightblue"
                     />
@@ -137,7 +155,6 @@ export default function PhotoInputs({ configOptions, selected, onSelect }: Photo
         className="w-full border p-2 rounded mb-4"
         value={selected}
         onChange={(e) => onSelect(e.target.value)}
-        required
       >
         <option value="">Select goal configuration</option>
         {configOptions.map((goal) => (

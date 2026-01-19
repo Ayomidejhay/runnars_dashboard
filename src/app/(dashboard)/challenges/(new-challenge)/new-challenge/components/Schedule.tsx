@@ -1,43 +1,21 @@
 "use client";
 
 import React from "react";
+import { useChallengeBuilderStore } from "@/stores/useChallengeBuilderStore";
 
-const days = ["M", "T", "W", "Th", "F", "S", "Su"];
+const days = [
+  { label: "M", value: "Monday" },
+  { label: "T", value: "Tuesday" },
+  { label: "W", value: "Wednesday" },
+  { label: "Th", value: "Thursday" },
+  { label: "F", value: "Friday" },
+  { label: "S", value: "Saturday" },
+  { label: "Su", value: "Sunday" }
+];
 
-interface ScheduleProps {
-  startDate: string;
-  setStartDate: (value: string) => void;
+export default function Schedule() {
+  const { schedule, setSchedule } = useChallengeBuilderStore();
 
-  startTime: string;
-  setStartTime: (value: string) => void;
-
-  endDate: string;
-  setEndDate: (value: string) => void;
-
-  endTime: string;
-  setEndTime: (value: string) => void;
-
-  recurrenceType: string;
-  setRecurrenceType: (value: string) => void;
-
-  selectedDay: string;
-  setSelectedDay: (value: string) => void;
-}
-
-export default function Schedule({
-  startDate,
-  setStartDate,
-  startTime,
-  setStartTime,
-  endDate,
-  setEndDate,
-  endTime,
-  setEndTime,
-  recurrenceType,
-  setRecurrenceType,
-  selectedDay,
-  setSelectedDay,
-}: ScheduleProps) {
   return (
     <div className="grid grid-cols-2 gap-5">
       {/* Start Date */}
@@ -45,8 +23,8 @@ export default function Schedule({
         <label className="text-[16px] text-deepblue">Start date</label>
         <input
           type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
+          value={schedule.startDate}
+          onChange={(e) => setSchedule({ startDate: e.target.value })}
           required
           className="border border-[#E1E1E1] rounded-md p-2 w-full"
         />
@@ -57,8 +35,8 @@ export default function Schedule({
         <label className="text-[16px] text-deepblue">Start time</label>
         <input
           type="time"
-          value={startTime}
-          onChange={(e) => setStartTime(e.target.value)}
+          value={schedule.startTime}
+          onChange={(e) => setSchedule({ startTime: e.target.value })}
           required
           className="border border-[#E1E1E1] rounded-md p-2 w-full"
         />
@@ -69,8 +47,8 @@ export default function Schedule({
         <label className="text-[16px] text-deepblue">End date</label>
         <input
           type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
+          value={schedule.endDate}
+          onChange={(e) => setSchedule({ endDate: e.target.value })}
           required
           className="border border-[#E1E1E1] rounded-md p-2 w-full"
         />
@@ -81,8 +59,8 @@ export default function Schedule({
         <label className="text-[16px] text-deepblue">End time</label>
         <input
           type="time"
-          value={endTime}
-          onChange={(e) => setEndTime(e.target.value)}
+          value={schedule.endTime}
+          onChange={(e) => setSchedule({ endTime: e.target.value })}
           required
           className="border border-[#E1E1E1] rounded-md p-2 w-full"
         />
@@ -95,13 +73,13 @@ export default function Schedule({
           <span className="text-[12px] text-[#8E98A8]">(Optional)</span>
         </label>
         <select
-          value={recurrenceType}
-          onChange={(e) => setRecurrenceType(e.target.value)}
+          value={schedule.recurrenceType}
+          onChange={(e) => setSchedule({ recurrenceType: e.target.value })}
           className="w-full border p-2 rounded mb-4"
         >
           <option value="">Select recurrence type</option>
           <option value="monthly">Monthly</option>
-          <option value="one-time">One-time</option>
+          <option value="one_time">One-time</option>
           <option value="weekly">Weekly</option>
         </select>
       </div>
@@ -115,23 +93,23 @@ export default function Schedule({
 
         <div className="flex gap-2">
           {days.map((day) => (
-            <label key={day} className="cursor-pointer">
+            <label key={day.value} className="cursor-pointer">
               <input
                 type="radio"
                 name="selectedDay"
-                value={day}
-                checked={selectedDay === day}
-                onChange={() => setSelectedDay(day)}
+                value={day.value}
+                checked={schedule.selectedDay === day.value}
+                onChange={() => setSchedule({ selectedDay: day.value })}
                 className="hidden"
               />
               <span
                 className={`h-8 w-8 flex items-center justify-center text-[12px] border rounded-full ${
-                  selectedDay === day
+                  schedule.selectedDay === day.value
                     ? "border-brightblue text-white bg-brightblue"
                     : "text-[#8E98A8] border-[#8E98A8] bg-transparent"
                 }`}
               >
-                {day}
+                {day.label}
               </span>
             </label>
           ))}

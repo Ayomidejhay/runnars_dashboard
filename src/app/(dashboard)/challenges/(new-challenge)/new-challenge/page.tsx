@@ -1,61 +1,37 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
-import { useDropzone } from "react-dropzone";
 import Image from "next/image";
+
 import BasicInfo from "./components/BasicInfo";
 import Reward from "./components/Reward";
 import Schedule from "./components/Schedule";
 import GoalMetric from "./components/GoalMetric";
+import { useChallengeBuilderStore } from "@/stores/useChallengeBuilderStore";
+import { useSubmitChallenge } from "@/hooks/useSubmitChallenge";
 
 export default function Page() {
+   const { submit, isLoading } = useSubmitChallenge();
   const router = useRouter();
-  const [step, setStep] = useState(1);
 
-  // LIFTED STATE FOR BASIC INFO PREVIEW
-  const [basicInfo, setBasicInfo] = useState({
-    challengeName: "",
-    challengeType: "",
-    description: "",
-    file: null as File | null,
-  });
-
-  // GOAL & METRIC STATES
-const [activeTab, setActiveTab] = useState<
-  "distance" | "frequency" | "time" | "streak" | "photo"
->("distance");
-const [selectedGoalConfiguration, setSelectedGoalConfiguration] = useState("");
-const [selectedFrequencyConfiguration, setSelectedFrequencyConfiguration] = useState("");
-const [selectedTimeConfiguration, setSelectedTimeConfiguration] = useState("");
-const [selectedStreakConfiguration, setSelectedStreakConfiguration] = useState("");
-const [selectedPhotoConfiguration, setSelectedPhotoConfiguration] = useState("");
-
-
-  //Schedule
-  const [startDate, setStartDate] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [recurrenceType, setRecurrenceType] = useState("");
-  const [selectedDay, setSelectedDay] = useState("");
-
-  // REWARD STATES 
-const [rewardSelected, setRewardSelected] = useState("All users");
-const [rewardPetType, setRewardPetType] = useState("");
-const [rewardScore, setRewardScore] = useState("");
-const [rewardPoints, setRewardPoints] = useState<number | "">("");
-const [rewardBreed, setRewardBreed] = useState("");
-const [rewardTarget, setRewardTarget] = useState("Global (Available worldwide)");
-const [rewardFile, setRewardFile] = useState<File | null>(null);
-
+  const {
+    step,
+    setStep,
+    basicInfo,
+    goalsAndMetrics,
+    schedule,
+    rewards,
+  } = useChallengeBuilderStore();
 
   const steps = ["Basic Info", "Goal & Metric", "Schedule", "Rewards"];
-  const nextStep = () => setStep((prev) => Math.min(prev + 1, steps.length));
-  const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
+
+  const nextStep = () => setStep(Math.min(step + 1, steps.length));
+  const prevStep = () => setStep(Math.max(step - 1, 1));
 
   return (
     <div>
+      {/* HEADER */}
       <div className="flex justify-between items-center border-b border-[#E1E1E1] px-10">
         <div className="flex gap-4 items-center h-14 ">
           <button onClick={() => router.back()}>
@@ -72,70 +48,13 @@ const [rewardFile, setRewardFile] = useState<File | null>(null);
 
       <div className="flex border-b border-[#E1E1E1]">
         <div className="basis-[60%] pt-6 px-10 flex flex-col gap-6">
-          {step === 1 && (
-            <BasicInfo
-              challengeName={basicInfo.challengeName}
-              challengeType={basicInfo.challengeType}
-              description={basicInfo.description}
-              file={basicInfo.file}
-              setBasicInfo={setBasicInfo}
-            />
-          )}
+          {step === 1 && <BasicInfo />}
 
-          {step === 2 && (
-  <GoalMetric
-    activeTab={activeTab}
-    setActiveTab={setActiveTab}
-    selectedGoalConfiguration={selectedGoalConfiguration}
-    setSelectedGoalConfiguration={setSelectedGoalConfiguration}
-    selectedFrequencyConfiguration={selectedFrequencyConfiguration}
-    setSelectedFrequencyConfiguration={setSelectedFrequencyConfiguration}
-    selectedTimeConfiguration={selectedTimeConfiguration}
-    setSelectedTimeConfiguration={setSelectedTimeConfiguration}
-    selectedStreakConfiguration={selectedStreakConfiguration}
-    setSelectedStreakConfiguration={setSelectedStreakConfiguration}
-    selectedPhotoConfiguration={selectedPhotoConfiguration}
-    setSelectedPhotoConfiguration={setSelectedPhotoConfiguration}
-  />
-)}
+          {step === 2 && <GoalMetric />}
 
+          {step === 3 && <Schedule />}
 
-          {step === 3 && (
-            <Schedule
-              startDate={startDate}
-              setStartDate={setStartDate}
-              startTime={startTime}
-              setStartTime={setStartTime}
-              endDate={endDate}
-              setEndDate={setEndDate}
-              endTime={endTime}
-              setEndTime={setEndTime}
-              recurrenceType={recurrenceType}
-              setRecurrenceType={setRecurrenceType}
-              selectedDay={selectedDay}
-              setSelectedDay={setSelectedDay}
-            />
-          )}
-
-          {step === 4 && (
-  <Reward
-    rewardSelected={rewardSelected}
-    setRewardSelected={setRewardSelected}
-    rewardPetType={rewardPetType}
-    setRewardPetType={setRewardPetType}
-    rewardScore={rewardScore}
-    setRewardScore={setRewardScore}
-    rewardPoints={rewardPoints}
-    setRewardPoints={setRewardPoints}
-    rewardBreed={rewardBreed}
-    setRewardBreed={setRewardBreed}
-    rewardTarget={rewardTarget}
-    setRewardTarget={setRewardTarget}
-    rewardFile={rewardFile}
-    setRewardFile={setRewardFile}
-  />
-)}
-
+          {step === 4 && <Reward />}
         </div>
 
         {/* MOBILE PREVIEW */}
@@ -145,25 +64,9 @@ const [rewardFile, setRewardFile] = useState<File | null>(null);
           </p>
 
           <div className="relative flex justify-center mt-14">
-            {/* PHONE FRAME */}
-            <Image
-              src="/iphone.svg"
-              alt="phone"
-              width={308}
-              height={622}
-              className="z-0"
-            />
+            <Image src="/iphone.svg" alt="phone" width={308} height={622} />
 
-            {/* OVERLAY PREVIEW CONTENT */}
-            <div
-              className="absolute top-[50px] w-[250px] bg-white z-10 rounded-xl shadow   text-gray-800"
-              style={
-                {
-                  // Adjust these values based on how your phone SVG looks
-                }
-              }
-            >
-              {/* COVER IMAGE */}
+            <div className="absolute top-[50px] w-[250px] bg-white z-10 rounded-xl shadow">
               {basicInfo.file && (
                 <Image
                   src={URL.createObjectURL(basicInfo.file)}
@@ -176,18 +79,18 @@ const [rewardFile, setRewardFile] = useState<File | null>(null);
 
               <div className="p-3">
                 <h2 className="mt-4 text-[18px] font-bold text-deepblue">
-                  {basicInfo.challengeName || ""}
+                  {basicInfo.challengeName}
                 </h2>
 
                 <p className="text-[14px] text-gray-500 mt-1">
                   Challenge Type :{" "}
                   <span className="capitalize">
-                    {basicInfo.challengeType || ""}
+                    {basicInfo.challengeType}
                   </span>
                 </p>
 
                 <p className="text-[14px] text-gray-700 mt-3 line-clamp-4">
-                  {basicInfo.description || ""}
+                  {basicInfo.description}
                 </p>
               </div>
             </div>
@@ -195,7 +98,7 @@ const [rewardFile, setRewardFile] = useState<File | null>(null);
         </div>
       </div>
 
-      {/* Navigation Buttons */}
+      {/* NAVIGATION */}
       <div
         className={`flex mt-6 px-10 ${
           step === 1 ? "justify-end" : "justify-between"
@@ -204,7 +107,7 @@ const [rewardFile, setRewardFile] = useState<File | null>(null);
         {step > 1 && (
           <button
             onClick={prevStep}
-            className="bg-brightblue rounded-[32px] text-white w-[90px] h-[48px] flex items-center justify-center"
+            className="bg-brightblue rounded-[32px] text-white w-[90px] h-[48px]"
           >
             Back
           </button>
@@ -213,15 +116,16 @@ const [rewardFile, setRewardFile] = useState<File | null>(null);
         {step < steps.length && (
           <button
             onClick={nextStep}
-            className="bg-brightblue rounded-[32px] text-white w-[190px] h-[48px] flex items-center justify-center"
+            className="bg-brightblue rounded-[32px] text-white w-[190px] h-[48px]"
           >
             Next: {steps[step]} →
           </button>
         )}
 
         {step === steps.length && (
-          <button className="bg-brightblue rounded-[32px] text-white w-[90px] h-[48px] flex items-center justify-center">
-            Publish
+          <button onClick={submit}
+            disabled={isLoading} className="bg-brightblue rounded-[32px] text-white w-[90px] h-[48px]">
+            {isLoading ? "Publishing..." : "Publish"}
           </button>
         )}
       </div>

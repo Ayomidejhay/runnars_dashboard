@@ -1,16 +1,14 @@
 "use client";
 
 import React from "react";
+import { useChallengeBuilderStore, GoalType } from "@/stores/useChallengeBuilderStore";
 
-type ActiveTab = "distance" | "frequency" | "time" | "streak" | "photo";
+export default function Tabs() {
+  // Pull activeTab and setGoalType from the store
+  const { goalsAndMetrics, setGoalType } = useChallengeBuilderStore();
+  const { activeTab } = goalsAndMetrics;
 
-interface TabsProps {
-  activeTab: ActiveTab;
-  setActiveTab: (tab: ActiveTab) => void;
-}
-
-export default function Tabs({ activeTab, setActiveTab }: TabsProps) {
-  const tabs: ActiveTab[] = ["distance", "frequency", "time", "streak", "photo"];
+  const tabs: GoalType[] = ["distance", "frequency", "time", "streak", "photo"];
 
   return (
     <div className="flex gap-4">
@@ -18,7 +16,7 @@ export default function Tabs({ activeTab, setActiveTab }: TabsProps) {
         <button
           key={tab}
           type="button"
-          onClick={() => setActiveTab(tab)}
+          onClick={() => setGoalType(tab)}
           className={`px-3 py-2 text-[12px] border rounded-[100px] ${
             activeTab === tab
               ? "border-brightblue text-white bg-brightblue"

@@ -1,217 +1,259 @@
-'use client';
+"use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useChallengeBuilderStore } from "@/stores/useChallengeBuilderStore";
+import { distance } from "framer-motion";
 
-interface DistanceInputsProps {
-  configOptions: string[];
-  selected: string;
-  onSelect: (value: string) => void;
-}
+const goalConfigurations = [
+  "Total distance(Cumulative throughout challenge)",
+  "Weekly distance(Maintain each week)",
+  "Per-walk distance(Maintain per week)",
+  "Progressive distance(Increases over time)",
+];
 
-export default function DistanceInputs({ configOptions, selected, onSelect }: DistanceInputsProps) {
-  // Shared states for each case
-  const [distance, setDistance] = useState("");
-  const [walks, setWalks] = useState("");
-  const [duration, setDuration] = useState("");
-  const [weeklyDistance, setWeeklyDistance] = useState("");
-  const [perWalkDistance, setPerWalkDistance] = useState("");
-  const [startDistance, setStartDistance] = useState("");
-  const [weeklyIncrease, setWeeklyIncrease] = useState("");
-  const [weeks, setWeeks] = useState("");
+export default function DistanceInputs() {
+  const { goalsAndMetrics, setDistanceConfig } = useChallengeBuilderStore();
 
-  const renderInputs = () => {
-    switch (selected) {
-      case "Total distance(Cumulative throughout challenge)":
-        return (
-          <div className="rounded-[16px] p-4 border border-[#E1E1E1] w-full">
-            <p className="text-[14px] text-deepblue mb-2">Target value</p>
-            <div className="flex justify-between items-center gap-5">
-              {/* Distance */}
-              <div className="flex flex-col gap-2 flex-1">
-                <label className="text-[16px] text-deepblue">Distance</label>
-                <div className="border border-[#E1E1E1] rounded-[16px] flex items-center w-full">
-                  <input
-                    type="text"
-                    value={distance}
-                    onChange={(e) => setDistance(e.target.value)}
-                    required
-                    className="p-2 w-[60%] outline-none"
-                    placeholder="E.g 10"
-                  />
-                  <div className="border-l border-[#E1E1E1] h-full" />
-                  <p className="w-[40%] text-center">Kilometer</p>
-                </div>
-              </div>
 
-              {/* Walks */}
-              <div className="flex flex-col gap-2 flex-1">
-                <label className="text-[16px] text-deepblue">Number of walks</label>
-                <input
-                  type="text"
-                  value={walks}
-                  onChange={(e) => setWalks(e.target.value)}
-                  required
-                  className="border border-[#E1E1E1] rounded-[16px] p-2 w-full"
-                  placeholder="E.g 1-12"
-                />
-              </div>
+  const [configurationType, setConfigurationType] = useState<string>("");
 
-              {/* Duration */}
-              <div className="flex flex-col gap-2 flex-1">
-                <label className="text-[16px] text-deepblue">Duration</label>
-                <div className="border border-[#E1E1E1] rounded-[16px] flex items-center w-full">
-                  <input
-                    type="text"
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                    required
-                    className="p-2 w-[60%] outline-none"
-                    placeholder="E.g 10"
-                  />
-                  <div className="border-l border-[#E1E1E1] h-full" />
-                  <p className="w-[40%] text-center">Minutes</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
+  const [form, setForm] = useState<any>({});
 
-      case "Weekly distance(Maintain each week)":
-        return (
-          <div className="flex justify-between items-center gap-5">
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-[16px] text-deepblue">Distance per week</label>
-              <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
-                <input
-                  type="text"
-                  value={weeklyDistance}
-                  onChange={(e) => setWeeklyDistance(e.target.value)}
-                  required
-                  className="p-2 w-[60%] outline-none"
-                  placeholder="E.g 200"
-                />
-                <div className="border-l border-[#E1E1E1] h-full" />
-                <p className="w-[40%] text-center">Kilometer</p>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-[16px] text-deepblue">Number of walks</label>
-              <input
-                type="text"
-                value={walks}
-                onChange={(e) => setWalks(e.target.value)}
-                required
-                className="border border-[#E1E1E1] rounded-[16px] p-2"
-                placeholder="E.g 1-12"
-              />
-            </div>
-          </div>
-        );
+  useEffect(() => {
+    if (!configurationType) return;
 
-      case "Per-walk distance(Maintain per week)":
-        return (
-          <div className="flex justify-between items-center gap-5">
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-[16px] text-deepblue">Distance per walk</label>
-              <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
-                <input
-                  type="text"
-                  value={perWalkDistance}
-                  onChange={(e) => setPerWalkDistance(e.target.value)}
-                  required
-                  className="p-2 w-[60%] outline-none"
-                  placeholder="E.g 0.5-20"
-                />
-                <div className="border-l border-[#E1E1E1] h-full" />
-                <p className="w-[40%] text-center">Kilometer</p>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2 flex-1">
-              <label className="text-[16px] text-deepblue">Number of walks</label>
-              <input
-                type="text"
-                value={walks}
-                onChange={(e) => setWalks(e.target.value)}
-                required
-                className="border border-[#E1E1E1] rounded-[16px] p-2"
-                placeholder="E.g 1-50"
-              />
-            </div>
-          </div>
-        );
-
-      case "Progressive distance(Increases over time)":
-        return (
-          <div className="flex flex-col gap-5">
-            <div className="flex justify-between items-center gap-5">
-              <div className="flex flex-col gap-2 flex-1">
-                <label className="text-[16px] text-deepblue">Start distance</label>
-                <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
-                  <input
-                    type="text"
-                    value={startDistance}
-                    onChange={(e) => setStartDistance(e.target.value)}
-                    required
-                    className="p-2 w-[60%] outline-none"
-                    placeholder="E.g 1-50"
-                  />
-                  <div className="border-l border-[#E1E1E1] h-full" />
-                  <p className="w-[40%] text-center">Kilometer</p>
-                </div>
-              </div>
-              <div className="flex flex-col gap-2 flex-1">
-                <label className="text-[16px] text-deepblue">Weekly increase</label>
-                <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
-                  <input
-                    type="text"
-                    value={weeklyIncrease}
-                    onChange={(e) => setWeeklyIncrease(e.target.value)}
-                    required
-                    className="p-2 w-[60%] outline-none"
-                    placeholder="E.g 1-10"
-                  />
-                  <div className="border-l border-[#E1E1E1] h-full" />
-                  <p className="w-[40%] text-center">Kilometer</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-[16px] text-deepblue">Duration (weeks)</label>
-              <input
-                type="number"
-                value={weeks}
-                onChange={(e) => setWeeks(e.target.value)}
-                required
-                className="border border-[#E1E1E1] rounded-md p-2"
-                placeholder="E.g 4"
-              />
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
+    setDistanceConfig({
+      configurationType,
+      config: form,
+    });
+  }, [configurationType, form, setDistanceConfig]);
 
   return (
     <div className="flex flex-col gap-2">
       <label className="text-[16px] text-deepblue">Goal Configuration</label>
+
       <select
         className="w-full border p-2 rounded mb-4"
-        value={selected}
-        onChange={(e) => onSelect(e.target.value)}
+        value={configurationType}
+        onChange={(e) => {
+          setConfigurationType(e.target.value);
+          setForm({});
+        }}
         required
       >
         <option value="">Select goal configuration</option>
-        {configOptions.map((goal) => (
+        {goalConfigurations.map((goal) => (
           <option key={goal} value={goal}>
             {goal}
           </option>
         ))}
       </select>
 
-      {renderInputs()}
+      {configurationType ===
+        "Total distance(Cumulative throughout challenge)" && (
+        <div className="rounded-[16px] p-4 border border-[#E1E1E1] w-full">
+          <p className="text-[14px] text-deepblue mb-2">Target value</p>
+          <div className="flex justify-between items-center gap-5">
+            {/* Distance */}
+            <div className="flex flex-col gap-2 flex-1">
+              <label className="text-[16px] text-deepblue">Distance</label>
+              <div className="border border-[#E1E1E1] rounded-[16px] flex items-center w-full">
+                
+                <input
+                  className="p-2 w-[60%] outline-none"
+                  placeholder="E.g 10"
+                  required
+                  onChange={(e) =>
+                    setForm((f: any) => ({
+                      ...f,
+                      targetDistance: Number(e.target.value),
+                    }))
+                  }
+                />
+                <div className="border-l border-[#E1E1E1] h-full" />
+                <p className="w-[40%] text-center text-[10px]">Kilometer</p>
+              </div>
+            </div>
+
+            {/* Walks */}
+            <div className="flex flex-col gap-2 flex-1">
+              <label className="text-[16px] text-deepblue">
+                Number of walks
+              </label>
+            
+              <input
+                placeholder="E.g 12"
+                required
+                className="border border-[#E1E1E1] rounded-[16px] p-2 w-full"
+                onChange={(e) =>
+                  setForm((f: any) => ({
+                    ...f,
+                    numberOfWalks: Number(e.target.value),
+                  }))
+                }
+              />
+            </div>
+
+            {/* Duration */}
+            <div className="flex flex-col gap-2 flex-1">
+              <label className="text-[16px] text-deepblue">Duration</label>
+              <div className="border border-[#E1E1E1] rounded-[16px] flex items-center w-full">
+              
+                <input
+                  placeholder="E.g 10"
+                  className="p-2 w-[60%] outline-none"
+                  onChange={(e) =>
+                    setForm((f: any) => ({
+                      ...f,
+                      duration: Number(e.target.value),
+                    }))
+                  }
+                />
+                <div className="border-l border-[#E1E1E1] h-full" />
+                <p className="w-[40%] text-center text-[12px]">Minutes</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {configurationType === "Weekly distance(Maintain each week)" && (
+        <div className="flex justify-between items-center gap-5">
+          <div className="flex flex-col gap-2 flex-1">
+            <label className="text-[16px] text-deepblue">
+              Distance per week
+            </label>
+            <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
+            
+              <input
+                placeholder="E.g 200"
+                className="p-2 w-[60%] outline-none"
+                onChange={(e) =>
+                  setForm((f: any) => ({
+                    ...f,
+                    distancePerWeek: Number(e.target.value),
+                  }))
+                }
+              />
+              <div className="border-l border-[#E1E1E1] h-full" />
+              <p className="w-[40%] text-center text-[10px]">Kilometer</p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 flex-1">
+            <label className="text-[16px] text-deepblue">Number of walks</label>
+           
+            <input
+              placeholder="E.g 10"
+              className="border border-[#E1E1E1] rounded-[16px] p-2"
+              onChange={(e) =>
+                setForm((f: any) => ({
+                  ...f,
+                  walksPerWeek: Number(e.target.value),
+                }))
+              }
+            />
+          </div>
+        </div>
+      )}
+      {configurationType === "Per-walk distance(Maintain per week)" && (
+        <div className="flex justify-between items-center gap-5">
+          <div className="flex flex-col gap-2 flex-1">
+            <label className="text-[16px] text-deepblue">
+              Distance per walk
+            </label>
+            <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
+             
+              <input
+                placeholder="E.g 10"
+                className="p-2 w-[60%] outline-none"
+                onChange={(e) =>
+                  setForm((f: any) => ({
+                    ...f,
+                    distancePerWalk: Number(e.target.value),
+                  }))
+                }
+              />
+              <div className="border-l border-[#E1E1E1] h-full" />
+              <p className="w-[40%] text-center text-[10px]">Kilometer</p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 flex-1">
+            <label className="text-[16px] text-deepblue">Number of walks</label>
+           
+            <input
+              placeholder="E.g 10"
+              className="border border-[#E1E1E1] rounded-[16px] p-2"
+              onChange={(e) =>
+                setForm((f: any) => ({
+                  ...f,
+                  walksPerWeek: Number(e.target.value),
+                }))
+              }
+            />
+          </div>
+        </div>
+      )}
+      {configurationType === "Progressive distance(Increases over time)" && (
+        <div className="flex flex-col gap-5">
+          <div className="flex justify-between items-center gap-5">
+            <div className="flex flex-col gap-2 flex-1">
+              <label className="text-[16px] text-deepblue">
+                Start distance
+              </label>
+              <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
+              
+                <input
+                  placeholder="E.g 10"
+                  className="p-2 w-[60%] outline-none"
+                  onChange={(e) =>
+                    setForm((f: any) => ({
+                      ...f,
+                      startDistance: Number(e.target.value),
+                    }))
+                  }
+                />
+                <div className="border-l border-[#E1E1E1] h-full" />
+                <p className="w-[40%] text-center text-[10px]">Kilometer</p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 flex-1">
+              <label className="text-[16px] text-deepblue">
+                Weekly increase
+              </label>
+              <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
+                
+                <input
+                  placeholder="E.g 10"
+                  className="p-2 w-[60%] outline-none"
+                  onChange={(e) =>
+                    setForm((f: any) => ({
+                      ...f,
+                      weeklyIncrease: Number(e.target.value),
+                    }))
+                  }
+                />
+                <div className="border-l border-[#E1E1E1] h-full" />
+                <p className="w-[40%] text-center text-[10px]">Kilometer</p>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-[16px] text-deepblue">
+              Duration (weeks)
+            </label>
+            
+            <input
+              placeholder="E.g 10"
+              className="border border-[#E1E1E1] rounded-md p-2"
+              onChange={(e) =>
+                setForm((f: any) => ({
+                  ...f,
+                  durationWeeks: Number(e.target.value),
+                }))
+              }
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
