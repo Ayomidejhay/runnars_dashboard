@@ -47,7 +47,7 @@ export const mapBasicInfo = (basicInfo: any) => ({
   type: basicInfo.challengeType,
   description: basicInfo.description,
   primaryHashtags: basicInfo.primaryHashtags,
-  coverImage: basicInfo.file || null, // file will be handled separately if uploading
+  coverImage: basicInfo.coverImage || null, // file will be handled separately if uploading
 });
 
 export const mapGoalsAndMetrics = (goalsAndMetrics: any) => {

@@ -67,9 +67,9 @@ export default function Page() {
             <Image src="/iphone.svg" alt="phone" width={308} height={622} />
 
             <div className="absolute top-[50px] w-[250px] bg-white z-10 rounded-xl shadow">
-              {basicInfo.file && (
+              {basicInfo.coverImage && (
                 <Image
-                  src={URL.createObjectURL(basicInfo.file)}
+                  src={URL.createObjectURL(basicInfo.coverImage)}
                   alt="cover"
                   width={260}
                   height={120}
