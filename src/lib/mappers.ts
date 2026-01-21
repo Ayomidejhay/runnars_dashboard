@@ -125,7 +125,7 @@ export const mapSchedule = (schedule: any) => ({
   endDate: schedule.endDate,
   endTime: schedule.endTime,
   recurrenceType: schedule.recurrenceType,
-  challengeDays: schedule.selectedDays || [], // selectedDays is an array of enum values
+  challengeDays: schedule.selectedDay || [], // selectedDays is an array of enum values
 });
 
 export const mapRewards = (rewards: any) => {

@@ -4,6 +4,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useChallengeBuilderStore, GoalPayload, PhotoGoalConfig } from "@/stores/useChallengeBuilderStore";
+import { label } from "framer-motion/client";
 
 interface PhotoInputsProps {
   configOptions: string[];
@@ -66,17 +67,17 @@ export default function PhotoInputs({ configOptions, selected, onSelect }: Photo
               <label className="text-[16px] text-deepblue">
                 Photo Requirements <span className="text-[12px] text-[#8E98A8]">(Multiple selection)</span>
               </label>
-              {["Pet must be visible", "Must be taken during walk", "Location tagged", "Caption required"].map(
+              {[{label: "Pet must be visible", value: "pet_visible"}, {label: "Must be taken during walk", value: "during_walk"}, {label: "Location tagged", value: "location_tagged"}, {label: "Caption required", value: "caption_required"}].map(
                 (option) => (
-                  <label key={option} className="flex items-center gap-2 text-[14px] cursor-pointer">
+                  <label key={option.value} className="flex items-center gap-2 text-[14px] cursor-pointer">
                     <input
                       type="checkbox"
-                      value={option}
-                      checked={photoRequirements.includes(option)}
-                      onChange={() => toggleSelection(option)}
+                      value={option.value}
+                      checked={photoRequirements.includes(option.value)}
+                      onChange={() => toggleSelection(option.value)}
                       className="h-4 w-4 accent-brightblue"
                     />
-                    <span>{option}</span>
+                    <span>{option.label}</span>
                   </label>
                 )
               )}
@@ -121,25 +122,25 @@ export default function PhotoInputs({ configOptions, selected, onSelect }: Photo
             </div>
 
             {/* Requirements */}
-            <div className="flex flex-col gap-2">
+            {/* <div className="flex flex-col gap-2">
               <label className="text-[16px] text-deepblue">
                 Photo Requirements <span className="text-[12px] text-[#8E98A8]">(Multiple selection)</span>
               </label>
-              {["Pet must be visible", "Must be taken during walk", "Location tagged", "Caption required"].map(
+              {[{label: "Pet must be visible", value: "pet_visible"}, {label: "Must be taken during walk", value: "during_walk"}, {label: "Location tagged", value: "location_tagged"}, {label: "Caption required", value: "caption_required"}].map(
                 (option) => (
-                  <label key={option} className="flex items-center gap-2 text-[14px] cursor-pointer">
+                  <label key={option.value} className="flex items-center gap-2 text-[14px] cursor-pointer">
                     <input
                       type="checkbox"
-                      value={option}
-                      checked={photoRequirements.includes(option)}
-                      onChange={() => toggleSelection(option)}
+                      value={option.value}
+                      checked={photoRequirements.includes(option.value)}
+                      onChange={() => toggleSelection(option.value)}
                       className="h-4 w-4 accent-brightblue"
                     />
-                    <span>{option}</span>
+                    <span>{option.label}</span>
                   </label>
                 )
               )}
-            </div>
+            </div> */}
           </div>
         );
 

@@ -1,8 +1,11 @@
-
-'use client';
+"use client";
 
 import React, { useState, useEffect } from "react";
-import { useChallengeBuilderStore, GoalPayload, TimeGoalConfig } from "@/stores/useChallengeBuilderStore";
+import {
+  useChallengeBuilderStore,
+  GoalPayload,
+  TimeGoalConfig,
+} from "@/stores/useChallengeBuilderStore";
 
 interface TimeInputsProps {
   configOptions: string[];
@@ -10,19 +13,45 @@ interface TimeInputsProps {
   onSelect: (value: string) => void;
 }
 
-export default function TimeInputs({ configOptions, selected, onSelect }: TimeInputsProps) {
-  const timeGoal = useChallengeBuilderStore((state) => state.goalsAndMetrics.timeGoal);
-  const setTimeConfig = useChallengeBuilderStore((state) => state.setTimeConfig);
+export default function TimeInputs({
+  configOptions,
+  selected,
+  onSelect,
+}: TimeInputsProps) {
+  const timeGoal = useChallengeBuilderStore(
+    (state) => state.goalsAndMetrics.timeGoal,
+  );
+  const setTimeConfig = useChallengeBuilderStore(
+    (state) => state.setTimeConfig,
+  );
 
-  const [totalWalkingTime, setTotalWalkingTime] = useState(timeGoal?.config.totalWalkingTime || "");
-  const [minimumWalkDuration, setMinimumWalkDuration] = useState(timeGoal?.config.minimumWalkDuration || "");
-  const [numberOfWalks, setNumberOfWalks] = useState(timeGoal?.config.numberOfWalks || "");
-  const [distancePerWalk, setDistancePerWalk] = useState(timeGoal?.config.distancePerWalk || "");
-  const [startDistance, setStartDistance] = useState(timeGoal?.config.startDistance || "");
-  const [weeklyIncrease, setWeeklyIncrease] = useState(timeGoal?.config.weeklyIncrease || "");
-  const [durationWeeks, setDurationWeeks] = useState(timeGoal?.config.durationWeeks || "");
-  const [numberOfWeeks, setNumberOfWeeks] = useState(timeGoal?.config.numberOfWeeks || "");
-  const [timePerWeek, setTimePerWeek] = useState(timeGoal?.config.timePerWeek || "");
+  const [totalWalkingTime, setTotalWalkingTime] = useState(
+    timeGoal?.config.totalWalkingTime || "",
+  );
+  const [minimumWalkDuration, setMinimumWalkDuration] = useState(
+    timeGoal?.config.minimumWalkDuration || "",
+  );
+  const [numberOfWalks, setNumberOfWalks] = useState(
+    timeGoal?.config.numberOfWalks || "",
+  );
+  const [distancePerWalk, setDistancePerWalk] = useState(
+    timeGoal?.config.distancePerWalk || "",
+  );
+  const [startDistance, setStartDistance] = useState(
+    timeGoal?.config.startDistance || "",
+  );
+  const [weeklyIncrease, setWeeklyIncrease] = useState(
+    timeGoal?.config.weeklyIncrease || "",
+  );
+  const [durationWeeks, setDurationWeeks] = useState(
+    timeGoal?.config.durationWeeks || "",
+  );
+  const [numberOfWeeks, setNumberOfWeeks] = useState(
+    timeGoal?.config.numberOfWeeks || "",
+  );
+  const [timePerWeek, setTimePerWeek] = useState(
+    timeGoal?.config.timePerWeek || "",
+  );
 
   useEffect(() => {
     const payload: GoalPayload<TimeGoalConfig> = {
@@ -59,34 +88,49 @@ export default function TimeInputs({ configOptions, selected, onSelect }: TimeIn
       case "Total time spent walking":
         return (
           <div className="flex flex-col gap-2">
-            <label className="text-[16px] text-deepblue">Total Walking Time</label>
-            <input
-              type="number"
-              value={totalWalkingTime}
-              onChange={(e) => setTotalWalkingTime(e.target.value)}
-              placeholder="E.g 10"
-              className="border border-[#E1E1E1] rounded-[16px] p-2"
-            />
+            <label className="text-[16px] text-deepblue">
+              Total Walking Time
+            </label>
+            <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
+              <input
+                type="number"
+                value={totalWalkingTime}
+                onChange={(e) => setTotalWalkingTime(e.target.value)}
+                placeholder="E.g 10"
+                className="p-2 w-[80%] outline-none"
+              />
+              <div className="border-l border-[#E1E1E1] h-full" />
+              <p className="w-[20%] text-center text-[10px]">Mins</p>
+            </div>
+            
           </div>
         );
 
       case "Time per walk":
         return (
           <div className="flex justify-between gap-5">
-            
             <div className="flex flex-col gap-2 flex-1">
-              <label className="text-[16px] text-deepblue">Minimum Walk Duration</label>
-              <input
+              <label className="text-[16px] text-deepblue">
+                Minimum Walk Duration
+              </label>
+              <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
+                <input
                 type="number"
                 value={minimumWalkDuration}
                 onChange={(e) => setMinimumWalkDuration(e.target.value)}
                 placeholder="E.g 10"
                 className="border border-[#E1E1E1] rounded-[16px] p-2"
               />
+               <div className="border-l border-[#E1E1E1] h-full" />
+              <p className="w-[20%] text-center text-[10px]">Mins</p>
+              </div>
+              
             </div>
 
             <div className="flex flex-col gap-2 flex-1">
-              <label className="text-[16px] text-deepblue">Number of weeks</label>
+              <label className="text-[16px] text-deepblue">
+                Number of weeks
+              </label>
               <input
                 type="number"
                 value={numberOfWalks}
@@ -100,20 +144,26 @@ export default function TimeInputs({ configOptions, selected, onSelect }: TimeIn
       case "Weekly walking time":
         return (
           <div className="flex justify-between gap-5">
-            
             <div className="flex flex-col gap-2 flex-1">
               <label className="text-[16px] text-deepblue">Time Per Week</label>
-              <input
-                type="number"
-                value={timePerWeek}
-                onChange={(e) => setTimePerWeek(e.target.value)}
-                placeholder="E.g 10"
-                className="border border-[#E1E1E1] rounded-[16px] p-2"
-              />
+              <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
+                <input
+                  type="number"
+                  value={timePerWeek}
+                  onChange={(e) => setTimePerWeek(e.target.value)}
+                  placeholder="E.g 10"
+                  className="p-2 w-[80%] outline-none"
+                />
+                <div className="border-l border-[#E1E1E1] h-full" />
+                <p className="w-[20%] text-center text-[10px]">Mins</p>
+              </div>
+            
             </div>
 
             <div className="flex flex-col gap-2 flex-1">
-              <label className="text-[16px] text-deepblue">Number of weeks</label>
+              <label className="text-[16px] text-deepblue">
+                Number of weeks
+              </label>
               <input
                 type="number"
                 value={numberOfWeeks}
@@ -130,18 +180,26 @@ export default function TimeInputs({ configOptions, selected, onSelect }: TimeIn
           <div className="flex flex-col gap-5">
             <div className="flex justify-between gap-5">
               <div className="flex flex-col gap-2 flex-1">
-                <label className="text-[16px] text-deepblue">Start Distance</label>
+                <label className="text-[16px] text-deepblue">
+                  Start Distance
+                </label>
+                <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
                 <input
                   type="number"
                   value={startDistance}
                   onChange={(e) => setStartDistance(e.target.value)}
                   placeholder="E.g 1-50"
-                  className="border border-[#E1E1E1] rounded-[16px] p-2"
+                  className="p-2 w-[80%] outline-none"
                 />
+                  <div className="border-l border-[#E1E1E1] h-full" />
+                  <p className="w-[20%] text-center text-[10px]">Miles</p>
+                </div>
               </div>
 
               <div className="flex flex-col gap-2 flex-1">
-                <label className="text-[16px] text-deepblue">Weekly Increase</label>
+                <label className="text-[16px] text-deepblue">
+                  Weekly Increase
+                </label>
                 <input
                   type="number"
                   value={weeklyIncrease}
@@ -153,7 +211,9 @@ export default function TimeInputs({ configOptions, selected, onSelect }: TimeIn
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-[16px] text-deepblue">Duration (weeks)</label>
+              <label className="text-[16px] text-deepblue">
+                Duration (weeks)
+              </label>
               <input
                 type="number"
                 value={durationWeeks}

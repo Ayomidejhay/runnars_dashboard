@@ -60,7 +60,7 @@ export default function DistanceInputs() {
               <div className="border border-[#E1E1E1] rounded-[16px] flex items-center w-full">
                 
                 <input
-                  className="p-2 w-[60%] outline-none"
+                  className="p-2 w-[80%] outline-none"
                   placeholder="E.g 10"
                   required
                   onChange={(e) =>
@@ -71,7 +71,7 @@ export default function DistanceInputs() {
                   }
                 />
                 <div className="border-l border-[#E1E1E1] h-full" />
-                <p className="w-[40%] text-center text-[10px]">Kilometer</p>
+                <p className="w-[20%] text-center text-[10px]">Miles</p>
               </div>
             </div>
 
@@ -101,7 +101,7 @@ export default function DistanceInputs() {
               
                 <input
                   placeholder="E.g 10"
-                  className="p-2 w-[60%] outline-none"
+                  className="p-2 w-[80%] outline-none"
                   onChange={(e) =>
                     setForm((f: any) => ({
                       ...f,
@@ -110,7 +110,7 @@ export default function DistanceInputs() {
                   }
                 />
                 <div className="border-l border-[#E1E1E1] h-full" />
-                <p className="w-[40%] text-center text-[12px]">Minutes</p>
+                <p className="w-[20%] text-center text-[12px]">Mins</p>
               </div>
             </div>
           </div>
@@ -126,7 +126,7 @@ export default function DistanceInputs() {
             
               <input
                 placeholder="E.g 200"
-                className="p-2 w-[60%] outline-none"
+                className="p-2 w-[80%] outline-none"
                 onChange={(e) =>
                   setForm((f: any) => ({
                     ...f,
@@ -135,7 +135,7 @@ export default function DistanceInputs() {
                 }
               />
               <div className="border-l border-[#E1E1E1] h-full" />
-              <p className="w-[40%] text-center text-[10px]">Kilometer</p>
+              <p className="w-[20%] text-center text-[10px]">Miles</p>
             </div>
           </div>
           <div className="flex flex-col gap-2 flex-1">
@@ -147,7 +147,7 @@ export default function DistanceInputs() {
               onChange={(e) =>
                 setForm((f: any) => ({
                   ...f,
-                  walksPerWeek: Number(e.target.value),
+                  numberOfWalks: Number(e.target.value),
                 }))
               }
             />
@@ -164,7 +164,7 @@ export default function DistanceInputs() {
              
               <input
                 placeholder="E.g 10"
-                className="p-2 w-[60%] outline-none"
+                className="p-2 w-[80%] outline-none"
                 onChange={(e) =>
                   setForm((f: any) => ({
                     ...f,
@@ -173,7 +173,7 @@ export default function DistanceInputs() {
                 }
               />
               <div className="border-l border-[#E1E1E1] h-full" />
-              <p className="w-[40%] text-center text-[10px]">Kilometer</p>
+              <p className="w-[20%] text-center text-[10px]">Miles</p>
             </div>
           </div>
           <div className="flex flex-col gap-2 flex-1">
@@ -203,7 +203,7 @@ export default function DistanceInputs() {
               
                 <input
                   placeholder="E.g 10"
-                  className="p-2 w-[60%] outline-none"
+                  className="p-2 w-[80%] outline-none"
                   onChange={(e) =>
                     setForm((f: any) => ({
                       ...f,
@@ -212,7 +212,7 @@ export default function DistanceInputs() {
                   }
                 />
                 <div className="border-l border-[#E1E1E1] h-full" />
-                <p className="w-[40%] text-center text-[10px]">Kilometer</p>
+                <p className="w-[20%] text-center text-[10px]">Miles</p>
               </div>
             </div>
             <div className="flex flex-col gap-2 flex-1">
@@ -223,7 +223,7 @@ export default function DistanceInputs() {
                 
                 <input
                   placeholder="E.g 10"
-                  className="p-2 w-[60%] outline-none"
+                  className="p-2 w-[80%] outline-none"
                   onChange={(e) =>
                     setForm((f: any) => ({
                       ...f,
@@ -232,7 +232,7 @@ export default function DistanceInputs() {
                   }
                 />
                 <div className="border-l border-[#E1E1E1] h-full" />
-                <p className="w-[40%] text-center text-[10px]">Kilometer</p>
+                <p className="w-[20%] text-center text-[10px]">Miles</p>
               </div>
             </div>
           </div>

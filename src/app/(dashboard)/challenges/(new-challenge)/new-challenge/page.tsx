@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -10,11 +10,16 @@ import Schedule from "./components/Schedule";
 import GoalMetric from "./components/GoalMetric";
 import { useChallengeBuilderStore } from "@/stores/useChallengeBuilderStore";
 import { useSubmitChallenge } from "@/hooks/useSubmitChallenge";
+import toast from "react-hot-toast";
+
+const LOCAL_DRAFT_KEY = "challenge_draft";
 
 export default function Page() {
-   const { submit, isLoading } = useSubmitChallenge();
+  const { submit, isLoading } = useSubmitChallenge();
   const router = useRouter();
 
+  // const { step, setStep, basicInfo, goalsAndMetrics, schedule, rewards, reset } =
+  //   useChallengeBuilderStore();
   const {
     step,
     setStep,
@@ -22,26 +27,79 @@ export default function Page() {
     goalsAndMetrics,
     schedule,
     rewards,
+    reset,
+    setBasicInfo,
+    setGoalsAndMetrics,
+    setSchedule,
+    rewardActions,
   } = useChallengeBuilderStore();
+
+  const [showDiscardModal, setShowDiscardModal] = React.useState(false);
 
   const steps = ["Basic Info", "Goal & Metric", "Schedule", "Rewards"];
 
+  //Restore Draft (on mount)
+
+    useEffect(() => {
+    const raw = localStorage.getItem(LOCAL_DRAFT_KEY);
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw);
+
+      if (parsed.basicInfo) setBasicInfo(parsed.basicInfo);
+      if (parsed.goalsAndMetrics) setGoalsAndMetrics(parsed.goalsAndMetrics);
+      if (parsed.schedule) setSchedule(parsed.schedule);
+      if (parsed.rewards) rewardActions.setRewards(parsed.rewards);
+
+      toast.success("Draft restored");
+    } catch (err) {
+      console.error("Draft restore failed:", err);
+    }
+  }, [setBasicInfo, setGoalsAndMetrics, setSchedule, rewardActions]);
+
+  //Save Draft
+    const handleSaveDraft = () => {
+    try {
+      const draft = {
+        basicInfo,
+        goalsAndMetrics,
+        schedule,
+        rewards,
+      };
+
+      localStorage.setItem(LOCAL_DRAFT_KEY, JSON.stringify(draft));
+      toast.success("Draft saved");
+    } catch {
+      toast.error("Failed to save draft");
+    }
+  };
+
+  //Navigation
   const nextStep = () => setStep(Math.min(step + 1, steps.length));
   const prevStep = () => setStep(Math.max(step - 1, 1));
+
+  // Discard Challenge
+    const handleDiscard = () => {
+    reset();
+    localStorage.removeItem(LOCAL_DRAFT_KEY);
+    router.push("/challenges");
+  };
 
   return (
     <div>
       {/* HEADER */}
       <div className="flex justify-between items-center border-b border-[#E1E1E1] px-10">
         <div className="flex gap-4 items-center h-14 ">
-          <button onClick={() => router.back()}>
+          <button onClick={() => setShowDiscardModal(true)}>
             <Image src="/close.svg" alt="close" width={24} height={24} />
           </button>
+
           <p className="text-[24px] text-deepblue capitalize font-bold">
             create new challenge
           </p>
         </div>
-        <button className="w-[116px] h-[40px] text-[14px] text-brightblue border border-brightblue bg-transparent rounded-4xl flex items-center justify-center">
+        <button className="w-[116px] h-[40px] text-[14px] text-brightblue border border-brightblue bg-transparent rounded-4xl flex items-center justify-center" onClick={handleSaveDraft}>
           Save as draft
         </button>
       </div>
@@ -84,9 +142,7 @@ export default function Page() {
 
                 <p className="text-[14px] text-gray-500 mt-1">
                   Challenge Type :{" "}
-                  <span className="capitalize">
-                    {basicInfo.challengeType}
-                  </span>
+                  <span className="capitalize">{basicInfo.challengeType}</span>
                 </p>
 
                 <p className="text-[14px] text-gray-700 mt-3 line-clamp-4">
@@ -123,12 +179,44 @@ export default function Page() {
         )}
 
         {step === steps.length && (
-          <button onClick={submit}
-            disabled={isLoading} className="bg-brightblue rounded-[32px] text-white w-[90px] h-[48px]">
+          <button
+            onClick={submit}
+            disabled={isLoading}
+            className="bg-brightblue rounded-[32px] text-white w-[90px] h-[48px]"
+          >
             {isLoading ? "Publishing..." : "Publish"}
           </button>
         )}
       </div>
+
+      {/* DISCARD MODAL */}
+      {showDiscardModal && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="bg-white rounded-xl p-6 w-[400px] shadow-lg">
+      <h3 className="text-[18px] font-bold text-deepblue mb-4">
+        Discard Challenge?
+      </h3>
+      <p className="text-[14px] text-gray-600 mb-6">
+        Are you sure you want to discard this challenge? 
+      </p>
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setShowDiscardModal(false)}
+          className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleDiscard}
+          className="px-4 py-2 rounded-lg bg-red-500 text-white"
+        >
+          Discard
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

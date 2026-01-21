@@ -1,5 +1,3 @@
-
-
 import { create } from "zustand";
 
 /* =========================
@@ -26,7 +24,10 @@ export interface FrequencyGoalConfig {
   numberOfWeeks?: number;
   selectedDay?: string;
   timePeriod?: string;
-  timeRange?: string;
+  timeRange?: {
+    start: string;
+    end: string;
+  };
   walksPerPeriod?: number;
   minimumWalkDuration?: number;
   minDuration?: number;
@@ -57,7 +58,7 @@ export interface StreakGoalConfig {
   numberOfStreaks?: number;
   streakLength?: number;
   restDays?: number;
-  selectedDay?: string;
+  selectedDays?: string[];
   minimumWalkDuration?: number;
   numberOfWeeks?: number;
 }
@@ -109,7 +110,7 @@ export interface ScheduleState {
   endDate: string;
   endTime: string;
   recurrenceType: string;
-  selectedDay: string;
+  selectedDay: string[];
 }
 
 /* =========================
@@ -185,147 +186,167 @@ const initialRewardsState: RewardState = {
    Store Implementation
 ========================= */
 
-export const useChallengeBuilderStore = create<ChallengeBuilderState>((set) => ({
-  step: 1,
+export const useChallengeBuilderStore = create<ChallengeBuilderState>(
+  (set) => ({
+    step: 1,
 
-  /* ---------- Basic Info ---------- */
-  basicInfo: {
-    challengeName: "",
-    challengeType: "",
-    description: "",
-    primaryHashtags: [],
-    coverImage: null,
-  },
+    /* ---------- Basic Info ---------- */
+    basicInfo: {
+      challengeName: "",
+      challengeType: "",
+      description: "",
+      primaryHashtags: [],
+      coverImage: null,
+    },
 
-  /* ---------- Goals & Metrics ---------- */
-  goalsAndMetrics: {
-    selectedGoalTypes: ["distance"],
-    activeTab: "distance",
-    selectedGoalConfiguration: "",
-    selectedFrequencyConfiguration: "",
-    selectedTimeConfiguration: "",
-    selectedStreakConfiguration: "",
-    selectedPhotoConfiguration: "",
-  },
+    /* ---------- Goals & Metrics ---------- */
+    goalsAndMetrics: {
+      selectedGoalTypes: ["distance"],
+      activeTab: "distance",
+      selectedGoalConfiguration: "",
+      selectedFrequencyConfiguration: "",
+      selectedTimeConfiguration: "",
+      selectedStreakConfiguration: "",
+      selectedPhotoConfiguration: "",
+    },
 
-  /* ---------- Schedule ---------- */
-  schedule: {
-    startDate: "",
-    startTime: "",
-    endDate: "",
-    endTime: "",
-    recurrenceType: "",
-    selectedDay: "",
-  },
+    /* ---------- Schedule ---------- */
+    schedule: {
+      startDate: "",
+      startTime: "",
+      endDate: "",
+      endTime: "",
+      recurrenceType: "",
+      selectedDay: [],
+    },
 
-  /* ---------- Rewards ---------- */
-  rewards: initialRewardsState,
+    /* ---------- Rewards ---------- */
+    rewards: initialRewardsState,
 
-  rewardActions: {
-    setRewards: (data) =>
+    rewardActions: {
+      setRewards: (data) =>
+        set((state) => ({
+          rewards: { ...state.rewards, ...data },
+        })),
+      resetRewards: () =>
+        set(() => ({
+          rewards: initialRewardsState,
+        })),
+    },
+
+    /* ---------- Global Setters ---------- */
+    setStep: (step) => set({ step }),
+
+    setBasicInfo: (data) =>
+      set((state) => ({ basicInfo: { ...state.basicInfo, ...data } })),
+
+    setGoalType: (type) =>
       set((state) => ({
-        rewards: { ...state.rewards, ...data },
+        goalsAndMetrics: {
+          ...state.goalsAndMetrics,
+          selectedGoalTypes: [type],
+          activeTab: type,
+        },
       })),
-    resetRewards: () =>
+
+    setGoalsAndMetrics: (data) =>
+      set((state) => ({
+        goalsAndMetrics: { ...state.goalsAndMetrics, ...data },
+      })),
+
+    setDistanceConfig: (payload) =>
+      set((state) => ({
+        goalsAndMetrics: {
+          ...state.goalsAndMetrics,
+          distanceGoal: payload,
+          selectedGoalConfiguration: payload.configurationType,
+        },
+      })),
+
+    setFrequencyConfig: (payload) =>
+      set((state) => ({
+        goalsAndMetrics: {
+          ...state.goalsAndMetrics,
+          frequencyGoal: payload,
+          selectedFrequencyConfiguration: payload.configurationType,
+        },
+      })),
+
+    setTimeConfig: (payload) =>
+      set((state) => ({
+        goalsAndMetrics: {
+          ...state.goalsAndMetrics,
+          timeGoal: payload,
+          selectedTimeConfiguration: payload.configurationType,
+        },
+      })),
+
+    setStreakConfig: (payload) =>
+      set((state) => ({
+        goalsAndMetrics: {
+          ...state.goalsAndMetrics,
+          streakGoal: payload,
+          selectedStreakConfiguration: payload.configurationType,
+        },
+      })),
+
+    // setPhotoConfig: (payload) =>
+    //   set((state) => ({
+    //     goalsAndMetrics: {
+    //       ...state.goalsAndMetrics,
+    //       photoGoal: payload,
+    //       selectedPhotoConfiguration: payload.configurationType,
+    //     },
+    //   })),
+    setPhotoConfig: (payload) =>
+      set((state) => ({
+        goalsAndMetrics: {
+          ...state.goalsAndMetrics,
+          photoGoal: {
+            ...state.goalsAndMetrics.photoGoal,
+            configurationType: payload.configurationType,
+            config: {
+              ...state.goalsAndMetrics.photoGoal?.config,
+              ...payload.config,
+            },
+          },
+        },
+      })),
+
+    setSchedule: (data) =>
+      set((state) => ({ schedule: { ...state.schedule, ...data } })),
+
+
+
+    /* ---------- Reset ---------- */
+    reset: () =>
       set(() => ({
+        step: 1,
+        basicInfo: {
+          challengeName: "",
+          challengeType: "",
+          description: "",
+          primaryHashtags: [],
+          coverImage: null,
+        },
+        goalsAndMetrics: {
+          selectedGoalTypes: ["distance"],
+          activeTab: "distance",
+          selectedGoalConfiguration: "",
+          selectedFrequencyConfiguration: "",
+          selectedTimeConfiguration: "",
+          selectedStreakConfiguration: "",
+          selectedPhotoConfiguration: "",
+        },
+        schedule: {
+          startDate: "",
+          startTime: "",
+          endDate: "",
+          endTime: "",
+          recurrenceType: "",
+          selectedDay: [],
+        },
         rewards: initialRewardsState,
       })),
-  },
-
-  /* ---------- Global Setters ---------- */
-  setStep: (step) => set({ step }),
-
-  setBasicInfo: (data) =>
-    set((state) => ({ basicInfo: { ...state.basicInfo, ...data } })),
-
-  setGoalType: (type) =>
-    set((state) => ({
-      goalsAndMetrics: {
-        ...state.goalsAndMetrics,
-        selectedGoalTypes: [type],
-        activeTab: type,
-      },
-    })),
-
-  setGoalsAndMetrics: (data) =>
-    set((state) => ({ goalsAndMetrics: { ...state.goalsAndMetrics, ...data } })),
-
-  setDistanceConfig: (payload) =>
-    set((state) => ({
-      goalsAndMetrics: {
-        ...state.goalsAndMetrics,
-        distanceGoal: payload,
-        selectedGoalConfiguration: payload.configurationType,
-      },
-    })),
-
-  setFrequencyConfig: (payload) =>
-    set((state) => ({
-      goalsAndMetrics: {
-        ...state.goalsAndMetrics,
-        frequencyGoal: payload,
-        selectedFrequencyConfiguration: payload.configurationType,
-      },
-    })),
-
-  setTimeConfig: (payload) =>
-    set((state) => ({
-      goalsAndMetrics: {
-        ...state.goalsAndMetrics,
-        timeGoal: payload,
-        selectedTimeConfiguration: payload.configurationType,
-      },
-    })),
-
-  setStreakConfig: (payload) =>
-    set((state) => ({
-      goalsAndMetrics: {
-        ...state.goalsAndMetrics,
-        streakGoal: payload,
-        selectedStreakConfiguration: payload.configurationType,
-      },
-    })),
-
-  setPhotoConfig: (payload) =>
-    set((state) => ({
-      goalsAndMetrics: {
-        ...state.goalsAndMetrics,
-        photoGoal: payload,
-        selectedPhotoConfiguration: payload.configurationType,
-      },
-    })),
-
-  setSchedule: (data) =>
-    set((state) => ({ schedule: { ...state.schedule, ...data } })),
-
-  /* ---------- Reset ---------- */
-  reset: () =>
-    set(() => ({
-      step: 1,
-      basicInfo: {
-        challengeName: "",
-        challengeType: "",
-        description: "",
-        primaryHashtags: [],
-        coverImage: null,
-      },
-      goalsAndMetrics: {
-        selectedGoalTypes: ["distance"],
-        activeTab: "distance",
-        selectedGoalConfiguration: "",
-        selectedFrequencyConfiguration: "",
-        selectedTimeConfiguration: "",
-        selectedStreakConfiguration: "",
-        selectedPhotoConfiguration: "",
-      },
-      schedule: {
-        startDate: "",
-        startTime: "",
-        endDate: "",
-        endTime: "",
-        recurrenceType: "",
-        selectedDay: "",
-      },
-      rewards: initialRewardsState,
-    })),
-}));
+  }),
+);

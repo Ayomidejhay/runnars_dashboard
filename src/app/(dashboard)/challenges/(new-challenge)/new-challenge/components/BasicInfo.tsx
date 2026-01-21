@@ -74,6 +74,8 @@ export default function BasicInfo() {
             value={basicInfo.challengeName}
             onChange={(e) => setBasicInfo({ challengeName: e.target.value })}
             className="border border-[#E1E1E1] rounded-md p-2"
+            required
+            max={100}
           />
         </div>
 
@@ -84,6 +86,7 @@ export default function BasicInfo() {
             value={basicInfo.challengeType}
             onChange={(e) => setBasicInfo({ challengeType: e.target.value })}
             className="border border-[#E1E1E1] rounded-md p-2"
+            required
           >
             <option value="">Select</option>
             <option value="walk">Walk</option>
@@ -96,7 +99,9 @@ export default function BasicInfo() {
           <textarea
             value={basicInfo.description}
             onChange={(e) => setBasicInfo({ description: e.target.value })}
-            className="border border-[#E1E1E1] rounded-md p-2 h-[162px]"
+            className="border border-[#E1E1E1] rounded-md p-2 h-[162px] resize-none"
+            required
+            maxLength={500}
           />
         </div>
 

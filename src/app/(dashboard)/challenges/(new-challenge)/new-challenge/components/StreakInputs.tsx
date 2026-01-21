@@ -1,10 +1,11 @@
-
-
-
-'use client';
+"use client";
 
 import React, { useState, useEffect } from "react";
-import { useChallengeBuilderStore, GoalPayload, StreakGoalConfig } from "@/stores/useChallengeBuilderStore";
+import {
+  useChallengeBuilderStore,
+  GoalPayload,
+  StreakGoalConfig,
+} from "@/stores/useChallengeBuilderStore";
 
 interface StreakInputsProps {
   configOptions: string[];
@@ -12,32 +13,74 @@ interface StreakInputsProps {
   onSelect: (value: string) => void;
 }
 
-export default function StreakInputs({ configOptions, selected, onSelect }: StreakInputsProps) {
-  const streakGoal = useChallengeBuilderStore((state) => state.goalsAndMetrics.streakGoal);
-  const setStreakConfig = useChallengeBuilderStore((state) => state.setStreakConfig);
-
-  const [consecutiveDaysTarget, setConsecutiveDaysTarget] = useState(streakGoal?.config.consecutiveDaysTarget || "");
-  const [allowJokerDay, setAllowJokerDay] = useState(streakGoal?.config.allowJokerDay ? "Yes" : "No");
-  const [selectedDay, setSelectedDay] = useState(streakGoal?.config.selectedDay || "M");
-  const [minimumWalkDuration, setMinimumWalkDuration] = useState(streakGoal?.config.minimumWalkDuration || "");
-  const [numberOfWeeks, setNumberOfWeeks] = useState(streakGoal?.config.numberOfWeeks || "");
-  const [minimumStreakTarget, setMinimumStreakTarget] = useState(streakGoal?.config.minimumStreakTarget || "");
-  const [minimumStreakValue, setMinimumStreakValue] = useState(streakGoal?.config.minimumStreakValue || "");
-  const [challengeDuration, setChallengeDuration] = useState(streakGoal?.config.challengeDuration || "");
-  const [numberOfStreaks, setNumberOfStreaks] = useState(streakGoal?.config.numberOfStreaks || "");
-  const [streakLength, setStreakLength] = useState(streakGoal?.config.streakLength || "");
-  const [restDays, setRestDays] = useState(streakGoal?.config.restDays || "");
-
-  // const days = ["M", "T", "W", "Th", "F", "S", "Su"];
-  const days = [
+const days = [
   { label: "M", value: "Monday" },
   { label: "T", value: "Tuesday" },
   { label: "W", value: "Wednesday" },
   { label: "Th", value: "Thursday" },
   { label: "F", value: "Friday" },
   { label: "S", value: "Saturday" },
-  { label: "Su", value: "Sunday" }
+  { label: "Su", value: "Sunday" },
 ];
+
+export default function StreakInputs({
+  configOptions,
+  selected,
+  onSelect,
+}: StreakInputsProps) {
+  const streakGoal = useChallengeBuilderStore(
+    (state) => state.goalsAndMetrics.streakGoal,
+  );
+  const setStreakConfig = useChallengeBuilderStore(
+    (state) => state.setStreakConfig,
+  );
+
+  const [consecutiveDaysTarget, setConsecutiveDaysTarget] = useState(
+    streakGoal?.config.consecutiveDaysTarget || "",
+  );
+  const [allowJokerDay, setAllowJokerDay] = useState(
+    streakGoal?.config.allowJokerDay ? "Yes" : "No",
+  );
+  // const [selectedDay, setSelectedDay] = useState(
+  //   streakGoal?.config.selectedDay || "M",
+  // );
+  const [selectedDays, setSelectedDays] = useState<string[]>(
+    streakGoal?.config.selectedDays || [],
+  );
+
+  const [minimumWalkDuration, setMinimumWalkDuration] = useState(
+    streakGoal?.config.minimumWalkDuration || "",
+  );
+  const [numberOfWeeks, setNumberOfWeeks] = useState(
+    streakGoal?.config.numberOfWeeks || "",
+  );
+  const [minimumStreakTarget, setMinimumStreakTarget] = useState(
+    streakGoal?.config.minimumStreakTarget || "",
+  );
+  const [minimumStreakValue, setMinimumStreakValue] = useState(
+    streakGoal?.config.minimumStreakValue || "",
+  );
+  const [challengeDuration, setChallengeDuration] = useState(
+    streakGoal?.config.challengeDuration || "",
+  );
+  const [numberOfStreaks, setNumberOfStreaks] = useState(
+    streakGoal?.config.numberOfStreaks || "",
+  );
+  const [streakLength, setStreakLength] = useState(
+    streakGoal?.config.streakLength || "",
+  );
+  const [restDays, setRestDays] = useState(streakGoal?.config.restDays || "");
+
+  // const days = ["M", "T", "W", "Th", "F", "S", "Su"];
+  //   const days = [
+  //   { label: "M", value: "Monday" },
+  //   { label: "T", value: "Tuesday" },
+  //   { label: "W", value: "Wednesday" },
+  //   { label: "Th", value: "Thursday" },
+  //   { label: "F", value: "Friday" },
+  //   { label: "S", value: "Saturday" },
+  //   { label: "Su", value: "Sunday" }
+  // ];
 
   // Update store whenever local state changes
   useEffect(() => {
@@ -46,7 +89,8 @@ export default function StreakInputs({ configOptions, selected, onSelect }: Stre
       config: {
         consecutiveDaysTarget: Number(consecutiveDaysTarget) || undefined,
         allowJokerDay: allowJokerDay === "Yes",
-        selectedDay,
+        // selectedDay,
+        selectedDays,
         minimumWalkDuration: Number(minimumWalkDuration) || undefined,
         numberOfWeeks: Number(numberOfWeeks) || undefined,
         minimumStreakTarget: Number(minimumStreakTarget) || undefined,
@@ -61,7 +105,8 @@ export default function StreakInputs({ configOptions, selected, onSelect }: Stre
   }, [
     consecutiveDaysTarget,
     allowJokerDay,
-    selectedDay,
+    // selectedDay,
+    selectedDays,
     minimumWalkDuration,
     numberOfWeeks,
     minimumStreakTarget,
@@ -74,13 +119,21 @@ export default function StreakInputs({ configOptions, selected, onSelect }: Stre
     setStreakConfig,
   ]);
 
+  const toggleDay = (day: string) => {
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
+    );
+  };
+
   const renderInputs = () => {
     switch (selected) {
       case "Consecutive days":
         return (
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
-              <label className="text-[16px] text-deepblue">Consecutive Days Target</label>
+              <label className="text-[16px] text-deepblue">
+                Consecutive Days Target
+              </label>
               <input
                 type="number"
                 value={consecutiveDaysTarget}
@@ -91,10 +144,15 @@ export default function StreakInputs({ configOptions, selected, onSelect }: Stre
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-[16px] text-deepblue">Allow Joker Day?</label>
+              <label className="text-[16px] text-deepblue">
+                Allow Joker Day?
+              </label>
               <div className="flex gap-6 items-center">
                 {["Yes", "No"].map((val) => (
-                  <label key={val} className="flex items-center gap-2 cursor-pointer">
+                  <label
+                    key={val}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
                     <input
                       type="radio"
                       name="jokerDay"
@@ -103,7 +161,9 @@ export default function StreakInputs({ configOptions, selected, onSelect }: Stre
                       onChange={() => setAllowJokerDay(val)}
                       className="h-4 w-4"
                     />
-                    <span className={`text-[14px] ${allowJokerDay === val ? "text-deepblue font-semibold" : "text-[#8E98A8]"}`}>
+                    <span
+                      className={`text-[14px] ${allowJokerDay === val ? "text-deepblue font-semibold" : "text-[#8E98A8]"}`}
+                    >
                       {val}
                     </span>
                   </label>
@@ -117,50 +177,57 @@ export default function StreakInputs({ configOptions, selected, onSelect }: Stre
         return (
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
-              <label className="text-[16px] text-deepblue">Day Selection</label>
+              <label className="text-[16px] text-deepblue">Days Selection</label>
               <div className="flex gap-2">
-                {days.map((day) => (
-                  <label key={day.value} className="cursor-pointer">
-                    <input
-                      type="radio"
-                      name="selectedDay"
-                      value={day.value}
-                      checked={selectedDay === day.value}
-                      onChange={() => setSelectedDay(day.value)}
-                      className="hidden"
-                    />
-                    <span
-                      className={`h-8 w-8 flex items-center justify-center text-[12px] border rounded-full ${
-                        selectedDay === day.value
-                          ? "border-brightblue text-white bg-brightblue"
-                          : "text-[#8E98A8] border-[#8E98A8] bg-transparent"
-                      }`}
-                    >
-                      {day.label}
-                    </span>
-                  </label>
-                ))}
+                {days.map((day) => {
+                  const isSelected = selectedDays.includes(day.value);
+
+                  return (
+                    <label key={day.value} className="cursor-pointer">
+                      <input
+                        type="checkbox"
+                        value={day.value}
+                        checked={isSelected}
+                        onChange={() => toggleDay(day.value)}
+                        className="hidden"
+                      />
+                      <span
+                        className={`h-8 w-8 flex items-center justify-center text-[12px] border rounded-full ${
+                          isSelected
+                            ? "border-brightblue text-white bg-brightblue"
+                            : "text-[#8E98A8] border-[#8E98A8] bg-transparent"
+                        }`}
+                      >
+                        {day.label}
+                      </span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
 
             <div className="flex justify-between gap-5">
               <div className="flex flex-col gap-2 flex-1">
-                <label className="text-[16px] text-deepblue">Minimum Walk Duration</label>
+                <label className="text-[16px] text-deepblue">
+                  Minimum Walk Duration
+                </label>
                 <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
                   <input
                     type="number"
                     value={minimumWalkDuration}
                     onChange={(e) => setMinimumWalkDuration(e.target.value)}
                     placeholder="E.g 5-120"
-                    className="p-2 w-[60%] outline-none"
+                    className="p-2 w-[80%] outline-none"
                   />
                   <div className="border-l border-[#E1E1E1] h-full" />
-                  <p className="w-[40%] text-center">Minutes</p>
+                  <p className="w-[20%] text-center">Mins</p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-2 flex-1">
-                <label className="text-[16px] text-deepblue">Number of weeks</label>
+                <label className="text-[16px] text-deepblue">
+                  Number of weeks
+                </label>
                 <input
                   type="number"
                   value={numberOfWeeks}
@@ -173,12 +240,14 @@ export default function StreakInputs({ configOptions, selected, onSelect }: Stre
           </div>
         );
 
-         case "Longest streak achievement":
+      case "Longest streak achievement":
         return (
           <div className="flex flex-col gap-5">
             <div className="flex justify-between items-center gap-5">
               <div className="flex flex-col gap-2 flex-1">
-                <label className="text-[16px] text-deepblue">Minimum Streak Target</label>
+                <label className="text-[16px] text-deepblue">
+                  Minimum Streak Target
+                </label>
                 <input
                   type="text"
                   value={minimumStreakTarget}
@@ -190,7 +259,9 @@ export default function StreakInputs({ configOptions, selected, onSelect }: Stre
               </div>
 
               <div className="flex flex-col gap-2 flex-1">
-                <label className="text-[16px] text-deepblue">Minimum Streak Value</label>
+                <label className="text-[16px] text-deepblue">
+                  Minimum Streak Value
+                </label>
                 <input
                   type="text"
                   value={minimumStreakValue}
@@ -203,7 +274,9 @@ export default function StreakInputs({ configOptions, selected, onSelect }: Stre
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-[16px] text-deepblue">Challenge Duration</label>
+              <label className="text-[16px] text-deepblue">
+                Challenge Duration
+              </label>
               <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
                 <input
                   type="text"
@@ -225,7 +298,9 @@ export default function StreakInputs({ configOptions, selected, onSelect }: Stre
           <div className="flex flex-col gap-5">
             <div className="flex justify-between items-center gap-5">
               <div className="flex flex-col gap-2 flex-1">
-                <label className="text-[16px] text-deepblue">Number of Streaks</label>
+                <label className="text-[16px] text-deepblue">
+                  Number of Streaks
+                </label>
                 <input
                   type="text"
                   value={numberOfStreaks}
@@ -237,7 +312,9 @@ export default function StreakInputs({ configOptions, selected, onSelect }: Stre
               </div>
 
               <div className="flex flex-col gap-2 flex-1">
-                <label className="text-[16px] text-deepblue">Streak Length</label>
+                <label className="text-[16px] text-deepblue">
+                  Streak Length
+                </label>
                 <input
                   type="text"
                   value={streakLength}
