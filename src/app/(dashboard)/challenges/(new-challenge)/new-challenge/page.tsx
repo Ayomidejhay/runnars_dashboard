@@ -23,6 +23,8 @@ export default function Page() {
   const {
     step,
     setStep,
+    isStepValid,
+    markStepTouched,
     basicInfo,
     goalsAndMetrics,
     schedule,
@@ -40,7 +42,7 @@ export default function Page() {
 
   //Restore Draft (on mount)
 
-    useEffect(() => {
+  useEffect(() => {
     const raw = localStorage.getItem(LOCAL_DRAFT_KEY);
     if (!raw) return;
 
@@ -58,29 +60,61 @@ export default function Page() {
     }
   }, [setBasicInfo, setGoalsAndMetrics, setSchedule, rewardActions]);
 
-  //Save Draft
-    const handleSaveDraft = () => {
+  // Save Draft
+  const handleSaveDraft = () => {
     try {
+      // Only save serializable fields
       const draft = {
-        basicInfo,
+        basicInfo: {
+          ...basicInfo,
+          coverImage: null, // remove file from draft
+        },
         goalsAndMetrics,
         schedule,
-        rewards,
+        rewards: {
+          ...rewards,
+          rewardFile: null, // remove file from draft
+        },
       };
 
       localStorage.setItem(LOCAL_DRAFT_KEY, JSON.stringify(draft));
-      toast.success("Draft saved");
+      toast.success("Draft saved. Note: images will need to be re-uploaded.");
     } catch {
       toast.error("Failed to save draft");
     }
   };
 
+  // Restore Draft (on mount)
+  useEffect(() => {
+    const raw = localStorage.getItem(LOCAL_DRAFT_KEY);
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw);
+
+      if (parsed.basicInfo) setBasicInfo(parsed.basicInfo); // coverImage will be null
+      if (parsed.goalsAndMetrics) setGoalsAndMetrics(parsed.goalsAndMetrics);
+      if (parsed.schedule) setSchedule(parsed.schedule);
+      if (parsed.rewards) rewardActions.setRewards(parsed.rewards);
+
+      toast.success("Draft restored. Please re-upload necessary images.");
+    } catch (err) {
+      console.error("Draft restore failed:", err);
+    }
+  }, [setBasicInfo, setGoalsAndMetrics, setSchedule, rewardActions]);
+
   //Navigation
-  const nextStep = () => setStep(Math.min(step + 1, steps.length));
+  const nextStep = () => {
+    markStepTouched(step);
+
+    if (!isStepValid(step)) return;
+
+    setStep(Math.min(step + 1, steps.length));
+  };
   const prevStep = () => setStep(Math.max(step - 1, 1));
 
   // Discard Challenge
-    const handleDiscard = () => {
+  const handleDiscard = () => {
     reset();
     localStorage.removeItem(LOCAL_DRAFT_KEY);
     router.push("/challenges");
@@ -99,7 +133,10 @@ export default function Page() {
             create new challenge
           </p>
         </div>
-        <button className="w-[116px] h-[40px] text-[14px] text-brightblue border border-brightblue bg-transparent rounded-4xl flex items-center justify-center" onClick={handleSaveDraft}>
+        <button
+          className="w-[116px] h-[40px] text-[14px] text-brightblue border border-brightblue bg-transparent rounded-4xl flex items-center justify-center"
+          onClick={handleSaveDraft}
+        >
           Save as draft
         </button>
       </div>
@@ -172,7 +209,12 @@ export default function Page() {
         {step < steps.length && (
           <button
             onClick={nextStep}
-            className="bg-brightblue rounded-[32px] text-white w-[190px] h-[48px]"
+            disabled={!isStepValid(step)}
+            className={`rounded-[32px] w-[190px] h-[48px] ${
+              isStepValid(step)
+                ? "bg-brightblue text-white"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
           >
             Next: {steps[step]} →
           </button>
@@ -191,32 +233,31 @@ export default function Page() {
 
       {/* DISCARD MODAL */}
       {showDiscardModal && (
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-    <div className="bg-white rounded-xl p-6 w-[400px] shadow-lg">
-      <h3 className="text-[18px] font-bold text-deepblue mb-4">
-        Discard Challenge?
-      </h3>
-      <p className="text-[14px] text-gray-600 mb-6">
-        Are you sure you want to discard this challenge? 
-      </p>
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={() => setShowDiscardModal(false)}
-          className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleDiscard}
-          className="px-4 py-2 rounded-lg bg-red-500 text-white"
-        >
-          Discard
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-[400px] shadow-lg">
+            <h3 className="text-[18px] font-bold text-deepblue mb-4">
+              Discard Challenge?
+            </h3>
+            <p className="text-[14px] text-gray-600 mb-6">
+              Are you sure you want to discard this challenge?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDiscardModal(false)}
+                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDiscard}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white"
+              >
+                Discard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

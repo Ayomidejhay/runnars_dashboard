@@ -29,8 +29,11 @@ const petFitScoreRanges = [
 export default function Reward() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const { points, participation, segmentCriteria } =
+  const { points, participation, segmentCriteria,  } =
     useChallengeBuilderStore((state) => state.rewards);
+
+    const {touchedSteps} = useChallengeBuilderStore();
+    const showError = touchedSteps[4];
 
   const setRewards = useChallengeBuilderStore(
     (state) => state.rewardActions.setRewards,
@@ -105,6 +108,9 @@ export default function Reward() {
             setRewards({ points: Number(e.target.value) || 0 })
           }
         />
+         {showError && !points && (
+            <p className="text-red-500 text-sm">Reward points is required</p>
+          )}
       </div>
 
       {/* Participation */}
@@ -141,6 +147,9 @@ export default function Reward() {
               </label>
             );
           })}
+          {showError && !segmentCriteria && (
+            <p className="text-red-500 text-sm">Segment criteria is required</p>
+          )}
         </div>
 
         {/* Segment Criteria */}

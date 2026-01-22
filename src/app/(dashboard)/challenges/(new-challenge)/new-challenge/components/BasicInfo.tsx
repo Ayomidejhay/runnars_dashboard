@@ -6,7 +6,8 @@ import Image from "next/image";
 import { useChallengeBuilderStore } from "@/stores/useChallengeBuilderStore";
 
 export default function BasicInfo() {
-  const { basicInfo, setBasicInfo } = useChallengeBuilderStore();
+  const { basicInfo, setBasicInfo, touchedSteps } = useChallengeBuilderStore();
+  const showError = touchedSteps[1];
 
   const [hashtagInput, setHashtagInput] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -77,6 +78,9 @@ export default function BasicInfo() {
             required
             max={100}
           />
+          {showError && !basicInfo.challengeName && (
+            <p className="text-red-500 text-sm">Challenge name is required</p>
+          )}
         </div>
 
         {/* Challenge Type */}
@@ -91,6 +95,9 @@ export default function BasicInfo() {
             <option value="">Select</option>
             <option value="walk">Walk</option>
           </select>
+          {showError && !basicInfo.challengeType && (
+            <p className="text-red-500 text-sm">Challenge type is required</p>
+          )}
         </div>
 
         {/* Description */}
@@ -103,6 +110,9 @@ export default function BasicInfo() {
             required
             maxLength={500}
           />
+          {showError && !basicInfo.description && (
+            <p className="text-red-500 text-sm">Description is required</p>
+          )}
         </div>
 
         {/* Hashtags */}
@@ -150,6 +160,9 @@ export default function BasicInfo() {
                 </span>
               ))}
             </div>
+          )}
+          {showError && !basicInfo.primaryHashtags && (
+            <p className="text-red-500 text-sm">Hashtags are required</p>
           )}
         </div>
 
