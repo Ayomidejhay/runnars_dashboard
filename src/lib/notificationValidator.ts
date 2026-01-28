@@ -1,6 +1,6 @@
-import { NotificationPayload } from "@/types/notification";
+import { CreateNotificationPayload } from "@/types/notification";
 
-export function validateNotification(payload: NotificationPayload) {
+export function validateNotification(payload: CreateNotificationPayload) {
   if (!payload.title.trim()) {
     throw new Error("Notification title is required");
   }
