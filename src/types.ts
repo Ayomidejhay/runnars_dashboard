@@ -18,29 +18,33 @@ export interface ChallengeUser {
   completionRate: number;
 }
 
-export interface PetChallenge {
-  id: number;
-  name: string;
-  location: string;
-  participants: number;
-  type: string;
-  category: string;
+export interface challenge {
+  _id?: string;
+  name?: string;
+  title?: string;
+  location?: string;
+  participants?: number;
+  type?: string;
+  category?: string;
   status?: ChallengeStatus;
-  is_active: boolean;
-  is_featured: boolean;
+  difficulty?: string;
+  is_active?: boolean;
+  is_featured?: boolean;
   community_id?: number;
-  startDate: string; // YYYY-MM-DD
-  endDate: string;   // YYYY-MM-DD
-  startTime: string; // HH:mm
-  endTime: string;   // HH:mm
-  completionRate: number;
-  description: string;
-  primaryGoal: string;
-  totalDistance: string | null;
-  hashtags: string[];
-  rewards: ChallengeReward;
-  eligibleParticipants: string;
-  users: ChallengeUser[];
+  startDate?: string; // YYYY-MM-DD
+  endDate?: string;   // YYYY-MM-DD
+  startTime?: string; // HH:mm
+  endTime?: string;   // HH:mm
+  completionRate?: number;
+  description?: string;
+  goals?: string;
+  totalDistance?: string | null;
+  primaryHashtags?: string[];
+  rewards?: ChallengeReward;
+  eligibleParticipants?: string;
+  users?: ChallengeUser[];
+  participantCount?: number;
+  image?: string;
 }
 
 export type Community = {

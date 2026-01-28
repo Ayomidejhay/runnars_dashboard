@@ -2,115 +2,251 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
-import { mockPetChallenges } from "@/mockdata";
-import { Calendar, Search } from "lucide-react";
+import React, { useState, useMemo, useEffect } from "react";
+import { Search } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { challenge } from "@/types";
+
 import PaginationControls from "../components/PaginationControls";
 import DropdownMenu from "../components/DropdownMenu";
+import { useAllChallenges, useDeleteChallenge } from "@/hooks/useChallenges";
+import DeleteModal from "../components/DeleteModal";
+import toast from "react-hot-toast";
+
+/* =========================
+   Date Range Utility
+========================= */
+const getPresetDateRange = (range: string) => {
+  const now = new Date();
+  let startDate: Date | undefined;
+  let endDate: Date | undefined = new Date();
+
+  switch (range) {
+    case "today":
+      startDate = new Date();
+      startDate.setHours(0, 0, 0, 0);
+      break;
+
+    case "yesterday":
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - 1);
+      startDate.setHours(0, 0, 0, 0);
+
+      endDate = new Date(now);
+      endDate.setDate(now.getDate() - 1);
+      endDate.setHours(23, 59, 59, 999);
+      break;
+
+    case "last7":
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - 7);
+      break;
+
+    case "last30":
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - 30);
+      break;
+
+    case "thisMonth":
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      break;
+
+    case "lastMonth":
+      startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+      break;
+
+    case "thisYear":
+      startDate = new Date(now.getFullYear(), 0, 1);
+      break;
+
+    default:
+      return {};
+  }
+
+  return {
+    startDate: startDate?.toISOString(),
+    endDate: endDate?.toISOString(),
+  };
+};
+
+
 
 const Page = () => {
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [activeTab, setActiveTab] = useState("all");
-  const [dateRange, setDateRange] = useState("all");
+  const [activeTab, setActiveTab] = useState<"all" | "featured" | "community">(
+    "all",
+  );
 
-  const [openRow, setOpenRow] = useState<number | null>(null);
+  const [challengeToDelete, setChallengeToDelete] = useState<challenge | null>(
+    null,
+  );
+
+  const [dateRange, setDateRange] = useState("all");
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
+  const [dateError, setDateError] = useState("");
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [openRow, setOpenRow] = useState<string | null>(null);
   const [dropdownPos, setDropdownPos] = useState<{
     top: number;
     left: number;
     buttonHeight: number;
   } | null>(null);
 
-  const router = useRouter();
+  // const deleteModalMutation = useDeleteChallenge();
+  const deleteModalMutation = useDeleteChallenge();
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  /* =========================
+     Validate Custom Dates
+  ========================= */
+  useEffect(() => {
+    if (
+      dateRange === "custom" &&
+      customStartDate &&
+      customEndDate &&
+      new Date(customStartDate) > new Date(customEndDate)
+    ) {
+      setDateError("End date must be after start date");
+    } else {
+      setDateError("");
+    }
+  }, [customStartDate, customEndDate, dateRange]);
 
-  // Format date as "Apr 15, 2025"
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "-";
-    return date.toLocaleDateString("en-US", {
+  const challengeCategory =
+    activeTab === "featured" || activeTab === "community"
+      ? (activeTab as "featured" | "community")
+      : undefined;
+
+  /* =========================
+     API Params
+  ========================= */
+
+  const apiParams = useMemo(() => {
+    let dateParams = {};
+
+    if (dateRange === "custom" && customStartDate && customEndDate) {
+      dateParams = {
+        startDate: new Date(customStartDate).toISOString(),
+        endDate: new Date(customEndDate).toISOString(),
+      };
+    } else if (dateRange !== "all") {
+      dateParams = getPresetDateRange(dateRange);
+    }
+
+    return {
+      page: currentPage,
+      limit: rowsPerPage,
+      search: searchTerm || undefined,
+      status: statusFilter !== "all" ? statusFilter : undefined,
+      type: typeFilter !== "all" ? typeFilter : undefined,
+      challengeCategory,
+      ...dateParams,
+    };
+  }, [
+    currentPage,
+    rowsPerPage,
+    searchTerm,
+    statusFilter,
+    typeFilter,
+    challengeCategory,
+    dateRange,
+    customStartDate,
+    customEndDate,
+  ]);
+
+  const { data, isLoading } = useAllChallenges(apiParams);
+
+  const challenges = Array.isArray(data?.data?.challenges)
+    ? data.data.challenges
+    : [];
+
+  const totalPages = data?.data?.pagination?.totalPages ?? 1;
+  const totalCount = data?.data?.pagination?.totalCount ?? 0;
+
+  /* =========================
+     Reset Pagination
+  ========================= */
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    searchTerm,
+    statusFilter,
+    typeFilter,
+    activeTab,
+    dateRange,
+    customStartDate,
+    customEndDate,
+  ]);
+
+  const formatDate = (date: string) => {
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "-";
+    return d.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
   };
 
-  // Filtering
-  const filterChallenges = () => {
-    return mockPetChallenges.filter((challenge) => {
-      const name = challenge.name?.toLowerCase() || "";
-      const description = challenge.description?.toLowerCase() || "";
+  const handleActionClick = (e: React.MouseEvent, id: string) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
 
-      const matchesSearch =
-        name.includes(searchTerm.toLowerCase()) ||
-        description.includes(searchTerm.toLowerCase());
-
-      const matchesStatus =
-        statusFilter === "all" || challenge.status === statusFilter;
-
-      const matchesType =
-        typeFilter === "all" || challenge.category === typeFilter;
-
-      let matchesTab = true;
-      if (activeTab === "featured") {
-        matchesTab = challenge.is_featured;
-      } else if (activeTab === "community") {
-        matchesTab = challenge.community_id !== undefined;
-      }
-
-      return matchesSearch && matchesStatus && matchesType && matchesTab;
+    setOpenRow(id);
+    setDropdownPos({
+      top: rect.bottom + window.scrollY,
+      left: rect.left + window.scrollX - 120,
+      buttonHeight: rect.height,
     });
   };
 
-  const filteredChallenges = filterChallenges();
-  const totalPages = Math.ceil(filteredChallenges.length / rowsPerPage);
-  const paginatedChallenges = filteredChallenges.slice(
-    (currentPage - 1) * rowsPerPage,
-    currentPage * rowsPerPage
-  );
-
   // handle action button click
-  const handleActionClick = (e: React.MouseEvent, id: number) => {
-    const target = e.currentTarget as HTMLElement;
-    const rect = target.getBoundingClientRect();
+  //   const handleActionClick = (e: React.MouseEvent, id: number) => {
+  //     const target = e.currentTarget as HTMLElement;
+  //     const rect = target.getBoundingClientRect();
 
-    const buttonHeight = rect.height;
-    const dropdownHeight = 160; // approximate dropdown height
-    const left = rect.right - 160; // align with dropdown width
-    const clampedLeft = Math.max(
-      8,
-      Math.min(left, window.innerWidth - 160 - 8)
-    );
+  //     const buttonHeight = rect.height;
+  //     const dropdownHeight = 160; // approximate dropdown height
+  //     const left = rect.right - 160; // align with dropdown width
+  //     const clampedLeft = Math.max(
+  //       8,
+  //       Math.min(left, window.innerWidth - 160 - 8),
+  //     );
 
-    const spaceBelow = window.innerHeight - rect.bottom;
-    const spaceAbove = rect.top;
+  //     const spaceBelow = window.innerHeight - rect.bottom;
+  //     const spaceAbove = rect.top;
 
-    let top: number;
+  //     let top: number;
 
-    if (spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) {
-      // not enough space below → show above
-      top = rect.top + window.scrollY - dropdownHeight;
-    } else {
-      // default → show below
-      top = rect.top + window.scrollY + buttonHeight;
-    }
+  //     if (spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) {
+  //       // not enough space below → show above
+  //       top = rect.top + window.scrollY - dropdownHeight;
+  //     } else {
+  //       // default → show below
+  //       top = rect.top + window.scrollY + buttonHeight;
+  //     }
 
-    if (openRow === id) {
-      setOpenRow(null);
-      setDropdownPos(null);
-    } else {
-      setOpenRow(id);
-      setDropdownPos({
-        top,
-        left: clampedLeft + window.scrollX,
-        buttonHeight,
-      });
-    }
-  };
+  //     if (openRow === id) {
+  //       setOpenRow(null);
+  //       setDropdownPos(null);
+  //     } else {
+  //       setOpenRow(id);
+  //       setDropdownPos({
+  //         top,
+  //         left: clampedLeft + window.scrollX,
+  //         buttonHeight,
+  //       });
+  //     }
+  //   };
+
+  const badge = (bg: string, text: string) =>
+    `px-2 py-1 rounded-full text-xs ${bg} ${text}`;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -136,285 +272,236 @@ const Page = () => {
 
   return (
     <div className="px-10">
-      {/* Top Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="capitalize text-[34px] font-bold text-deepblue">
-          challenges
-        </h1>
-        <div className="flex gap-6">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-[34px] font-bold">Challenges</h1>
+
+        <div className="flex gap-4">
           <Link
             href="/challenges/managebadge"
-            className="w-[163px] h-[44px] bg-transparent border border-brightblue text-brightblue rounded-[32px] flex items-center justify-center"
+            className="border px-4 py-2 rounded-full"
           >
-            <span className="text-[14px] flex items-center gap-[2px] font-bold">
-              Manage Badges
-              <Image src="/arrow-right.svg" alt="add" width={24} height={24} />
-            </span>
+            Manage Badges
           </Link>
+
           <Link
             href="/challenges/new-challenge"
-            className="w-[163px] h-[44px] text-white bg-brightblue rounded-[32px] flex items-center justify-center"
+            className="bg-blue-600 text-white px-4 py-2 rounded-full"
           >
-            <span className="text-[14px] flex items-center gap-[2px] font-bold">
-              <Image src="/add.svg" alt="add" width={24} height={24} />
-              New Challenge
-            </span>
+            New Challenge
           </Link>
         </div>
       </div>
 
-      {/* Tabs & Filters */}
-      <div>
-        <div className="border-b">
-          <div className="flex space-x-4 px-5">
-            {["all", "featured", "community"].map((tab) => (
-              <button
-                key={tab}
-                className={`py-2 px-4 text-sm font-medium ${
-                  activeTab === tab
-                    ? "border-b-2 border-blue-600 text-blue-600"
-                    : "text-gray-500 hover:text-blue-600"
-                }`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded mt-6">
-          {/* Filters */}
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-800 capitalize">
-              {activeTab} Challenges
-            </h2>
-
-            <div className="flex flex-wrap gap-4">
-              {/* Search */}
-              <div className="relative w-[240px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search challenges..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 border rounded-[32px] text-xs w-full h-10"
-                />
-              </div>
-
-              {/* Type Filter */}
-              <div className="relative w-[137px]">
-                <select
-                  value={typeFilter}
-                  onChange={(e) => setTypeFilter(e.target.value)}
-                  className="border px-3 text-xs w-full rounded-[32px] appearance-none h-10"
-                >
-                  <option value="all">Types</option>
-                  <option value="exercise">Exercise</option>
-                  <option value="social">Social</option>
-                  <option value="health">Health</option>
-                  <option value="training">Training</option>
-                  <option value="fun">Walk</option>
-                </select>
-
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-3 h-3"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </span>
-              </div>
-
-              {/* Status Filter */}
-              <div className="relative w-[87px]">
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="border px-3 text-xs w-full rounded-[32px] appearance-none h-10"
-                >
-                  <option value="all">Status</option>
-                  <option value="active">Active</option>
-                  <option value="scheduled">Scheduled</option>
-                  <option value="completed">Completed</option>
-                </select>
-
-                <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-3 h-3"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </span>
-              </div>
-
-              {/* Date Range Filter */}
-              <div className="relative w-[150px]">
-                <select
-                  value={dateRange}
-                  onChange={(e) => setDateRange(e.target.value)}
-                  className="border px-3 text-xs w-full rounded-[32px] appearance-none h-10"
-                >
-                  <option value="all">Date Range</option>
-                  <option value="today">Today</option>
-                  <option value="yesterday">Yesterday</option>
-                  <option value="last7">Last 7 Days</option>
-                  <option value="last30">Last 30 Days</option>
-                  <option value="thisMonth">This Month</option>
-                  <option value="lastMonth">Last Month</option>
-                  <option value="thisYear">This Year</option>
-                  <option value="custom">Custom Range</option>
-                </select>
-
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-3 h-3"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Table */}
-          <div className="overflow-x-auto mt-4">
-            <table className="w-full text-sm text-left relative">
-              <thead className="bg-tableheader font-normal text-tableheadertext rounded-md">
-                <tr>
-                  <th className="px-4 py-2">Challenge Name</th>
-                  <th className="px-4 py-2">Location</th>
-                  <th className="px-4 py-2">Participants</th>
-                  <th className="px-4 py-2">Type</th>
-                  <th className="px-4 py-2">Status</th>
-                  <th className="px-4 py-2">Start Date</th>
-                  <th className="px-4 py-2">End Date</th>
-                  <th className="px-4 py-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedChallenges.length > 0 ? (
-                  paginatedChallenges.map((challenge) => (
-                    <tr
-                      key={challenge.id}
-                      className="border-b border-border text-deepblue text-[14px] font-bold hover:bg-gray-50"
-                    >
-                      <td className="px-4 py-4 font-bold text-deepblue">
-                        <div className="flex gap-1.5 items-center">
-                          <Image
-                            src="/challenge.svg"
-                            alt={challenge.name}
-                            width={32}
-                            height={32}
-                            className="w-8 h-8 rounded-full object-cover"
-                          />
-                          <div className="flex flex-col gap-1">
-                            <p>{challenge.name}</p>
-                            <p className="text-xs text-[#8E98A8] font-normal">
-                              {challenge.is_featured
-                                ? "Featured"
-                                : "Freewalk Pack"}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4">{challenge.location}</td>
-                      <td className="px-4 py-4">{challenge.participants}</td>
-                      <td className="px-4 py-4">
-                        <span
-                          className={`px-2 py-2 rounded-full text-xs font-semibold capitalize ${getChallengeBadge(
-                            challenge.type
-                          )}`}
-                        >
-                          {challenge.type}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span
-                          className={`px-2 py-2 rounded-full text-xs font-semibold capitalize ${getStatusBadge(
-                            challenge.status
-                          )}`}
-                        >
-                          {challenge.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        {formatDate(challenge.startDate)}
-                      </td>
-                      <td className="px-4 py-4">
-                        {formatDate(challenge.endDate)}
-                      </td>
-                      <td className="relative px-4 py-4">
-                        <button
-                          onClick={(e) => handleActionClick(e, challenge.id)}
-                        >
-                          <Image
-                            src="/Button-table.svg"
-                            alt="button"
-                            width={24}
-                            height={24}
-                            className="cursor-pointer"
-                          />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={8} className="text-center py-8 text-gray-500">
-                      {mockPetChallenges.length === 0
-                        ? "No challenges yet. Create your first challenge."
-                        : "No active challenges found."}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          <PaginationControls
-            currentPage={currentPage}
-            totalPages={totalPages}
-            rowsPerPage={rowsPerPage}
-            onPageChange={setCurrentPage}
-            onRowsPerPageChange={(rows) => {
-              setRowsPerPage(rows);
-              setCurrentPage(1);
-            }}
-          />
+      {/* Tabs */}
+      <div className="border-b mb-6">
+        <div className="flex gap-6">
+          {["all", "featured", "community"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab as any)}
+              className={`pb-2 capitalize ${
+                activeTab === tab
+                  ? "border-b-2 border-blue-600 text-blue-600"
+                  : "text-gray-500"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Single global DropdownMenu */}
+      <div className="bg-white p-4 rounded mt-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-gray-800 capitalize">
+            {activeTab} Challenges ({totalCount})
+          </h2>
+          <div className=" flex flex-wrap gap-4 items-center">
+            <div className="relative w-60">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search challenges"
+                className="pl-10 pr-4 h-10 w-full border rounded-full text-sm"
+              />
+            </div>
+
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="h-10 px-4 border rounded-full text-sm"
+            >
+              <option value="all">Type</option>
+              <option value="walk">Walk</option>
+              <option value="exercise">Exercise</option>
+              <option value="health">Health</option>
+              <option value="social">Social</option>
+            </select>
+
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="h-10 px-4 border rounded-full text-sm"
+            >
+              <option value="all">Status</option>
+              <option value="active">Active</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="completed">Completed</option>
+            </select>
+
+            <select
+              value={dateRange}
+              onChange={(e) => setDateRange(e.target.value)}
+              className="h-10 px-4 border rounded-full text-sm"
+            >
+              <option value="all">Date Range</option>
+              <option value="today">Today</option>
+              <option value="last7">Last 7 Days</option>
+              <option value="last30">Last 30 Days</option>
+              <option value="custom">Custom</option>
+            </select>
+
+            {dateRange === "custom" && (
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  className="h-10 px-3 border rounded"
+                />
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="h-10 px-3 border rounded"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      {/* Filters */}
+
+      {dateError && <p className="text-red-500 text-sm mb-4">{dateError}</p>}
+
+      {/* Table */}
+      <div className="overflow-x-auto bg-white rounded">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-4 py-3 text-left">Name</th>
+              <th className="px-4 py-3">Participants</th>
+              <th className="px-4 py-3">Type</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Start</th>
+              <th className="px-4 py-3">End</th>
+              <th className="px-4 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
+              <tr>
+                <td colSpan={7} className="py-8 text-center">
+                  Loading challenges...
+                </td>
+              </tr>
+            ) : challenges.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="py-8 text-center text-gray-500">
+                  No challenges found.
+                </td>
+              </tr>
+            ) : (
+              challenges.map((c: any) => (
+                <tr key={c._id} className="border-t hover:bg-gray-50">
+                  <td className="px-4 py-3 font-bold text-deepblue">
+                    <div className="flex gap-1.5 items-center">
+                      <Image
+                        src={c.image || "/challenge-banner.png"}
+                        alt={c.title}
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                      <div className="flex flex-col gap-1">
+                        <p>{c.title}</p>
+                        <p className="text-xs text-[#8E98A8] font-normal">
+                          {c.challengeCategory}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  {/* <td className="px-4 py-3 font-semibold">
+                    {c.title}
+                    <p className="text-xs text-gray-400 capitalize">
+                      {c.challengeCategory}
+                    </p>
+                  </td> */}
+
+                  <td className="px-4 py-3 text-center">
+                    {Array.isArray(c.participants) ? c.participants.length : 0}
+                  </td>
+
+                  <td className="px-4 py-3 text-center capitalize">
+                    <span className="px-2 py-1 rounded-full text-xs bg-[#E8F1FD] text-[#1570EF]">
+                      {c.type}
+                    </span>
+                  </td>
+
+                  <td className="px-4 py-3 text-center capitalize">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        c.status === "active"
+                          ? "bg-[#E8F1FD] text-[#1570EF]"
+                          : c.status === "scheduled"
+                            ? "bg-[#FFF8E1] text-[#FFA000]"
+                            : c.status === "completed"
+                              ? "bg-[#ECF8F1] text-[#40B773]"
+                              : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {c.status}
+                    </span>
+                  </td>
+
+                  <td className="px-4 py-3 text-center">
+                    {formatDate(c.startDate)}
+                  </td>
+
+                  <td className="px-4 py-3 text-center">
+                    {formatDate(c.endDate)}
+                  </td>
+
+                  <td className="px-4 py-3 text-center">
+                    <button onClick={(e) => handleActionClick(e, c._id)}>
+                      <Image
+                        src="/Button-table.svg"
+                        alt="Actions"
+                        width={20}
+                        height={20}
+                      />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        rowsPerPage={rowsPerPage}
+        onPageChange={setCurrentPage}
+        onRowsPerPageChange={(v) => {
+          setRowsPerPage(v);
+          setCurrentPage(1);
+        }}
+      />
+
       <DropdownMenu
         isOpen={openRow !== null}
         position={dropdownPos}
@@ -426,7 +513,13 @@ const Page = () => {
           {
             label: "See Details",
             icon: "/eye.svg",
-            href: openRow ? `/challenges/${openRow}` : "#",
+            href:
+              openRow &&
+              challenges.find((c: challenge) => c._id === openRow)?._id
+                ? `/challenges/${challenges.find((c: challenge) => c._id === openRow)?._id}`
+                : "#",
+
+            // href: openRow ? `/challenges/${openRow}` : "#",
           },
           {
             label: "Edit",
@@ -437,10 +530,36 @@ const Page = () => {
             label: "Delete",
             icon: "/user.svg",
             danger: true,
-            onClick: () => console.log("Delete", openRow),
+            onClick: () => {
+              setChallengeToDelete(
+                challenges.find((c: challenge) => c._id === openRow) || null,
+              );
+            },
           },
         ]}
       />
+
+      {challengeToDelete && (
+        <DeleteModal
+          // name={challengeToDelete.title}
+          isLoading={deleteModalMutation.isPending}
+          onCancel={() => setChallengeToDelete(null)}
+          message={`Are you sure you want to delete the challenge "${challengeToDelete.title}"? This action cannot be undone.`}
+          deleteObject="challenge"
+          onConfirm={() => {
+            if (!challengeToDelete?._id)
+              return toast.error("Invalid challenge");
+            deleteModalMutation.mutate(challengeToDelete._id, {
+              onSuccess: () => setChallengeToDelete(null),
+              onError: (error: any) =>
+                toast.error(
+                  error?.response?.data?.message ||
+                    "Failed to delete challenge",
+                ),
+            });
+          }}
+        />
+      )}
     </div>
   );
 };

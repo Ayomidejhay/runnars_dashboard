@@ -6,8 +6,9 @@ import Image from "next/image";
 import { mockPetChallenges } from "@/mockdata";
 import { Search } from "lucide-react";
 import Link from "next/link";
+import { AdminChallenge } from "@/types/challenge";
 
-export default function ParticipantsTab() {
+export default function ParticipantsTab({ adminChallenge }: { adminChallenge: AdminChallenge }) {
   const { id } = useParams();
   const challenge = mockPetChallenges.find((c) => c.id === Number(id));
 
@@ -16,10 +17,10 @@ export default function ParticipantsTab() {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  if (!challenge) return null;
+  
 
-  const filteredParticipants = challenge.users.filter((user) => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredParticipants = adminChallenge.publishedChallenge.participants.filter((user) => {
+    const matchesSearch = user.user.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || user.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -61,17 +62,17 @@ export default function ParticipantsTab() {
         {[
           {
             title: "Total Participants",
-            value: `${challenge.users.length}`,
+            value: `${adminChallenge.publishedChallenge.participantCount || 0}`,
             subtitle: "+12% from 24 hours",
           },
           {
             title: "Active Participants",
-            value: `${challenge.users.filter((u) => u.status === "active").length}`,
+            value: `${adminChallenge.publishedChallenge.participants.filter((u) => u.status === "active").length || 0}`,
             subtitle: "Currently active",
           },
           {
             title: "Completed Challenge",
-            value: `${challenge.users.filter((u) => u.status === "completed").length}`,
+            value: `${adminChallenge.publishedChallenge.participants.filter((u) => u.status === "completed").length || 0}`,
             subtitle: "Marked complete",
           },
         ].map((item, idx) => (
@@ -88,7 +89,7 @@ export default function ParticipantsTab() {
         ))}
       </div>
 
-      {challenge.users.length !== 0 && (
+      {adminChallenge.publishedChallenge.participants.length !== 0 && (
         // Filters
         <div className="bg-white p-4 rounded mt-6">
         <div className="flex justify-between items-center">
@@ -161,13 +162,13 @@ export default function ParticipantsTab() {
                       <div className="flex items-center gap-2">
                         <Image
                           src="/avata.png"
-                          alt={user.name}
+                          alt={user.user}
                           width={32}
                           height={32}
                           className="rounded-full"
                         />
                         <div className="flex flex-col gap-1">
-                            <p>{user.name}</p>
+                            <p>{user.user}</p>
                             <p className="text-xs text-[#8E98A8] font-normal">
                               @sarahj • Max (Golden Retriever)
                             </p>
@@ -188,10 +189,10 @@ export default function ParticipantsTab() {
                       <div className="w-[120px] h-[6px] bg-gray-200 rounded-full overflow-hidden mt-1">
                         <div
                           className="bg-brightblue h-full"
-                          style={{ width: `${user.completionRate}%` }}
+                          // style={{ width: `${user.completionRate}%` }}
                         ></div>
                       </div>
-                      <p>{user.completionRate}%</p>
+                      {/* <p>{user.completionRate}%</p> */}
                     </td>
                     
                       <td className="px-4 py-2 text-xs"><Link href='/users' className="w-[85px] h-[36px] rounded-full border bg-transparent border-[#E1E1E1] flex items-center justify-center cursor-pointer">
