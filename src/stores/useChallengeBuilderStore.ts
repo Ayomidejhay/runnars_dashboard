@@ -37,6 +37,7 @@ export interface FrequencyGoalConfig {
   timeRange?: { start: string; end: string };
   walksPerPeriod?: number;
   minimumWalkDuration?: number;
+  minDuration?: number;
   selectedDays?: string[];
 }
 
