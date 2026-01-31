@@ -45,7 +45,7 @@ export interface GetChallengesParams {
   search?: string;
   status?: string;
   type?: string;
-  challengeCategory?: "featured" | "community";
+  category?: "featured" | "community";
   startDate?: string;
   endDate?: string;
 }
@@ -56,12 +56,12 @@ export const getAllChallenges = async ({
   search,
   status,
   type,
-  challengeCategory,
+  category,
   startDate,
   endDate
 }: GetChallengesParams) => {
   const response = await api.get("/api/admin/challenges", {
-    params: { page, limit, search, status, type, challengeCategory, startDate, endDate },
+    params: { page, limit, search, status, type, category, startDate, endDate },
   });
 
   return response.data;

@@ -119,7 +119,7 @@ const Page = () => {
     }
   }, [customStartDate, customEndDate, dateRange]);
 
-  const challengeCategory =
+  const category =
     activeTab === "featured" || activeTab === "community"
       ? (activeTab as "featured" | "community")
       : undefined;
@@ -146,7 +146,7 @@ const Page = () => {
       search: searchTerm || undefined,
       status: statusFilter !== "all" ? statusFilter : undefined,
       type: typeFilter !== "all" ? typeFilter : undefined,
-      challengeCategory,
+      category,
       ...dateParams,
     };
   }, [
@@ -155,7 +155,7 @@ const Page = () => {
     searchTerm,
     statusFilter,
     typeFilter,
-    challengeCategory,
+    category,
     dateRange,
     customStartDate,
     customEndDate,
@@ -206,44 +206,7 @@ const Page = () => {
     });
   };
 
-  // handle action button click
-  //   const handleActionClick = (e: React.MouseEvent, id: number) => {
-  //     const target = e.currentTarget as HTMLElement;
-  //     const rect = target.getBoundingClientRect();
 
-  //     const buttonHeight = rect.height;
-  //     const dropdownHeight = 160; // approximate dropdown height
-  //     const left = rect.right - 160; // align with dropdown width
-  //     const clampedLeft = Math.max(
-  //       8,
-  //       Math.min(left, window.innerWidth - 160 - 8),
-  //     );
-
-  //     const spaceBelow = window.innerHeight - rect.bottom;
-  //     const spaceAbove = rect.top;
-
-  //     let top: number;
-
-  //     if (spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) {
-  //       // not enough space below → show above
-  //       top = rect.top + window.scrollY - dropdownHeight;
-  //     } else {
-  //       // default → show below
-  //       top = rect.top + window.scrollY + buttonHeight;
-  //     }
-
-  //     if (openRow === id) {
-  //       setOpenRow(null);
-  //       setDropdownPos(null);
-  //     } else {
-  //       setOpenRow(id);
-  //       setDropdownPos({
-  //         top,
-  //         left: clampedLeft + window.scrollX,
-  //         buttonHeight,
-  //       });
-  //     }
-  //   };
 
   const badge = (bg: string, text: string) =>
     `px-2 py-1 rounded-full text-xs ${bg} ${text}`;
@@ -419,7 +382,7 @@ const Page = () => {
                   <td className="px-4 py-3 font-bold text-deepblue">
                     <div className="flex gap-1.5 items-center">
                       <Image
-                        src={c.image || "/challenge-banner.png"}
+                        src={c.image || "/petmock.svg"}
                         alt={c.title}
                         width={32}
                         height={32}
@@ -524,7 +487,11 @@ const Page = () => {
           {
             label: "Edit",
             icon: "/edit.svg",
-            onClick: () => console.log("Edit", openRow),
+             href:
+              openRow &&
+              challenges.find((c: challenge) => c._id === openRow)?._id
+                ? `/challenges/${challenges.find((c: challenge) => c._id === openRow)?._id}/edit`
+                : "#",
           },
           {
             label: "Delete",

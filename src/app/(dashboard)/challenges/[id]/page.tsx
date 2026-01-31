@@ -26,21 +26,19 @@ const page = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
 
-  const [challengeToDelete, setChallengeToDelete] = useState<AdminChallenge | null>(
-      null,
-    );
+  const [challengeToDelete, setChallengeToDelete] =
+    useState<AdminChallenge | null>(null);
 
-   const { data, isLoading, error } = useChallenge(id);
+  const { data, isLoading, error } = useChallenge(id);
 
- 
-const adminChallenge = data?.data?.adminChallenge;
+  const adminChallenge = data?.data?.adminChallenge;
   const published = adminChallenge?.publishedChallenge;
   const schedule = adminChallenge?.scheduleAndDuration;
 
   const deleteModalMutation = useDeleteChallenge();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-   // Function to handle delete
+  // Function to handle delete
   const handleDelete = () => {
     if (!adminChallenge) return;
     deleteModalMutation.mutate(adminChallenge._id, {
@@ -155,16 +153,14 @@ const adminChallenge = data?.data?.adminChallenge;
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-     if (isLoading) {
+  if (isLoading) {
     return <div className="p-10">Loading challenge…</div>;
   }
 
   if (error || !data?.data?.adminChallenge) {
     return (
       <div className="p-10 text-center">
-        <h2 className="text-xl font-semibold">
-          Challenge not found
-        </h2>
+        <h2 className="text-xl font-semibold">Challenge not found</h2>
         <button
           onClick={() => router.push("/challenges")}
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
@@ -174,8 +170,6 @@ const adminChallenge = data?.data?.adminChallenge;
       </div>
     );
   }
-
-
 
   return (
     <div className="px-10">
@@ -193,7 +187,7 @@ const adminChallenge = data?.data?.adminChallenge;
             challenges details
           </h1>
           <div className="flex gap-6">
-            <Link href="">
+            <Link href={`/challenges/${id}/edit`}>
               <Image src="/edit-detail.svg" alt="edit" width={40} height={40} />
             </Link>
             <button onClick={() => setShowDeleteModal(true)}>
@@ -229,7 +223,10 @@ const adminChallenge = data?.data?.adminChallenge;
         {/**content */}
         <div className="mt-4">
           {activeTab === "overview" && (
-            <OverviewTab adminChallenge={adminChallenge} getStatusBadge={getStatusBadge} />
+            <OverviewTab
+              adminChallenge={adminChallenge}
+              getStatusBadge={getStatusBadge}
+            />
           )}
 
           {activeTab === "participants" && (

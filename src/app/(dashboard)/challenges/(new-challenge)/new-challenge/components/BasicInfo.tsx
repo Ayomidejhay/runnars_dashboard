@@ -37,7 +37,7 @@ export default function BasicInfo() {
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
-        setBasicInfo({ coverImage: acceptedFiles[0] });
+        setBasicInfo({ coverImage: acceptedFiles[0], coverImageUrl: null });
       }
     },
     [setBasicInfo],
@@ -51,17 +51,33 @@ export default function BasicInfo() {
 
   /* ------------------ Preview Cleanup ------------------ */
 
+  // useEffect(() => {
+  //   if (!basicInfo.coverImage) {
+  //     setPreviewUrl(null);
+  //     return;
+  //   }
+
+  //   const url = URL.createObjectURL(basicInfo.coverImage);
+  //   setPreviewUrl(url);
+
+  //   return () => URL.revokeObjectURL(url);
+  // }, [basicInfo.coverImage]);
   useEffect(() => {
-    if (!basicInfo.coverImage) {
-      setPreviewUrl(null);
+    // New image selected (File)
+    if (basicInfo.coverImage) {
+      const url = URL.createObjectURL(basicInfo.coverImage);
+      setPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    }
+
+    // Existing image from backend (URL)
+    if (basicInfo.coverImageUrl) {
+      setPreviewUrl(basicInfo.coverImageUrl);
       return;
     }
 
-    const url = URL.createObjectURL(basicInfo.coverImage);
-    setPreviewUrl(url);
-
-    return () => URL.revokeObjectURL(url);
-  }, [basicInfo.coverImage]);
+    setPreviewUrl(null);
+  }, [basicInfo.coverImage, basicInfo.coverImageUrl]);
 
   return (
     <div className="flex flex-col gap-6">

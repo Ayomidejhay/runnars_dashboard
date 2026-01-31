@@ -85,7 +85,7 @@ const averageDistance =
         <div>
           <div className="w-full h-[230px] relative rounded-[16px] overflow-hidden">
             <Image
-              src={adminChallenge.basicInfo.coverImage || "/challenge-banner.png"}
+              src={adminChallenge.basicInfo.coverImage || "/petmock.svg"}
               alt="banner"
               fill
               className="object-cover"
@@ -216,7 +216,8 @@ const averageDistance =
               <p>Who can participate</p>
               <p className="font-bold text-deepblue capitalize">
               {getParticipationDisplayValue(
-      adminChallenge.publishedChallenge.participationRules
+       adminChallenge.rewards.participation
+
     )}
               </p>
             </div>

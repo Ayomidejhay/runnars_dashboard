@@ -5,13 +5,23 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { userMockData } from "@/mockdata";
+import { useUser } from "@/hooks/useUsers";
 import RecentActivity from "../components/RecentActivity";
+import { formatDates } from "@/lib/formatDates";
+import { div } from "framer-motion/client";
+
 
 export default function page() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
-  const user = userMockData.find((c) => c.id === id);
+  const { data, isLoading, error } = useUser(id);
+
+  const userInfo = data?.data?.basicInfo;
+  const userPets = data?.data?.pets;
+  const userActivities = data?.data?.activitySummary;
+
+  
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -24,8 +34,22 @@ export default function page() {
     }
   };
 
-  if (!user) {
-    return <p className="text-red-500">User not found.</p>;
+    if (isLoading) {
+    return <div className="p-10">Loading user details…</div>;
+  }
+
+  if (error || !data?.data?.basicInfo) {
+    return (
+      <div className="p-10 text-center">
+        <h2 className="text-xl font-semibold">User not found</h2>
+        <button
+          onClick={() => router.push("/users")}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
+        >
+          Back to Users
+        </button>
+      </div>
+    );
   }
   return (
     <div className="px-10">
@@ -41,19 +65,7 @@ export default function page() {
           <h1 className="capitalize text-[34px] font-bold text-deepblue">
             user details
           </h1>
-          <div className="flex gap-6">
-            <Link href="">
-              <Image src="/edit-detail.svg" alt="edit" width={40} height={40} />
-            </Link>
-            <Link href="">
-              <Image
-                src="/delete-detail.svg"
-                alt="delete"
-                width={40}
-                height={40}
-              />
-            </Link>
-          </div>
+          
         </div>
       </div>
       <div className="flex gap-6">
@@ -64,41 +76,43 @@ export default function page() {
             </p>
             <div className="text-center mx-auto  border-[#E1E1E1]">
               <Image
-                src="/mockuser.png"
-                alt="user "
+                src={userInfo.profilePicture || '/profile-icon.svg'}
+                alt={userInfo.fullName}
                 width={120}
                 height={120}
                 className="rounded-full mb-2 mx-auto"
               />
               <div className="text-[18px] text-deepblue font-bold mb-1">
-                {user.name}
+                {userInfo.fullName}
               </div>
-              <div className="text-[14px] mb-2">{user.email}</div>
+              <div className="text-[14px] mb-2">{userInfo.email}</div>
               <div
                 className={`px-2 py-2 w-[51px] mx-auto rounded-full text-xs  font-semibold ${getStatusBadge(
-                  user.status
+                  userInfo.status
                 )}`}
               >
-                {user.status}
+                {userInfo.status}
               </div>
             </div>
             <div className="w-full h-[1px] bg-[#E1E1E1] -mt-1"></div>
             <div className="flex flex-col gap-3">
               <div className="flex justify-between ">
                 <p>Email</p>
-                <p className="text-deepblue font-bold">{user.email}</p>
+                <p className="text-deepblue font-bold">{userInfo.email}</p>
               </div>
               <div className="flex justify-between ">
                 <p>Member Since</p>
-                <p className="text-deepblue font-bold">{user.dateJoined}</p>
+                <p className="text-deepblue font-bold">{formatDates(userInfo.joinDate)}</p>
               </div>
               <div className="flex justify-between ">
                 <p>Last Login</p>
-                <p className="text-deepblue font-bold">Today, 2:45 PM</p>
+                <p className="text-deepblue font-bold">{formatDates(userInfo.lastActive)}</p>
               </div>
             </div>
           </div>
-          <div className="border border-[#E1E1E1] p-6 rounded-[16px] bg-transparent flex flex-col gap-6">
+          <div className="flex flex-col gap-6">
+            {userPets.map((pet: any) => (
+               <div key={pet._id} className="border border-[#E1E1E1] p-6 rounded-[16px] bg-transparent flex flex-col gap-6">
             <p className="text-[20px] text-deepblue font-bold">
               Pet information
             </p>
@@ -106,7 +120,7 @@ export default function page() {
               <div className="flex justify-between items-center">
                 <div className="flex gap-1 items-center">
                   <Image
-                    src="/petmock.png"
+                    src={pet.picture || '/petmock.svg'}
                     alt="pet"
                     height={40}
                     width={40}
@@ -114,12 +128,12 @@ export default function page() {
                   />
                   <p className="text-[12px]">
                     <span className="font-bold text-deepblue text-[14px]">
-                      Max
+                      {pet.name}
                     </span>{" "}
-                    (Golden Retriever)
+                    {pet.breed}
                   </p>
                 </div>
-                <div className="flex gap-1 items-center text-brightblue">
+                <Link href={`/users/pets/${pet._id}`} className="flex gap-1 items-center text-brightblue">
                   <p>View profile</p>
                   <Image
                     src="/arrow-right.svg"
@@ -127,15 +141,15 @@ export default function page() {
                     width={16}
                     height={16}
                   />
-                </div>
+                </Link>
               </div>
               <div className="flex justify-between">
                 <p>Pet Type</p>
-                <p className="font-bold text-deepblue">Dog</p>
+                <p className="font-bold text-deepblue">{pet.petType}</p>
               </div>
               <div className="flex justify-between">
                 <p>Age</p>
-                <p className="font-bold text-deepblue">1-3 years</p>
+                <p className="font-bold text-deepblue">{pet.ageGroup}</p>
               </div>
               <div className="flex justify-between">
                 <p>Activity Level</p>
@@ -143,6 +157,9 @@ export default function page() {
               </div>
             </div>
           </div>
+            ))}
+          </div>
+         
         </div>
         <div className="basis-[60%] flex flex-col gap-6">
           <div className="border border-[#E1E1E1] p-6 rounded-[16px] bg-transparent flex flex-col gap-4">
@@ -162,7 +179,7 @@ export default function page() {
               </div>
             </div>
           </div>
-          <RecentActivity />
+          <RecentActivity activities={userActivities?.recentActivities}/>
         </div>
       </div>
     </div>

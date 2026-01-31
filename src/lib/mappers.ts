@@ -42,13 +42,26 @@ const streakGoalMap: Record<string, string> = {
   "Multiple day streak": "multiple_day_streak",
 };
 
-export const mapBasicInfo = (basicInfo: any) => ({
-  name: basicInfo.challengeName,
-  type: basicInfo.challengeType,
-  description: basicInfo.description,
-  primaryHashtags: basicInfo.primaryHashtags,
-  coverImage: basicInfo.coverImage || null, // file will be handled separately if uploading
-});
+// export const mapBasicInfo = (basicInfo: any) => ({
+//   name: basicInfo.challengeName,
+//   type: basicInfo.challengeType,
+//   description: basicInfo.description,
+//   primaryHashtags: basicInfo.primaryHashtags,
+//   coverImage: basicInfo.coverImage || null, // file will be handled separately if uploading
+// });
+
+// mapBasicInfo.ts
+export const mapBasicInfo = (basicInfo: BasicInfoState) => {
+  return {
+    name: basicInfo.challengeName,
+    type: basicInfo.challengeType,
+    description: basicInfo.description,
+    primaryHashtags: basicInfo.primaryHashtags,
+    // Only include coverImage if it’s a File
+    ...(basicInfo.coverImage instanceof File ? { coverImage: basicInfo.coverImage } : {}),
+  };
+};
+
 
 export const mapGoalsAndMetrics = (goalsAndMetrics: any) => {
   const distanceGoals = goalsAndMetrics.distanceGoal
@@ -152,6 +165,7 @@ export const mapRewards = (rewards: any) => {
           ? rewards.segmentCriteria.specificPetTypes || []
           : [],
     },
-    badgeImage: rewards.rewardFile || null,
+    // badgeImage: rewards.rewardFile || null,
+    ...(rewards.badgeImage instanceof File ? { badgeImage: rewards.badgeImage } : {}),
   };
 };

@@ -30,6 +30,7 @@ export default function Page() {
     schedule,
     rewards,
     reset,
+    mode,
     setBasicInfo,
     setGoalsAndMetrics,
     setSchedule,
@@ -43,6 +44,10 @@ export default function Page() {
   //Restore Draft (on mount)
 
   useEffect(() => {
+     // Only reset if coming from edit mode
+    if (mode === "edit") {
+      reset();
+    }
     const raw = localStorage.getItem(LOCAL_DRAFT_KEY);
     if (!raw) return;
 
@@ -58,7 +63,7 @@ export default function Page() {
     } catch (err) {
       console.error("Draft restore failed:", err);
     }
-  }, [setBasicInfo, setGoalsAndMetrics, setSchedule, rewardActions]);
+  }, [setBasicInfo, setGoalsAndMetrics, setSchedule, rewardActions, reset, mode]);
 
   // Save Draft
   const handleSaveDraft = () => {

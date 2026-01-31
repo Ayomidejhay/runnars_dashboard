@@ -1,13 +1,20 @@
-
-
-
 import { create } from "zustand";
 
 /* =========================
-   Goal & Config Types
+   STORE MODE
+========================= */
+
+type BuilderMode = "create" | "edit";
+
+/* =========================
+   GOAL TYPES
 ========================= */
 
 export type GoalType = "distance" | "frequency" | "time" | "streak" | "photo";
+
+/* =========================
+   GOAL CONFIGS
+========================= */
 
 export interface DistanceGoalConfig {
   targetDistance?: number;
@@ -27,28 +34,16 @@ export interface FrequencyGoalConfig {
   numberOfWeeks?: number;
   selectedDay?: string;
   timePeriod?: string;
-  timeRange?: {
-    start: string;
-    end: string;
-  };
+  timeRange?: { start: string; end: string };
   walksPerPeriod?: number;
   minimumWalkDuration?: number;
-  minDuration?: number;
   selectedDays?: string[];
-  weeksCount?: number;
-  minimumDuration?: number;
-  minWalkDuration?: number;
 }
 
 export interface TimeGoalConfig {
   totalWalkingTime?: number;
   minimumWalkDuration?: number;
   numberOfWalks?: number;
-  distancePerWalk?: number;
-  startDistance?: number;
-  weeklyIncrease?: number;
-  durationWeeks?: number;
-  timePerWeek?: number;
   numberOfWeeks?: number;
 }
 
@@ -56,22 +51,19 @@ export interface StreakGoalConfig {
   consecutiveDaysTarget?: number;
   allowJokerDay?: boolean;
   minimumStreakTarget?: number;
-  minimumStreakValue?: number;
   challengeDuration?: number;
-  numberOfStreaks?: number;
-  streakLength?: number;
-  restDays?: number;
   selectedDays?: string[];
-  minimumWalkDuration?: number;
-  numberOfWeeks?: number;
 }
 
 export interface PhotoGoalConfig {
   numberOfPhotos?: number;
   challengeDuration?: number;
   frequency?: string;
-  photoRequirements?: string[];
 }
+
+/* =========================
+   PAYLOAD
+========================= */
 
 export interface GoalPayload<T> {
   configurationType: string;
@@ -79,7 +71,7 @@ export interface GoalPayload<T> {
 }
 
 /* =========================
-   State Interfaces
+   STATE INTERFACES
 ========================= */
 
 export interface BasicInfoState {
@@ -87,7 +79,8 @@ export interface BasicInfoState {
   challengeType: string;
   description: string;
   primaryHashtags: string[];
-  coverImage?: File | null;
+  coverImage: File | null;
+  coverImageUrl: string | null;
 }
 
 export interface GoalsAndMetricsState {
@@ -138,270 +131,357 @@ export interface RewardActions {
 }
 
 /* =========================
-   Root Store Interface
+   SNAPSHOT (EDIT DIFF)
+========================= */
+
+type Snapshot = {
+  basicInfo: BasicInfoState;
+  goalsAndMetrics: GoalsAndMetricsState;
+  schedule: ScheduleState;
+  rewards: RewardState;
+};
+
+/* =========================
+   ROOT STORE
 ========================= */
 
 export interface ChallengeBuilderState {
+  mode: BuilderMode;
+  challengeId?: string;
+  initialSnapshot?: Snapshot;
+
   step: number;
   touchedSteps: Record<number, boolean>;
+
+  isGoalsEditable: boolean;
 
   basicInfo: BasicInfoState;
   goalsAndMetrics: GoalsAndMetricsState;
   schedule: ScheduleState;
-
   rewards: RewardState;
   rewardActions: RewardActions;
 
+  hasHydratedFromServer: boolean;
+
+  /* navigation */
   setStep: (step: number) => void;
   markStepTouched: (step: number) => void;
   isStepValid: (step: number) => boolean;
 
+  /* setters */
   setBasicInfo: (data: Partial<BasicInfoState>) => void;
   setGoalType: (type: GoalType) => void;
   setGoalsAndMetrics: (data: Partial<GoalsAndMetricsState>) => void;
-
   setDistanceConfig: (payload: GoalPayload<DistanceGoalConfig>) => void;
   setFrequencyConfig: (payload: GoalPayload<FrequencyGoalConfig>) => void;
   setTimeConfig: (payload: GoalPayload<TimeGoalConfig>) => void;
   setStreakConfig: (payload: GoalPayload<StreakGoalConfig>) => void;
   setPhotoConfig: (payload: GoalPayload<PhotoGoalConfig>) => void;
-
   setSchedule: (data: Partial<ScheduleState>) => void;
+  setRewards: (data: Partial<RewardState>) => void;
+
+  /* edit flow */
+  initializeFromApi: (data: any, challengeId: string) => void;
+  getUpdatePayload: () => Partial<Snapshot>;
+
   reset: () => void;
 }
 
 /* =========================
-   Initial Rewards
+   INITIAL STATE
 ========================= */
 
-const initialRewardsState: RewardState = {
+const initialRewards: RewardState = {
   points: 0,
   participation: { whoCanParticipate: "all_users" },
-  segmentCriteria: {
-    petFitScoreRange: "all",
-    specificPetTypes: [],
-  },
+  segmentCriteria: { petFitScoreRange: "all", specificPetTypes: [] },
   rewardFile: null,
 };
 
+const initialState: Omit<
+  ChallengeBuilderState,
+  | "setStep"
+  | "markStepTouched"
+  | "isStepValid"
+  | "setBasicInfo"
+  | "setGoalType"
+  | "setGoalsAndMetrics"
+  | "setDistanceConfig"
+  | "setFrequencyConfig"
+  | "setTimeConfig"
+  | "setStreakConfig"
+  | "setPhotoConfig"
+  | "setSchedule"
+  | "setRewards"
+  | "initializeFromApi"
+  | "getUpdatePayload"
+  | "reset"
+  | "rewardActions"
+> = {
+  mode: "create",
+  challengeId: undefined,
+
+  initialSnapshot: undefined,
+
+  step: 1,
+  touchedSteps: {},
+
+  isGoalsEditable: true,
+
+  basicInfo: {
+    challengeName: "",
+    challengeType: "",
+    description: "",
+    primaryHashtags: [],
+    coverImage: null,
+    coverImageUrl: null,
+  },
+
+  goalsAndMetrics: {
+    selectedGoalTypes: ["distance" as GoalType],
+    activeTab: "distance",
+    selectedGoalConfiguration: "",
+    selectedFrequencyConfiguration: "",
+    selectedTimeConfiguration: "",
+    selectedStreakConfiguration: "",
+    selectedPhotoConfiguration: "",
+  },
+
+  schedule: {
+    startDate: "",
+    startTime: "",
+    endDate: "",
+    endTime: "",
+    recurrenceType: "",
+    selectedDay: [],
+  },
+
+  rewards: initialRewards,
+  hasHydratedFromServer: false,
+};
+
 /* =========================
-   Store Implementation
+   STORE
 ========================= */
 
 export const useChallengeBuilderStore = create<ChallengeBuilderState>(
   (set, get) => ({
-    step: 1,
-    touchedSteps: {},
+    ...initialState,
 
-    /* ---------- Basic Info ---------- */
-    basicInfo: {
-      challengeName: "",
-      challengeType: "",
-      description: "",
-      primaryHashtags: [],
-      coverImage: null,
-    },
-
-    /* ---------- Goals & Metrics ---------- */
-    goalsAndMetrics: {
-      selectedGoalTypes: ["distance"],
-      activeTab: "distance",
-      selectedGoalConfiguration: "",
-      selectedFrequencyConfiguration: "",
-      selectedTimeConfiguration: "",
-      selectedStreakConfiguration: "",
-      selectedPhotoConfiguration: "",
-    },
-
-    /* ---------- Schedule ---------- */
-    schedule: {
-      startDate: "",
-      startTime: "",
-      endDate: "",
-      endTime: "",
-      recurrenceType: "",
-      selectedDay: [],
-    },
-
-    /* ---------- Rewards ---------- */
-    rewards: initialRewardsState,
-
+    /* ---------- Reward Actions ---------- */
     rewardActions: {
       setRewards: (data) =>
-        set((state) => ({
-          rewards: { ...state.rewards, ...data },
+        set((s) => ({
+          rewards: { ...s.rewards, ...data },
         })),
       resetRewards: () =>
         set(() => ({
-          rewards: initialRewardsState,
+          rewards: initialRewards,
         })),
     },
 
-    /* ---------- Navigation ---------- */
+    /* navigation */
     setStep: (step) => set({ step }),
 
     markStepTouched: (step) =>
-      set((state) => ({
-        touchedSteps: {
-          ...state.touchedSteps,
-          [step]: true,
-        },
+      set((s) => ({
+        touchedSteps: { ...s.touchedSteps, [step]: true },
       })),
 
     isStepValid: (step) => {
-      const state = get();
+      const s = get();
+      if (step === 1)
+        return Boolean(
+          s.basicInfo.challengeName &&
+          s.basicInfo.challengeType &&
+          s.basicInfo.description,
+        );
 
-      switch (step) {
-        case 1: {
-          const { challengeName, challengeType, description } = state.basicInfo;
-          return Boolean(
-            challengeName.trim() &&
-              challengeType &&
-              description.trim()
-          );
-        }
+      if (step === 2) return true;
+      // return Boolean(s.goalsAndMetrics.selectedGoalTypes.length);
 
-        case 2: {
-          const g = state.goalsAndMetrics;
-          const active = g.selectedGoalTypes[0];
+      if (step === 3)
+        return Boolean(
+          s.schedule.startDate &&
+          s.schedule.startTime &&
+          s.schedule.endDate &&
+          s.schedule.endTime,
+        );
 
-          if (!active) return false;
+      if (step === 4) return s.rewards.points > 0;
 
-          switch (active) {
-            case "distance":
-              return Boolean(g.distanceGoal?.configurationType);
-            case "time":
-              return Boolean(g.selectedTimeConfiguration);
-            case "streak":
-              return Boolean(g.selectedStreakConfiguration);
-            case "frequency":
-              return Boolean(g.frequencyGoal?.configurationType);
-            case "photo":
-              return Boolean(g.selectedPhotoConfiguration);
-            default:
-              return false;
-          }
-        }
-
-        case 3: {
-          const s = state.schedule;
-          return Boolean(
-            s.startDate &&
-              s.startTime &&
-              s.endDate &&
-              s.endTime &&
-              s.recurrenceType
-          );
-        }
-
-        case 4:
-          return state.rewards.points > 0;
-
-        default:
-          return true;
-      }
+      return true;
     },
 
-    /* ---------- Setters ---------- */
+    /* setters */
     setBasicInfo: (data) =>
-      set((state) => ({
-        basicInfo: { ...state.basicInfo, ...data },
-      })),
+      set((s) => ({ basicInfo: { ...s.basicInfo, ...data } })),
 
-    setGoalType: (type) =>
-      set((state) => ({
+    setGoalType: (type) => {
+      if (!get().isGoalsEditable) return;
+      set((s) => ({
         goalsAndMetrics: {
-          ...state.goalsAndMetrics,
+          ...s.goalsAndMetrics,
           selectedGoalTypes: [type],
           activeTab: type,
         },
-      })),
+      }));
+    },
 
-    setGoalsAndMetrics: (data) =>
-      set((state) => ({
-        goalsAndMetrics: { ...state.goalsAndMetrics, ...data },
-      })),
+    setGoalsAndMetrics: (data) => {
+      if (!get().isGoalsEditable) return;
+      set((s) => ({
+        goalsAndMetrics: { ...s.goalsAndMetrics, ...data },
+      }));
+    },
 
-    setDistanceConfig: (payload) =>
-      set((state) => ({
+    setDistanceConfig: (p) =>
+      get().isGoalsEditable &&
+      set((s) => ({
         goalsAndMetrics: {
-          ...state.goalsAndMetrics,
-          distanceGoal: payload,
-          selectedGoalConfiguration: payload.configurationType,
+          ...s.goalsAndMetrics,
+          distanceGoal: p,
+          selectedGoalConfiguration: p.configurationType,
         },
       })),
 
-    setFrequencyConfig: (payload) =>
-      set((state) => ({
+    setFrequencyConfig: (p) =>
+      get().isGoalsEditable &&
+      set((s) => ({
         goalsAndMetrics: {
-          ...state.goalsAndMetrics,
-          frequencyGoal: payload,
-          selectedFrequencyConfiguration: payload.configurationType,
+          ...s.goalsAndMetrics,
+          frequencyGoal: p,
+          selectedFrequencyConfiguration: p.configurationType,
         },
       })),
 
-    setTimeConfig: (payload) =>
-      set((state) => ({
+    setTimeConfig: (p) =>
+      get().isGoalsEditable &&
+      set((s) => ({
         goalsAndMetrics: {
-          ...state.goalsAndMetrics,
-          timeGoal: payload,
-          selectedTimeConfiguration: payload.configurationType,
+          ...s.goalsAndMetrics,
+          timeGoal: p,
+          selectedTimeConfiguration: p.configurationType,
         },
       })),
 
-    setStreakConfig: (payload) =>
-      set((state) => ({
+    setStreakConfig: (p) =>
+      get().isGoalsEditable &&
+      set((s) => ({
         goalsAndMetrics: {
-          ...state.goalsAndMetrics,
-          streakGoal: payload,
-          selectedStreakConfiguration: payload.configurationType,
+          ...s.goalsAndMetrics,
+          streakGoal: p,
+          selectedStreakConfiguration: p.configurationType,
         },
       })),
 
-    setPhotoConfig: (payload) =>
-      set((state) => ({
+    setPhotoConfig: (p) =>
+      get().isGoalsEditable &&
+      set((s) => ({
         goalsAndMetrics: {
-          ...state.goalsAndMetrics,
-          photoGoal: payload,
-          selectedPhotoConfiguration: payload.configurationType,
+          ...s.goalsAndMetrics,
+          photoGoal: p,
+          selectedPhotoConfiguration: p.configurationType,
         },
       })),
 
     setSchedule: (data) =>
-      set((state) => ({
-        schedule: { ...state.schedule, ...data },
-      })),
+      set((s) => ({ schedule: { ...s.schedule, ...data } })),
 
-    /* ---------- Reset ---------- */
-    reset: () =>
-      set(() => ({
-        step: 1,
-        touchedSteps: {},
+    setRewards: (data) => set((s) => ({ rewards: { ...s.rewards, ...data } })),
+
+    initializeFromApi: (apiData, challengeId) => {
+      //
+
+      const admin = apiData?.adminChallenge;
+      if (!admin) return;
+
+      // if (get().hasHydratedFromServer) return;
+
+      // Prevent re-hydrating same challenge
+      if (get().challengeId === challengeId) return;
+
+      const selectedGoalTypes = admin.goalsAndMetrics?.selectedGoalTypes ?? [
+        "distance",
+      ];
+
+      const snapshot: Snapshot = {
         basicInfo: {
-          challengeName: "",
-          challengeType: "",
-          description: "",
-          primaryHashtags: [],
+          challengeName: admin.basicInfo?.name ?? "",
+          challengeType: admin.basicInfo?.type ?? "",
+          description: admin.basicInfo?.description ?? "",
+          primaryHashtags: admin.basicInfo?.primaryHashtags ?? [],
           coverImage: null,
+      coverImageUrl: admin?.basicInfo?.coverImage ?? null,
         },
         goalsAndMetrics: {
-          selectedGoalTypes: ["distance"],
-          activeTab: "distance",
-          selectedGoalConfiguration: "",
-          selectedFrequencyConfiguration: "",
-          selectedTimeConfiguration: "",
-          selectedStreakConfiguration: "",
-          selectedPhotoConfiguration: "",
+          ...admin.goalsAndMetrics,
+          selectedGoalTypes,
+          activeTab: selectedGoalTypes[0] as GoalType,
         },
         schedule: {
-          startDate: "",
-          startTime: "",
-          endDate: "",
-          endTime: "",
-          recurrenceType: "",
-          selectedDay: [],
+          startDate: admin.scheduleAndDuration?.startDate ?? "",
+          startTime: admin.scheduleAndDuration?.startTime ?? "",
+          endDate: admin.scheduleAndDuration?.endDate ?? "",
+          endTime: admin.scheduleAndDuration?.endTime ?? "",
+          recurrenceType: admin.scheduleAndDuration?.recurrenceType ?? "",
+          selectedDay: admin.scheduleAndDuration?.selectedDay ?? [],
         },
-        rewards: initialRewardsState,
-      })),
-  })
+        rewards: {
+          ...initialRewards,
+          ...admin.rewards,
+          rewardFile: null,
+        },
+      };
+
+      set({
+        mode: "edit",
+        challengeId,
+        ...snapshot,
+        initialSnapshot: snapshot,
+        hasHydratedFromServer: true,
+      });
+    },
+
+    getUpdatePayload: () => {
+      const { initialSnapshot, basicInfo, goalsAndMetrics, schedule, rewards } =
+        get();
+
+      if (!initialSnapshot) return {};
+
+      const diff: Partial<Snapshot> = {};
+
+      const stripUi = (obj: any) => {
+        const { activeTab, ...rest } = obj;
+        return rest;
+      };
+
+      if (
+        JSON.stringify(basicInfo) !== JSON.stringify(initialSnapshot.basicInfo)
+      ) {
+        diff.basicInfo = basicInfo;
+      }
+
+      if (
+        JSON.stringify(stripUi(goalsAndMetrics)) !==
+        JSON.stringify(stripUi(initialSnapshot.goalsAndMetrics))
+      ) {
+        diff.goalsAndMetrics = goalsAndMetrics;
+      }
+
+      if (
+        JSON.stringify(schedule) !== JSON.stringify(initialSnapshot.schedule)
+      ) {
+        diff.schedule = schedule;
+      }
+
+      if (JSON.stringify(rewards) !== JSON.stringify(initialSnapshot.rewards)) {
+        diff.rewards = rewards;
+      }
+
+      return diff;
+    },
+
+    reset: () => set(initialState),
+  }),
 );

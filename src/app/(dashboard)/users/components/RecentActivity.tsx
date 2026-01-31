@@ -3,7 +3,51 @@
 import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
+// Reuse your ActivityType
 type ActivityType = "All" | "Challenge" | "Post" | "Comment" | "Profile";
+
+// Define backend activity shape
+interface BackendActivity {
+  _id: string;
+  type: "challenge" | "post" | "comment" | "profile";
+  title: string;
+  createdAt: string;
+}
+
+// Define normalized activity for UI
+interface Activity {
+  id: string;
+  title: string;
+  timestamp: string;
+  type: ActivityType;
+  color: string;
+}
+
+// Props for the component
+interface RecentActivityProps {
+  activities: BackendActivity[];
+}
+
+// Map backend to UI
+const mapActivity = (activity: BackendActivity): Activity => {
+  const typeMap: Record<
+    BackendActivity["type"],
+    { type: ActivityType; color: string }
+  > = {
+    challenge: { type: "Challenge", color: "#40B773" },
+    post: { type: "Post", color: "#1570EF" },
+    comment: { type: "Comment", color: "#9C27B0" },
+    profile: { type: "Profile", color: "#607D8B" },
+  };
+
+  return {
+    id: activity._id,
+    title: activity.title,
+    timestamp: new Date(activity.createdAt).toLocaleString(),
+    type: typeMap[activity.type].type,
+    color: typeMap[activity.type].color,
+  };
+};
 
 interface Activity {
   id: string;
@@ -13,65 +57,6 @@ interface Activity {
   color: string;
 }
 
-const mockActivities: Activity[] = [
-  {
-    id: "1",
-    title: "Completed Morning Walk Challenge",
-    timestamp: "Today, 7:35 AM",
-    type: "Challenge",
-    color: "#40B773",
-  },
-  {
-    id: "2",
-    title: "Posted in Downtown Walkers Community",
-    timestamp: "Today, 7:35 AM",
-    type: "Post",
-    color: "#1570EF",
-  },
-  {
-    id: "3",
-    title: "Commented on Sarah's post",
-    timestamp: "Today, 11:42 AM",
-    type: "Comment",
-    color: "#9C27B0",
-  },
-  {
-    id: "4",
-    title: "Started Wellness Challenge",
-    timestamp: "Today, 11:42 AM",
-    type: "Challenge",
-    color: "#40B773",
-  },
-  {
-    id: "5",
-    title: "Uploaded profile photo",
-    timestamp: "Today, 11:42 AM",
-    type: "Profile",
-    color: "#607D8B",
-  },
-  {
-    id: "6",
-    title: "Joined Fitness Community",
-    timestamp: "Yesterday, 2:15 PM",
-    type: "Post",
-    color: "#1570EF",
-  },
-  {
-    id: "7",
-    title: "Completed 5K Run Challenge",
-    timestamp: "Yesterday, 9:20 AM",
-    type: "Challenge",
-    color: "#40B773",
-  },
-  {
-    id: "8",
-    title: "Updated profile information",
-    timestamp: "Dec 7, 4:30 PM",
-    type: "Profile",
-    color: "#607D8B",
-  },
-];
-
 const badgeColors = {
   Challenge: "bg-green-100 #40B773",
   Post: "bg-blue-100 #1570EF",
@@ -80,15 +65,19 @@ const badgeColors = {
   All: "",
 };
 
-export default function RecentActivity() {
+export default function RecentActivity({ activities }: RecentActivityProps) {
   const [selectedFilter, setSelectedFilter] = useState<ActivityType>("All");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [displayCount, setDisplayCount] = useState(5);
 
+  const normalizedActivities = activities.map(mapActivity);
+
   const filteredActivities =
     selectedFilter === "All"
-      ? mockActivities
-      : mockActivities.filter((activity) => activity.type === selectedFilter);
+      ? normalizedActivities
+      : normalizedActivities.filter(
+          (activity) => activity.type === selectedFilter,
+        );
 
   const displayedActivities = filteredActivities.slice(0, displayCount);
 
@@ -142,6 +131,11 @@ export default function RecentActivity() {
         </div>
 
         <div className="space-y-0">
+          {normalizedActivities.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-sm text-gray-500">No recent activity yet</p>
+            </div>
+          )}
           {displayedActivities.map((activity, index) => {
             const isLast = index === displayedActivities.length - 1;
 
@@ -177,7 +171,7 @@ export default function RecentActivity() {
                         className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
                           badgeColors[activity.type]
                         }`}
-                        style={{color: activity.color}}
+                        style={{ color: activity.color }}
                       >
                         {activity.type}
                       </span>

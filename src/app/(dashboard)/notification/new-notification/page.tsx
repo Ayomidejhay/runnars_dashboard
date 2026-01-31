@@ -68,7 +68,7 @@ export default function Page() {
     mutate(payload, {
       onSuccess: () => {
         toast.success("Notification sent successfully");
-        router.push("/notifications");
+        router.push("/notification");
       },
       onError: (error: any) => {
         const message =

@@ -6,15 +6,21 @@ import React from 'react'
 import { useParams, useRouter } from "next/navigation";
 import { petMockData } from "@/mockdata";
 import PetInfo from '../components/PetInfo';
+import { usePet } from '@/hooks/usePets';
 
 export default function page() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
-  const pet = petMockData.find((p) => p.id === id);
-  if (!pet) {
-    return <p className="text-red-500">Pet not found.</p>;
-  }
+  const { data, isLoading, error } = usePet(id);
+
+  const petInfo = data?.data;
+
+
+  // const pet = petMockData.find((p) => p.id === id);
+  // if (!pet) {
+  //   return <p className="text-red-500">Pet not found.</p>;
+  // }
   return (
     <div className='px-10'>
       <div className='mb-6'>
@@ -29,19 +35,7 @@ export default function page() {
           <h1 className="capitalize text-[34px] font-bold text-deepblue">
             pet details
           </h1>
-          <div className="flex gap-6">
-            <Link href="">
-              <Image src="/edit-detail.svg" alt="edit" width={40} height={40} />
-            </Link>
-            <Link href="">
-              <Image
-                src="/delete-detail.svg"
-                alt="delete"
-                width={40}
-                height={40}
-              />
-            </Link>
-          </div>
+          
         </div>
       </div>
       <div className="w-full flex flex-col gap-6">
@@ -63,7 +57,7 @@ export default function page() {
                   </div>
                 </div>
                 
-                <PetInfo pet={{ ...pet, age: pet.age.toString() }} />
+                <PetInfo petInfo={petInfo} />
 
               </div>
     </div>

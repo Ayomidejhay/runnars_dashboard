@@ -46,6 +46,7 @@ const participantStatuses = [
   "All participants",
   "Active participants",
   "Completed challenge",
+  "Incomplete challenge",
   "At risk (no activity)",
 ];
 
