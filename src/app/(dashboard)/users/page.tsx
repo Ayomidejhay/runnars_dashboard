@@ -217,9 +217,7 @@ export default function Page() {
           />
           <StatCard
             title="Active Users"
-            value={users
-              .filter((u: any) => u.userStatus === "active")
-              .length.toLocaleString()}
+            value={data?.data?.statistics?.activeUsers || 0}
             subtitle={`${activePercentage}% of total users`}
           />
           <StatCard

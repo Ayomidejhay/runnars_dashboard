@@ -34,32 +34,50 @@ export interface FrequencyGoalConfig {
   numberOfWeeks?: number;
   selectedDay?: string;
   timePeriod?: string;
-  timeRange?: { start: string; end: string };
+  timeRange?: {
+    start: string;
+    end: string;
+  };
   walksPerPeriod?: number;
   minimumWalkDuration?: number;
   minDuration?: number;
   selectedDays?: string[];
+  weeksCount?: number;
+  minimumDuration?: number;
+  minWalkDuration?: number;
 }
 
 export interface TimeGoalConfig {
   totalWalkingTime?: number;
   minimumWalkDuration?: number;
   numberOfWalks?: number;
+  distancePerWalk?: number;
+  startDistance?: number;
+  weeklyIncrease?: number;
+  durationWeeks?: number;
+  timePerWeek?: number;
   numberOfWeeks?: number;
 }
 
 export interface StreakGoalConfig {
-  consecutiveDaysTarget?: number;
+   consecutiveDaysTarget?: number;
   allowJokerDay?: boolean;
   minimumStreakTarget?: number;
+  minimumStreakValue?: number;
   challengeDuration?: number;
+  numberOfStreaks?: number;
+  streakLength?: number;
+  restDays?: number;
   selectedDays?: string[];
+  minimumWalkDuration?: number;
+  numberOfWeeks?: number;
 }
 
 export interface PhotoGoalConfig {
   numberOfPhotos?: number;
   challengeDuration?: number;
   frequency?: string;
+  photoRequirements?: string[];
 }
 
 /* =========================
