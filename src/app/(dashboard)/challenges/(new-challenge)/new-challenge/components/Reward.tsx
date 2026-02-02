@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 import { useChallengeBuilderStore } from "@/stores/useChallengeBuilderStore";
+import { div } from "framer-motion/client";
 
 /* ------------------ UI Options ------------------ */
 
@@ -17,13 +18,22 @@ const participationOptions = [
   { label: "Users with minimum PetFit score", value: "users_with_min_fit_score" as const },
 ] as const;
 
-const petTypes = ["Dog", "Cat", "Reptile", "Bird", "Others"];
+
+
+const petTypes = [
+  { label: "Dog", value: "dog" },
+  { label: "Cat", value: "cat" },
+  { label: "Reptile", value: "reptile" },
+  { label: "Bird", value: "bird" },
+  { label: "Others", value: "others" },
+]
 
 const petFitScoreRanges = [
   { label: "All scores", value: "all" as const },
   { label: "Low (below 60)", value: "low" as const },
   { label: "Medium (60–79)", value: "medium" as const },
   { label: "High (80–100)", value: "high" as const },
+  
 ];
 
 export default function Reward() {
@@ -32,7 +42,7 @@ export default function Reward() {
   const { points, participation, segmentCriteria,  } =
     useChallengeBuilderStore((state) => state.rewards);
 
-    const {touchedSteps} = useChallengeBuilderStore();
+    const {touchedSteps, rewards} = useChallengeBuilderStore();
     const showError = touchedSteps[4];
 
   const setRewards = useChallengeBuilderStore(
@@ -41,31 +51,78 @@ export default function Reward() {
 
   /* ------------------ Dropzone ------------------ */
 
+  // const onDrop = useCallback(
+  //   (acceptedFiles: File[]) => {
+  //     if (!acceptedFiles.length) return;
+
+  //     const file = acceptedFiles[0];
+  //     setPreviewUrl(URL.createObjectURL(file));
+
+  //     setRewards({ rewardFile: file });
+  //   },
+  //   [setRewards],
+  // );
+
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      if (!acceptedFiles.length) return;
-
-      const file = acceptedFiles[0];
-      setPreviewUrl(URL.createObjectURL(file));
-
-      setRewards({ rewardFile: file });
+     (acceptedFiles: File[]) => {
+      if (acceptedFiles.length > 0) {
+        setRewards({ rewardFile: acceptedFiles[0], rewardFileUrl: null });
+      }
     },
     [setRewards],
   );
 
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { "image/*": [] },
     multiple: false,
   });
 
+  //  useEffect(() => {
+  //     // New image selected (File)
+  //     if (rewards.rewardFile) {
+  //       const url = URL.createObjectURL(rewards.rewardFile);
+  //       setPreviewUrl(url);
+  //       return () => URL.revokeObjectURL(url);
+  //     }
+  
+  //     // Existing image from backend (URL)
+  //     if (rewards.rewardFileUrl) {
+  //       setPreviewUrl(rewards.rewardFileUrl);
+  //       return;
+  //     }
+  
+  //     setPreviewUrl(null);
+  //   }, [rewards.rewardFile, rewards.rewardFileUrl]);
+  
   useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
+  let objectUrl: string | null = null;
+
+  // If a new file is selected, use URL.createObjectURL
+  if (rewards.rewardFile) {
+    objectUrl = URL.createObjectURL(rewards.rewardFile);
+    setPreviewUrl(objectUrl);
+  } 
+  // If editing and there is an existing URL, use it
+  else if (rewards.rewardFileUrl) {
+    setPreviewUrl(rewards.rewardFileUrl);
+  } 
+  // No image
+  else {
+    setPreviewUrl(null);
+  }
+
+  return () => {
+    // Clean up only the object URL for newly selected files
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+  };
+}, [rewards.rewardFile, rewards.rewardFileUrl]);
+
+
 
   const participationType = participation.whoCanParticipate;
+
+  
 
   /* ------------------ Render ------------------ */
 
@@ -79,7 +136,7 @@ export default function Reward() {
           Achievement Badge Image <span className="text-[12px] text-[#8E98A8]">(Optional)</span>
         </label>
 
-        <div
+        {/* <div
           {...getRootProps()}
           className="relative border-2 border-dashed h-[162px] rounded-[8px] p-6 cursor-pointer border-[#1570EF] bg-[#F4F8FD]"
         >
@@ -94,7 +151,41 @@ export default function Reward() {
               <p className="text-[14px] mt-1">512 × 512px recommended.</p>
             </div>
           )}
-        </div>
+        </div> */}
+        <div
+                    {...getRootProps()}
+                    className="relative border-2 border-dashed h-[162px] rounded-[8px] p-6 cursor-pointer border-[#1570EF] bg-[#F4F8FD]"
+                  >
+                    <input {...getInputProps()} />
+        
+                    {previewUrl ? (
+                      <Image
+                        src={previewUrl}
+                        alt="preview"
+                        fill
+                        className="object-cover rounded-[6px]"
+                      />
+                    ) : isDragActive ? (
+                      <div className="flex items-center justify-center h-full">
+                        <p className="text-blue-600">Drop the image here...</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full text-center">
+                        <Image
+                          src="/document-upload.svg"
+                          alt="upload"
+                          width={24}
+                          height={24}
+                        />
+                        <p className="text-[14px] mt-4">
+                          Click or drag to upload preview image
+                        </p>
+                        <p className="text-[14px] mt-1">
+                          (Recommended size: 1200 × 400px)
+                        </p>
+                      </div>
+                    )}
+                  </div>
       </div>
 
       {/* Points */}
@@ -122,7 +213,8 @@ export default function Reward() {
             const selected = participationType === opt.value;
 
             return (
-              <label
+              <div className="mt-2" key={opt.value}>
+                <label
                 key={opt.value}
                 className={`flex items-center justify-between border rounded-lg px-4 py-3 cursor-pointer ${
                   selected ? "border-blue-600 bg-blue-50" : "border-gray-300"
@@ -145,6 +237,7 @@ export default function Reward() {
                   }
                 />
               </label>
+              </div>
             );
           })}
           {showError && !segmentCriteria && (
@@ -164,15 +257,14 @@ export default function Reward() {
             {participationType === "specific_pet_type" && (
               <div className="mt-4 flex flex-col gap-2">
                 {petTypes.map((pet) => (
-                  <label key={pet} className="flex gap-3">
+                  <label key={pet.label} className="flex gap-3">
                     <input
                       type="checkbox"
-                      checked={segmentCriteria.specificPetTypes.includes(pet)}
+                      checked={segmentCriteria.specificPetTypes.includes(pet.value)}
                       onChange={(e) => {
                         const updated = e.target.checked
-                          ? [...segmentCriteria.specificPetTypes, pet]
-                          : segmentCriteria.specificPetTypes.filter((p) => p !== pet);
-
+                          ? [...segmentCriteria.specificPetTypes, pet.value]
+                          : segmentCriteria.specificPetTypes.filter((p) => p !== pet.value);
                         setRewards({
                           segmentCriteria: {
                             petFitScoreRange: "all",
@@ -181,7 +273,7 @@ export default function Reward() {
                         });
                       }}
                     />
-                    {pet}
+                    {pet.label}
                   </label>
                 ))}
               </div>

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export const useAllPets = (params: GetPetsParams) => {
     return useQuery({
-        queryKey: ["petss", params],
+        queryKey: ["pets", params],
         queryFn: () => getAllPets(params),
         placeholderData: (previousData) => previousData,
     });

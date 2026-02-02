@@ -60,7 +60,7 @@ export interface TimeGoalConfig {
 }
 
 export interface StreakGoalConfig {
-   consecutiveDaysTarget?: number;
+  consecutiveDaysTarget?: number;
   allowJokerDay?: boolean;
   minimumStreakTarget?: number;
   minimumStreakValue?: number;
@@ -142,6 +142,7 @@ export interface RewardState {
     specificPetTypes: string[];
   };
   rewardFile: File | null;
+  rewardFileUrl?: string | null;
 }
 
 export interface RewardActions {
@@ -215,6 +216,7 @@ const initialRewards: RewardState = {
   participation: { whoCanParticipate: "all_users" },
   segmentCriteria: { petFitScoreRange: "all", specificPetTypes: [] },
   rewardFile: null,
+  rewardFileUrl: null,
 };
 
 const initialState: Omit<
@@ -314,6 +316,7 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
           s.basicInfo.challengeName &&
           s.basicInfo.challengeType &&
           s.basicInfo.description,
+          // s.basicInfo.primaryHashtags.length,
         );
 
       if (step === 2) return true;
@@ -431,7 +434,7 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
           description: admin.basicInfo?.description ?? "",
           primaryHashtags: admin.basicInfo?.primaryHashtags ?? [],
           coverImage: null,
-      coverImageUrl: admin?.basicInfo?.coverImage ?? null,
+          coverImageUrl: admin?.basicInfo?.coverImage ?? null,
         },
         goalsAndMetrics: {
           ...admin.goalsAndMetrics,
@@ -450,6 +453,7 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
           ...initialRewards,
           ...admin.rewards,
           rewardFile: null,
+          rewardFileUrl: admin.rewards?.achievementBadge?.image ?? null,
         },
       };
 

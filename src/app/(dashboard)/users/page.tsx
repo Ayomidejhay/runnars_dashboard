@@ -89,6 +89,13 @@ export default function Page() {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
+    /** 🔒 GLOBAL STATS (cached once) */
+  const [globalStats, setGlobalStats] = useState<{
+    totalUsers: number;
+    activeUsers: number;
+    recentUsers: number;
+  } | null>(null);
+
   // Keep refs for each action button
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
@@ -147,9 +154,26 @@ export default function Page() {
   const totalPages = data?.data?.pagination?.totalPages ?? 1;
   const totalUsers = data?.data?.pagination?.totalUsers ?? 0;
 
-  const activePercentage =
-    totalUsers > 0 ? ((activeUsers / totalUsers) * 100).toFixed(1) : "0";
+/*  ========================
+     Cache GLOBAL stats once
+  ========================= */
+  useEffect(() => {
+    if (!globalStats && data?.data?.statistics) {
+      setGlobalStats({
+        totalUsers: data.data.statistics.totalUsers,
+        activeUsers: data.data.statistics.activeUsers,
+        recentUsers: data.data.statistics.recentUsers,
+      });
+    }
+  }, [data, globalStats]);
 
+  // const activePercentage =
+  //   totalUsers > 0 ? ((activeUsers / totalUsers) * 100).toFixed(1) : "0";
+  const activePercentage =
+    globalStats && globalStats.totalUsers > 0
+      ? ((globalStats.activeUsers / globalStats.totalUsers) * 100).toFixed(1)
+      : "0";
+      
   /* =========================
        Reset Pagination
     ========================= */
@@ -212,17 +236,17 @@ export default function Page() {
         <div className="grid grid-cols-3 gap-4">
           <StatCard
             title="Total Users"
-            value={totalUsers.toLocaleString()}
+            value={globalStats?.totalUsers.toLocaleString() || 0}
             // subtitle="+12% from last month"
           />
           <StatCard
             title="Active Users"
-            value={data?.data?.statistics?.activeUsers || 0}
+            value={globalStats?.activeUsers || 0}
             subtitle={`${activePercentage}% of total users`}
           />
           <StatCard
             title="New Users"
-            value={data?.data?.statistics?.recentUsers || 0}
+            value={globalStats?.recentUsers || 0}
             subtitle="This week"
           />
         </div>

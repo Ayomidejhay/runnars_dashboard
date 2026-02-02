@@ -5,7 +5,7 @@ import api from "@/lib/api";
 
 interface UpdateChallengeArgs {
   id: string;
-   data: Record<string, any>;
+   data: FormData;
 }
 
 // export const useUpdateChallenge = () =>
@@ -27,10 +27,25 @@ interface UpdateChallengeArgs {
 //       await api.put(`/api/admin/challenges/${id}`, data);
 //     },
 //   });
-export const useUpdateChallenge = () =>
-  useMutation<void, any, UpdateChallengeArgs>({
-    mutationFn: async ({ id, data }) => {
-      const res = await api.put(`/api/admin/challenges/${id}`, data);
-      if (!res.data) throw new Error("Failed to update challenge");
+// export const useUpdateChallenge = () =>
+//   useMutation<void, any, UpdateChallengeArgs>({
+//     mutationFn: async ({ id, data }) => {
+//       const res = await api.put(`/api/admin/challenges/${id}`, data);
+//       if (!res.data) throw new Error("Failed to update challenge");
+//     },
+//   });
+
+
+export const useUpdateChallenge = () => {
+  return useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: FormData;
+    }) => {
+      return api.put(`/api/admin/challenges/${id}`, data);
     },
   });
+};

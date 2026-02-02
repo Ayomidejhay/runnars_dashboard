@@ -75,11 +75,19 @@ export default function Page() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [petType, setPetType] = useState("all");
+  const [breed, setBreed] = useState("all");
   const [openRow, setOpenRow] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState("all");
   const [customStartDate, setCustomStartDate] = useState("");
   const [customEndDate, setCustomEndDate] = useState("");
   const [dateError, setDateError] = useState("");
+
+     /** 🔒 GLOBAL STATS (cached once) */
+    const [globalStats, setGlobalStats] = useState<{
+      totalPets: number;
+      activePets: number;
+      newPetsThisWeek: number;
+    } | null>(null);
 
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -120,6 +128,7 @@ export default function Page() {
       search: searchTerm || undefined,
       status: statusFilter !== "all" ? statusFilter : undefined,
       petType: petType !== "all" ? petType : undefined,
+      breed : breed !== "all" ? breed : undefined,
 
       ...dateParams,
     };
@@ -129,6 +138,7 @@ export default function Page() {
     searchTerm,
     statusFilter,
     petType,
+    breed,
     dateRange,
     customStartDate,
     customEndDate,
@@ -137,6 +147,19 @@ export default function Page() {
   const { data, isLoading } = useAllPets(apiParams);
   const pets = Array.isArray(data?.data?.pets) ? data?.data?.pets : [];
   const petStatistics = data?.data?.statistics;
+
+  /*  ========================
+       Cache GLOBAL stats once
+    ========================= */
+    useEffect(() => {
+      if (!globalStats && data?.data?.statistics) {
+        setGlobalStats({
+          totalPets: data.data.statistics.totalPets,
+          activePets: data.data.statistics.activePets,
+          newPetsThisWeek: data.data.statistics.newPetsThisWeek,
+        });
+      }
+    }, [data, globalStats]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -200,7 +223,9 @@ export default function Page() {
   };
 
   const activePercentage =
-    totalPets > 0 ? ((petStatistics?.activePets || 0 / totalPets) * 100).toFixed(1) : "0";
+    globalStats && globalStats.totalPets > 0
+      ? ((globalStats.activePets / globalStats.totalPets) * 100).toFixed(1)
+      : "0";
 
   return (
     <div className="px-10">
@@ -215,17 +240,17 @@ export default function Page() {
         <div className="grid grid-cols-3 gap-4">
           <StatCard
             title="Total Pets"
-            value={totalPets.toString()}
+            value={globalStats?.totalPets.toString() || 0}
             subtitle=""
           />
           <StatCard
             title="Active Pets"
-            value={petStatistics?.activePets.toString() || "10"}
+            value={globalStats?.activePets.toString() || 0}
             subtitle={`${activePercentage}% of total pets`}
           />
           <StatCard
             title="New Pets"
-            value={petStatistics?.newPetsThisWeek.toString() || "0"}
+            value={globalStats?.newPetsThisWeek.toString() || 0}
             subtitle="This week"
           />
         </div>
@@ -283,9 +308,10 @@ export default function Page() {
                   className="border px-3 text-xs w-full rounded-[32px] appearance-none h-10"
                 >
                   <option value="all">Pet Type</option>
-                  <option value="dog">Dog</option>
-                  <option value="cat">Cat</option>
-                  <option value="bird">Bird</option>
+                  <option value="Dog">Dog</option>
+                  <option value="Cat">Cat</option>
+                  <option value="Bird">Bird</option>
+                  <option value="Other">Other</option>
                 </select>
                 <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2">
                   <svg
@@ -304,6 +330,41 @@ export default function Page() {
                   </svg>
                 </span>
               </div>
+
+              {/* Breed Filter */
+              <div className="relative w-[120px]">
+                <select
+                  value={breed}
+                  onChange={(e) => setBreed(e.target.value)}
+                  className="border px-3 text-xs w-full rounded-[32px] appearance-none h-10"
+                >
+                  <option value="all">Breed</option>
+                  <option value="Golden Retriever">Golden Retriever</option>
+                  <option value="Bulldog">Bulldog</option>
+                  <option value="Labrador Retriever">Labrador Retriever</option>
+                  <option value="Beagle">Beagle</option>
+                  <option value="Rottweiler">Rottweiler</option>
+                  <option value="German Shepherd">German Shepherd</option>
+                  <option value="Poodle">Poodle</option>
+                  <option value="Other">Other</option>
+                </select>
+                <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-3 h-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </span>
+              </div>}
 
               {/* Date Range Filter */}
 

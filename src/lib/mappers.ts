@@ -42,6 +42,8 @@ const streakGoalMap: Record<string, string> = {
   "Multiple day streak": "multiple_day_streak",
 };
 
+
+
 // export const mapBasicInfo = (basicInfo: any) => ({
 //   name: basicInfo.challengeName,
 //   type: basicInfo.challengeType,
@@ -58,7 +60,7 @@ export const mapBasicInfo = (basicInfo: BasicInfoState) => {
     description: basicInfo.description,
     primaryHashtags: basicInfo.primaryHashtags,
     // Only include coverImage if it’s a File
-    ...(basicInfo.coverImage instanceof File ? { coverImage: basicInfo.coverImage } : {}),
+    // ...(basicInfo.coverImage instanceof File ? { coverImage: basicInfo.coverImage } : {}),
   };
 };
 
@@ -141,31 +143,52 @@ export const mapSchedule = (schedule: any) => ({
   challengeDays: schedule.selectedDay || [], // selectedDays is an array of enum values
 });
 
+// export const mapRewards = (rewards: any) => {
+//   let whoCanParticipate:
+//     | "all_users"
+//     | "new_users"
+//     | "specific_pet_type"
+//     | "users_with_min_fit_score" =
+//     rewards.participation.whoCanParticipate === "All users"
+//       ? "all_users"
+//       : rewards.participation.whoCanParticipate === "New users"
+//         ? "new_users"
+//         : rewards.participation.whoCanParticipate === "Pet type"
+//         ? "specific_pet_type"
+//         : "users_with_min_fit_score";
+
+//   return {
+//     points: Number(rewards.points || 0),
+//     participation: { whoCanParticipate },
+//     segmentCriteria: {
+//       petFitScoreRange:
+//         whoCanParticipate === "users_with_min_fit_score"
+//           ? rewards.segmentCriteria.petFitScoreRange || "all"
+//           : "all",
+//       specificPetTypes:
+//         whoCanParticipate === "specific_pet_type"
+//           ? rewards.segmentCriteria.specificPetTypes || []
+//           : [],
+//     },
+//     // badgeImage: rewards.rewardFile || null,
+//     // ...(rewards.badgeImage instanceof File ? { badgeImage: rewards.badgeImage } : {}),
+//   };
+// };
+
+
 export const mapRewards = (rewards: any) => {
-  let whoCanParticipate:
-    | "all_users"
-    | "specific_pet_type"
-    | "users_with_min_fit_score" =
-    rewards.participation.whoCanParticipate === "All users"
-      ? "all_users"
-      : rewards.participation.whoCanParticipate === "Pet type"
-        ? "specific_pet_type"
-        : "users_with_min_fit_score";
+  const whoCanParticipate: "all_users" | "new_users" | "specific_pet_type" | "users_with_min_fit_score" =
+    rewards.participation?.whoCanParticipate ?? "all_users";
+  
 
   return {
     points: Number(rewards.points || 0),
     participation: { whoCanParticipate },
     segmentCriteria: {
-      petFitScoreRange:
-        whoCanParticipate === "users_with_min_fit_score"
-          ? rewards.segmentCriteria.petFitScoreRange || "all"
-          : "all",
-      specificPetTypes:
-        whoCanParticipate === "specific_pet_type"
-          ? rewards.segmentCriteria.specificPetTypes || []
-          : [],
+      petFitScoreRange: rewards.segmentCriteria?.petFitScoreRange ?? "all",
+      specificPetTypes: rewards.segmentCriteria?.specificPetTypes ?? [],
     },
-    // badgeImage: rewards.rewardFile || null,
-    ...(rewards.badgeImage instanceof File ? { badgeImage: rewards.badgeImage } : {}),
+    rewardFileUrl: rewards?.achievementBadge?.image || null,
+    rewardFile: null,
   };
 };

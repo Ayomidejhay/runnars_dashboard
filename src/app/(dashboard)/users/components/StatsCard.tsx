@@ -4,7 +4,7 @@ import React from "react";
 
 type StatCardProps = {
   title: string;
-  value: string;
+  value: string | number;
   subtitle?: string;
   subtitleColor?: string; // optional custom color
 };
