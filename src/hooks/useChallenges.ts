@@ -14,6 +14,16 @@ export const useAllChallenges = (params: GetChallengesParams) => {
   });
 }
 
+// Global count
+export const useAllActiveChallenges = (status: string) => {
+  return useQuery({
+    queryKey: ["challenges", status],
+    queryFn: () => getAllChallenges({ status: 'active' }),
+
+    placeholderData: (previousData) => previousData,
+  });
+}
+
 // export const useChallenge = (id: string) => {
 //   return useQuery({
 //     queryKey: ["challenge", id],

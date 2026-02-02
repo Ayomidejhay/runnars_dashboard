@@ -299,8 +299,8 @@ const Page = () => {
               <option value="all">Type</option>
               <option value="walk">Walk</option>
               <option value="exercise">Exercise</option>
-              <option value="health">Health</option>
-              <option value="social">Social</option>
+             <option value="health">Health</option>
+             <option value='wellness'>Wellness</option>
             </select>
 
             <select

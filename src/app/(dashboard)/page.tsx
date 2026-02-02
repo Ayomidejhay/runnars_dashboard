@@ -2,29 +2,100 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { mockPetChallenges } from "@/mockdata";
-import { communityMockData } from "@/mockdata";
-import { useRef, useState } from "react";
+
+import { useEffect, useMemo, useRef, useState } from "react";
 import PaginationControls from "./components/PaginationControls";
 import DropdownMenu from "./components/DropdownMenu";
 
+import toast from "react-hot-toast";
+import { useAllActiveChallenges, useAllChallenges, useDeleteChallenge } from "@/hooks/useChallenges";
+import DeleteModal from "./components/DeleteModal";
+import { useQueryClient } from "@tanstack/react-query";
+import { challenge } from "@/types";
+import { useAllUsers } from "@/hooks/useUsers";
+
 export default function Home() {
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [challengePage, setChallengePage] = useState(1);
   const [communityPage, setCommunityPage] = useState(1);
-  const [challengeRowsPerPage, setChallengeRowsPerPage] = useState(5);
+  const [challengeRowsPerPage, setChallengeRowsPerPage] = useState(10);
   const [communityRowsPerPage, setCommunityRowsPerPage] = useState(5);
   const [showModal, setShowModal] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<any | null>(null);
+  const [challengeToDelete, setChallengeToDelete] = useState<challenge | null>(
+    null,
+  );
 
-  const [openRow, setOpenRow] = useState<number | null>(null);
-  const [menuPosition, setMenuPosition] = useState<{
+  const [openRow, setOpenRow] = useState<string | null>(null);
+  const [dropdownPos, setDropdownPos] = useState<{
     top: number;
     left: number;
     buttonHeight: number;
   } | null>(null);
 
+  const deleteModalMutation = useDeleteChallenge();
+
+  const category = "featured";
+
+  const params = useMemo(() => {
+    const p: any = { category, page: challengePage, limit: challengeRowsPerPage };
+    return p;
+  }, [category, challengePage, challengeRowsPerPage]);
+
+  const { data, isLoading } = useAllChallenges(params);
+   const { data: all } = useAllActiveChallenges("active");
+   const { data: allUsers, isLoading: isUsersLoading } = useAllUsers(params);
+
+  const challenges = Array.isArray(data?.data?.challenges)
+    ? data.data.challenges
+    : [];
+
+    const totalUsers = allUsers?.data?.pagination?.totalUsers ?? 0;
+
+  const totalPages = data?.data?.pagination?.totalPages ?? 1;
+  const totalCount = data?.data?.pagination?.totalCount ?? 0;
+
+  useEffect(() => {
+    setChallengePage(1);
+  }, [category]);
+
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const handleActionClick = (e: React.MouseEvent, id: string) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+
+    setOpenRow(id as any);
+    setDropdownPos({
+      top: rect.bottom + window.scrollY,
+      left: rect.left + window.scrollX - 120,
+      buttonHeight: rect.height,
+    });
+  };
+
+  const badge = (bg: string, text: string) =>
+    `px-2 py-1 rounded-full text-xs ${bg} ${text}`;
+
+  // const getStatusBadge = (status: string) => {
+  //   switch (status) {
+  //     case "active":
+  //       return "bg-[#E8F1FD] text-[#1570EF]";
+  //     case "scheduled":
+  //       return "bg-[#FFF8E1] text-[#FFA000]";
+  //     case "completed":
+  //       return "bg-[#ECF8F1] text-[#40B773]";
+  //     default:
+  //       return "bg-gray-100 text-gray-800";
+  //   }
+  // };
+
+  // const getChallengeBadge = (type: string) => {
+  //   switch (type) {
+  //     case "walk":
+  //       return "bg-[#E8F1FD] text-[#1570EF]";
+  //     default:
+  //       return "bg-gray-100 text-gray-800";
+  //   }
+  // };
 
   // Mock list of pending admin requests
   const pendingAdmins = [
@@ -34,25 +105,25 @@ export default function Home() {
     { id: 4, name: "Emily Davis", image: "/image.jpg" },
   ];
 
-  const filteredChallenges = mockPetChallenges.filter((challenge) =>
-    challenge.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredChallenges = mockPetChallenges.filter((challenge) =>
+  //   challenge.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
-  const totalChallengePages = Math.ceil(
-    filteredChallenges.length / challengeRowsPerPage
-  );
-  const paginatedChallenges = filteredChallenges.slice(
-    (challengePage - 1) * challengeRowsPerPage,
-    challengePage * challengeRowsPerPage
-  );
+  // const totalChallengePages = Math.ceil(
+  //   filteredChallenges.length / challengeRowsPerPage
+  // );
+  // const paginatedChallenges = filteredChallenges.slice(
+  //   (challengePage - 1) * challengeRowsPerPage,
+  //   challengePage * challengeRowsPerPage
+  // );
 
-  const totalCommunityPages = Math.ceil(
-    communityMockData.length / communityRowsPerPage
-  );
-  const paginatedCommunity = communityMockData.slice(
-    (communityPage - 1) * communityRowsPerPage,
-    communityPage * communityRowsPerPage
-  );
+  // const totalCommunityPages = Math.ceil(
+  //   communityMockData.length / communityRowsPerPage,
+  // );
+  // const paginatedCommunity = communityMockData.slice(
+  //   (communityPage - 1) * communityRowsPerPage,
+  //   communityPage * communityRowsPerPage,
+  // );
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -76,31 +147,33 @@ export default function Home() {
     }
   };
 
-  const handleToggleMenu = (challengeId: number, index: number) => {
-    if (openRow === challengeId) {
-      setOpenRow(null);
-      return;
-    }
+  const allChallengesData = data?.data?.challenges.length || 0;
 
-    const btn = buttonRefs.current[index];
-    if (btn) {
-      const rect = btn.getBoundingClientRect();
-      const dropdownHeight = 150;
-      const spaceBelow = window.innerHeight - rect.bottom;
+  // const handleToggleMenu = (challengeId: number, index: number) => {
+  //   if (openRow === challengeId) {
+  //     setOpenRow(null);
+  //     return;
+  //   }
 
-      const shouldFlip = spaceBelow < dropdownHeight;
+  //   const btn = buttonRefs.current[index];
+  //   if (btn) {
+  //     const rect = btn.getBoundingClientRect();
+  //     const dropdownHeight = 150;
+  //     const spaceBelow = window.innerHeight - rect.bottom;
 
-      setMenuPosition({
-        top: shouldFlip
-          ? rect.top + window.scrollY - dropdownHeight
-          : rect.top + window.scrollY + rect.height,
-        left: rect.left + window.scrollX,
-        buttonHeight: rect.height,
-      });
-    }
+  //     const shouldFlip = spaceBelow < dropdownHeight;
 
-    setOpenRow(challengeId);
-  };
+  //     setMenuPosition({
+  //       top: shouldFlip
+  //         ? rect.top + window.scrollY - dropdownHeight
+  //         : rect.top + window.scrollY + rect.height,
+  //       left: rect.left + window.scrollX,
+  //       buttonHeight: rect.height,
+  //     });
+  //   }
+
+  //   setOpenRow(challengeId);
+  // };
 
   return (
     <div className="px-10">
@@ -121,10 +194,8 @@ export default function Home() {
       </div>
 
       {/* Alert Box */}
-      <div className="mt-6 w-full h-[134px] bg-[#ECF1F9] rounded-[16px] p-6 flex flex-col gap-[10px]">
-        <p className="font-bold text-black text-[18px]">
-          Review Admin Request
-        </p>
+      {/* <div className="mt-6 w-full h-[134px] bg-[#ECF1F9] rounded-[16px] p-6 flex flex-col gap-[10px]">
+        <p className="font-bold text-black text-[18px]">Review Admin Request</p>
         <p className="text-sm text-[#8E98A8]">
           Review pending community admin request
         </p>
@@ -141,25 +212,25 @@ export default function Home() {
             className="inline-block ml-2"
           />
         </div>
-      </div>
+      </div> */}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
           {
             title: "Total Users",
-            value: "12,845",
-            subtitle: "+12% from last month",
+            value: totalUsers,
+            subtitle: "",
           },
           {
             title: "Active Challenges",
-            value: 26,
-            subtitle: "4 new this week",
+            value: all?.data?.pagination?.totalCount || 0,
+            subtitle: "",
           },
           {
             title: "Total Communities",
-            value: 400,
-            subtitle: "+5% from last month",
+            value: 0,
+            subtitle: "",
           },
         ].map((item, idx) => (
           <div
@@ -189,16 +260,16 @@ export default function Home() {
           <table className="w-full text-sm text-left">
             <thead className="bg-tableheader font-normal text-tableheadertext rounded-md">
               <tr className="border-none">
-                <th className="px-4 py-2 font-normal">Challenge Name</th>
-                <th className="px-4 py-2 font-normal">Location</th>
-                <th className="px-4 py-2 font-normal">Participants</th>
-                <th className="px-4 py-2 font-normal">Type</th>
-                <th className="px-4 py-2 font-normal">Status</th>
-                <th className="px-4 py-2 font-normal">Completion Rate</th>
-                <th className="px-4 py-2 font-normal">Actions</th>
+                <th className="px-4 py-3 ">Challenge Name</th>
+                <th className="px-4 py-3 ">Location</th>
+                <th className="px-4 py-3 ">Participants</th>
+                <th className="px-4 py-3 ">Type</th>
+                <th className="px-4 py-3 ">Status</th>
+                <th className="px-4 py-3 ">Completion Rate</th>
+                <th className="px-4 py-3 ">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            {/* <tbody>
               {paginatedChallenges.length > 0 ? (
                 paginatedChallenges.map((challenge, index) => (
                   <tr
@@ -302,13 +373,90 @@ export default function Home() {
                   </td>
                 </tr>
               )}
+            </tbody> */}
+            <tbody>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center">
+                    Loading challenges...
+                  </td>
+                </tr>
+              ) : challenges.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-8 text-gray-500">
+                    No challenges found.
+                  </td>
+                </tr>
+              ) : (
+                challenges.map((c: any) => (
+                  <tr key={c._id} className="border-t hover:bg-gray-50">
+                    <td className="px-4 py-3 font-bold text-deepblue">
+                      <div className="flex gap-1.5 items-center">
+                        <Image
+                          src={c.image || "/petmock.svg"}
+                          alt={c.title}
+                          width={32}
+                          height={32}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                        <div className="flex flex-col gap-1 capitalize">
+                          <p>{c.title}</p>
+                          
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 ">Global</td>
+
+                    <td className="px-4 py-3">
+                      {Array.isArray(c.participants)
+                        ? c.participants.length
+                        : 0}
+                    </td>
+
+                    <td className="px-4 py-3 capitalize">
+                      <span className="px-2 py-1 rounded-full text-xs bg-[#E8F1FD] text-[#1570EF]">
+                        {c.type}
+                      </span>
+                    </td>
+
+                    <td className="px-4 py-3 capitalize">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          c.status === "active"
+                            ? "bg-[#E8F1FD] text-[#1570EF]"
+                            : c.status === "scheduled"
+                              ? "bg-[#FFF8E1] text-[#FFA000]"
+                              : c.status === "completed"
+                                ? "bg-[#ECF8F1] text-[#40B773]"
+                                : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {c.status}
+                      </span>
+                    </td>
+
+                    <td></td>
+
+                    <td className="px-4 py-3 text-center">
+                      <button onClick={(e) => handleActionClick(e, c._id)}>
+                        <Image
+                          src="/Button-table.svg"
+                          alt="Actions"
+                          width={20}
+                          height={20}
+                        />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
         <PaginationControls
           currentPage={challengePage}
-          totalPages={totalChallengePages}
+          totalPages={totalPages}
           rowsPerPage={challengeRowsPerPage}
           onPageChange={setChallengePage}
           onRowsPerPageChange={(rows) => {
@@ -316,10 +464,73 @@ export default function Home() {
             setChallengePage(1);
           }}
         />
+
+        <DropdownMenu
+          isOpen={openRow !== null}
+          position={dropdownPos}
+          onClose={() => {
+            setOpenRow(null);
+            setDropdownPos(null);
+          }}
+          items={[
+            {
+              label: "See Details",
+              icon: "/eye.svg",
+              href:
+                openRow &&
+                challenges.find((c: challenge) => c._id === openRow)?._id
+                  ? `/challenges/${challenges.find((c: challenge) => c._id === openRow)?._id}`
+                  : "#",
+
+              // href: openRow ? `/challenges/${openRow}` : "#",
+            },
+            {
+              label: "Edit",
+              icon: "/edit.svg",
+              href:
+                openRow &&
+                challenges.find((c: challenge) => c._id === openRow)?._id
+                  ? `/challenges/${challenges.find((c: challenge) => c._id === openRow)?._id}/edit`
+                  : "#",
+            },
+            {
+              label: "Delete",
+              icon: "/user.svg",
+              danger: true,
+              onClick: () => {
+                setChallengeToDelete(
+                  challenges.find((c: challenge) => c._id === openRow) || null,
+                );
+              },
+            },
+          ]}
+        />
+
+        {challengeToDelete && (
+          <DeleteModal
+            // name={challengeToDelete.title}
+            isLoading={deleteModalMutation.isPending}
+            onCancel={() => setChallengeToDelete(null)}
+            message={`Are you sure you want to delete the challenge "${challengeToDelete.title}"? This action cannot be undone.`}
+            deleteObject="challenge"
+            onConfirm={() => {
+              if (!challengeToDelete?._id)
+                return toast.error("Invalid challenge");
+              deleteModalMutation.mutate(challengeToDelete._id, {
+                onSuccess: () => setChallengeToDelete(null),
+                onError: (error: any) =>
+                  toast.error(
+                    error?.response?.data?.message ||
+                      "Failed to delete challenge",
+                  ),
+              });
+            }}
+          />
+        )}
       </div>
 
       {/* Community Table */}
-      <div className="p-4 mt-4 bg-white rounded-[10px]">
+      {/* <div className="p-4 mt-4 bg-white rounded-[10px]">
         <div className="flex justify-between items-center pb-3">
           <h2 className="text-[16px] text-deepblue capitalize font-bold">
             Recent Community Activity
@@ -404,7 +615,7 @@ export default function Home() {
             setCommunityPage(1);
           }}
         />
-      </div>
+      </div> */}
 
       {/* MODAL SECTION */}
       {showModal && (
@@ -415,18 +626,19 @@ export default function Home() {
               {selectedAdmin ? (
                 <div className="flex items-center gap-4">
                   <button
-                  onClick={() => setSelectedAdmin(null)}
-                  className="flex items-center gap-2 text-gray-500 hover:text-gray-700 cursor-pointer"
-                >
-                  <Image
-                    src="/arrow-back.svg"
-                    alt="back"
-                    width={24}
-                    height={24}
-                  />
-                  
-                </button>
-                <span className="font-bold text-2xl text-deepblue">Review Details</span>
+                    onClick={() => setSelectedAdmin(null)}
+                    className="flex items-center gap-2 text-gray-500 hover:text-gray-700 cursor-pointer"
+                  >
+                    <Image
+                      src="/arrow-back.svg"
+                      alt="back"
+                      width={24}
+                      height={24}
+                    />
+                  </button>
+                  <span className="font-bold text-2xl text-deepblue">
+                    Review Details
+                  </span>
                 </div>
               ) : (
                 <h2 className="text-2xl font-bold text-deepblue">
@@ -520,7 +732,9 @@ function ReviewDetails({ admin, onBack }: any) {
 
       {/* Description */}
       <div className="border border-border py-4 px-6 rounded-2xl ">
-        <h3 className="font-bold text-deepblue mb-2 text-[16px]">Description</h3>
+        <h3 className="font-bold text-deepblue mb-2 text-[16px]">
+          Description
+        </h3>
         <p className="text-[#8E98A8] text-sm leading-relaxed">
           {readMore ? description : shortText}
         </p>
@@ -538,7 +752,9 @@ function ReviewDetails({ admin, onBack }: any) {
       <div className="border border-border py-4 px-6 rounded-2xl ">
         <div>
           <h3 className="font-bold text-deepblue mb-2 text-[16px]">Location</h3>
-        <p className="text-[#8E98A8] text-sm">Lakeside Dog Park - South Entrance</p>
+          <p className="text-[#8E98A8] text-sm">
+            Lakeside Dog Park - South Entrance
+          </p>
         </div>
       </div>
 
@@ -553,7 +769,6 @@ function ReviewDetails({ admin, onBack }: any) {
         >
           Decline
         </button>
-        
       </div>
     </div>
   );

@@ -40,8 +40,8 @@ export const createChallengeService = async (payload: FormData) => {
 // }
 
 export interface GetChallengesParams {
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
   search?: string;
   status?: string;
   type?: string;
