@@ -8,6 +8,7 @@ import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 import { useChallengeBuilderStore } from "@/stores/useChallengeBuilderStore";
 import { div } from "framer-motion/client";
+import { useImageUpload } from "@/hooks/useImageUpload";
 
 /* ------------------ UI Options ------------------ */
 
@@ -37,7 +38,7 @@ const petFitScoreRanges = [
 ];
 
 export default function Reward() {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  // const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const { points, participation, segmentCriteria,  } =
     useChallengeBuilderStore((state) => state.rewards);
@@ -63,20 +64,51 @@ export default function Reward() {
   //   [setRewards],
   // );
 
-  const onDrop = useCallback(
-     (acceptedFiles: File[]) => {
-      if (acceptedFiles.length > 0) {
-        setRewards({ rewardFile: acceptedFiles[0], rewardFileUrl: null });
-      }
-    },
-    [setRewards],
-  );
+  // const onDrop = useCallback(
+  //    (acceptedFiles: File[]) => {
+  //     if (acceptedFiles.length > 0) {
+  //       setRewards({ rewardFile: acceptedFiles[0], rewardFileUrl: null });
+  //     }
+  //   },
+  //   [setRewards],
+  // );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: { "image/*": [] },
-    multiple: false,
-  });
+  // const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  //   onDrop,
+  //   accept: { "image/*": [] },
+  //   multiple: false,
+  // });
+    const {
+      getRootProps,
+      getInputProps,
+      isDragActive,
+      previewUrl,
+      compressing,
+      setPreviewFromFile,
+      setPreviewFromUrl,
+    } = useImageUpload({
+      maxUploadSizeMB: 5,       // user can select up to 5MB
+      maxCompressedSizeMB: 1,   // compress to under 1MB
+      initialImageUrl: rewards.rewardFileUrl,
+      onFileAccepted: (file) => {
+        setRewards({ rewardFile: file, rewardFileUrl: null });
+        setPreviewFromFile(file);
+      },
+    });
+
+      useEffect(() => {
+        if (!rewards.rewardFile && rewards.rewardFileUrl) {
+          setPreviewFromUrl(rewards.rewardFileUrl);
+        }
+    
+        if (!rewards.rewardFile && !rewards.rewardFileUrl) {
+          setPreviewFromUrl(null);
+        }
+      }, [
+        rewards.rewardFile,
+        rewards.rewardFileUrl,
+        setPreviewFromUrl,
+      ]);
 
   //  useEffect(() => {
   //     // New image selected (File)
@@ -95,28 +127,28 @@ export default function Reward() {
   //     setPreviewUrl(null);
   //   }, [rewards.rewardFile, rewards.rewardFileUrl]);
   
-  useEffect(() => {
-  let objectUrl: string | null = null;
+//   useEffect(() => {
+//   let objectUrl: string | null = null;
 
-  // If a new file is selected, use URL.createObjectURL
-  if (rewards.rewardFile) {
-    objectUrl = URL.createObjectURL(rewards.rewardFile);
-    setPreviewUrl(objectUrl);
-  } 
-  // If editing and there is an existing URL, use it
-  else if (rewards.rewardFileUrl) {
-    setPreviewUrl(rewards.rewardFileUrl);
-  } 
-  // No image
-  else {
-    setPreviewUrl(null);
-  }
+//   // If a new file is selected, use URL.createObjectURL
+//   if (rewards.rewardFile) {
+//     objectUrl = URL.createObjectURL(rewards.rewardFile);
+//     setPreviewUrl(objectUrl);
+//   } 
+//   // If editing and there is an existing URL, use it
+//   else if (rewards.rewardFileUrl) {
+//     setPreviewUrl(rewards.rewardFileUrl);
+//   } 
+//   // No image
+//   else {
+//     setPreviewUrl(null);
+//   }
 
-  return () => {
-    // Clean up only the object URL for newly selected files
-    if (objectUrl) URL.revokeObjectURL(objectUrl);
-  };
-}, [rewards.rewardFile, rewards.rewardFileUrl]);
+//   return () => {
+//     // Clean up only the object URL for newly selected files
+//     if (objectUrl) URL.revokeObjectURL(objectUrl);
+//   };
+// }, [rewards.rewardFile, rewards.rewardFileUrl]);
 
 
 
@@ -185,6 +217,16 @@ export default function Reward() {
                         </p>
                       </div>
                     )}
+
+                     {/* Compression loader overlay */}
+                                {compressing && (
+                                 <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-20 rounded-[6px]">
+                                  <p className="text-deepblue">Compressing image...</p>
+                    
+                                    <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                                
+                                 </div>
+                                )}
                   </div>
       </div>
 
