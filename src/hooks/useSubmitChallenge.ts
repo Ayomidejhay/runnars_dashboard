@@ -1,11 +1,6 @@
 "use client";
 
-
-
 import api from "@/lib/api";
-
-
-
 
 import { useRouter } from "next/navigation";
 import { useChallengeBuilderStore } from "@/stores/useChallengeBuilderStore";
@@ -28,13 +23,8 @@ export const useSubmitChallenge = ({
 } = {}) => {
   const router = useRouter();
 
-  const {
-    basicInfo,
-    goalsAndMetrics,
-    schedule,
-    rewards,
-    reset,
-  } = useChallengeBuilderStore();
+  const { basicInfo, goalsAndMetrics, schedule, rewards, reset } =
+    useChallengeBuilderStore();
 
   const createMutation = useCreateChallenge();
   const updateMutation = useUpdateChallenge();
@@ -46,7 +36,7 @@ export const useSubmitChallenge = ({
     }
 
     const toastId = toast.loading(
-      mode === "edit" ? "Updating challenge..." : "Creating challenge..."
+      mode === "edit" ? "Updating challenge..." : "Creating challenge...",
     );
 
     try {
@@ -56,19 +46,19 @@ export const useSubmitChallenge = ({
       formData.append("basicInfo", JSON.stringify(mapBasicInfo(basicInfo)));
       formData.append(
         "goalsAndMetrics",
-        JSON.stringify(mapGoalsAndMetrics(goalsAndMetrics))
+        JSON.stringify(mapGoalsAndMetrics(goalsAndMetrics)),
       );
       formData.append(
         "scheduleAndDuration",
-        JSON.stringify(mapSchedule(schedule))
+        JSON.stringify(mapSchedule(schedule)),
       );
       formData.append("rewards", JSON.stringify(mapRewards(rewards)));
 
-//       console.log(
-//   "coverImage instanceof File:",
-//   basicInfo.coverImage instanceof File,
-//   basicInfo.coverImage
-// );
+      //       console.log(
+      //   "coverImage instanceof File:",
+      //   basicInfo.coverImage instanceof File,
+      //   basicInfo.coverImage
+      // );
 
       // Handle files
       if (basicInfo.coverImage instanceof File) {
@@ -92,15 +82,17 @@ export const useSubmitChallenge = ({
         mode === "edit"
           ? "Challenge updated successfully!"
           : "Challenge created successfully!",
-        { id: toastId }
+        { id: toastId },
       );
 
       reset();
       router.push("/challenges");
     } catch (error: any) {
       toast.error(
-        error?.response?.data?.message || error?.message || "Something went wrong",
-        { id: toastId }
+        error?.response?.data?.message ||
+          error?.message ||
+          "Something went wrong",
+        { id: toastId },
       );
     }
   };
@@ -112,4 +104,3 @@ export const useSubmitChallenge = ({
     error: mode === "edit" ? updateMutation.error : createMutation.error,
   };
 };
-

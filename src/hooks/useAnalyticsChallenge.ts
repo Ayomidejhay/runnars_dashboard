@@ -1,6 +1,6 @@
 // /hooks/useChallengeAnalytics.ts
 import { useQuery } from "@tanstack/react-query";
-import { getChallengeAnalytics } from "@/services/challengeAnalyticsService";
+import { getChallengeAnalytics, getChallengeOverview } from "@/services/challengeAnalyticsService";
 
 export const useChallengeAnalytics = (
   id: string,
@@ -9,6 +9,17 @@ export const useChallengeAnalytics = (
     return useQuery({
         queryKey: ["challenge-analytics", id, interval],
         queryFn: () => getChallengeAnalytics(id, interval),
+        enabled: !!id,
+    });
+};
+
+export const useChallengeOverview = (
+  id: string,
+//   interval: "hourly" | "daily"
+) => {
+    return useQuery({
+        queryKey: ["challenge-overview", id],
+        queryFn: () => getChallengeOverview(id),
         enabled: !!id,
     });
 };

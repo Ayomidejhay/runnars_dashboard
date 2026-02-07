@@ -3,11 +3,14 @@
 "use client";
 
 import Image from "next/image";
-import React from "react";
+import React, { use } from "react";
 //import { Challenge } from "@/types"; // Update path if needed
 import { challenge } from "@/types";
 import { AdminChallenge } from "@/types/challenge";
 import { getParticipationDisplayValue } from "./ParticipationDisplay";
+import { useChallengeAnalytics, useChallengeOverview } from "@/hooks/useAnalyticsChallenge";
+import { useParams } from "next/navigation";
+import { humanizeAllGoals } from "@/lib/humanizeGoals";
 
 interface OverviewTabProps {
   getStatusBadge: (status: string) => string;
@@ -51,10 +54,42 @@ const formatDateTime = (date: Date | null) => {
   return `${datePart} at ${timePart}`;
 };
 
+function getPrimaryGoalDescription(goal: any) {
+  const { configurationType, config } = goal;
+
+  switch (configurationType) {
+   case "total_distance":
+  return `Complete a total of ${config.targetDistance} miles across ${config.numberOfWalks} walks`;
+
+case "weekly_distance":
+  return `Complete ${config.distancePerWeek} miles each week over ${config.numberOfWalks} walks`;
+
+case "per_walk_distance":
+  return `Take ${config.totalWalks} walks, covering ${config.distancePerWalk} miles in each walk`;
+
+case "progressive_distance":
+  return `Start with ${config.startDistance} miles in the first week, then increase by ${config.weeklyIncrease} miles each week for ${config.durationWeeks} weeks`;
+
+
+    default:
+      return "Complete the challenge goals";
+  }
+}
+
+
+
+
+
 const OverviewTab: React.FC<OverviewTabProps> = ({
   getStatusBadge,
   adminChallenge,
 }) => {
+
+     const {id} = useParams();
+    const { data, isLoading, error } = useChallengeOverview(
+      id as string,
+      // active,
+    );
   const startDateTime = combineDateAndTime(
     adminChallenge.scheduleAndDuration.startDate,
     adminChallenge.scheduleAndDuration.startTime,
@@ -75,14 +110,20 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
     (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
   );
 
+  const goalDescriptions = humanizeAllGoals(
+  adminChallenge.goalsAndMetrics
+);
+
   const participants = adminChallenge?.publishedChallenge?.participants ?? [];
 
-  const totalDistance = participants.reduce((sum, participant) => {
-    return sum + (participant.progress?.totalDistance ?? 0);
-  }, 0);
+  const totalDistance = data?.data?.participantMetrics?.totalDistance ?? 0;
 
   const averageDistance =
-    participants.length > 0 ? totalDistance / participants.length : 0;
+    data?.data?.participantMetrics?.averageDistancePerActiveParticipant ?? 0;
+
+    const primaryDistanceGoal =
+  adminChallenge?.goalsAndMetrics?.distanceGoals?.[0];
+
 
   const getFitScoreDisplay = (range: string) => {
     switch (range) {
@@ -141,6 +182,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 
     return baseValue;
   };
+ 
 
   return (
     <div className="flex gap-6">
@@ -182,13 +224,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               <div className="flex flex-col gap-1">
                 <p className="text-[14px]">Completion rate</p>
                 <p className="text-deepblue font-bold text-[24px]">
-                  {adminChallenge.publishedChallenge.progressPercentage}%
+                  {data?.data?.participantMetrics.completionRate ?? 0}%
                 </p>
                 <div className="w-full bg-gray-200 h-1 rounded-full overflow-hidden mt-1">
                   <div
                     className="bg-brightblue h-full"
                     style={{
-                      width: `${adminChallenge.publishedChallenge.progressPercentage}%`,
+                      width: `${data?.data?.participantMetrics.completionRate ?? 0}%`,
                     }}
                   ></div>
                 </div>
@@ -200,12 +242,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                 {/* <p className="text-deepblue font-bold text-[24px]">{.totalDistance}</p> */}
                 <div className="flex items-baseline gap-2">
                   <p className="text-deepblue font-bold text-[24px]">
-                    {totalDistance.toFixed(2)}{" "}
+                    {totalDistance.toFixed(2) ?? "0.00"}
                   </p>
                   <p>mi</p>
                 </div>
                 <p className="text-[12px] text-[#40B773]">
-                  Avg {averageDistance.toFixed(2)} mi per participant
+                  Avg {averageDistance.toFixed(2)} mi per walk
                 </p>
               </div>
             </div>
@@ -260,9 +302,22 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       <div className="basis-[40%] flex flex-col gap-4">
         <div className="p-5 bg-white rounded-2xl w-full">
           <p className="text-[14px] text-deepblue font-bold">Primary goal</p>
-          <p className="text-[12px] mt-4 capitalize">
-            {adminChallenge.publishedChallenge.rewards.description}
-          </p>
+          {/* <p className="text-[12px] mt-4 capitalize">
+            
+            {primaryDistanceGoal
+      ? getPrimaryGoalDescription(primaryDistanceGoal)
+      : "No goal configured"}
+      
+
+          </p> */}
+          <div>
+            <ul className="space-y-2 text-sm">
+  {goalDescriptions.map((desc, index) => (
+    <li key={index}>• {desc}</li>
+  ))}
+</ul>
+
+          </div>
         </div>
         <div className="p-5 bg-white rounded-2xl w-full">
           <p className="text-[14px] text-deepblue font-bold">Schedule</p>

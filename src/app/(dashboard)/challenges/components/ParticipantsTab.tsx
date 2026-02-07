@@ -8,10 +8,11 @@ import { Search } from "lucide-react";
 import Link from "next/link";
 import { AdminChallenge } from "@/types/challenge";
 import { useChallengeUsers } from "@/hooks/useUsers";
+import { useChallengeOverview } from "@/hooks/useAnalyticsChallenge";
 
 interface Participant {
   id: string;
-  user: string;
+  userId: string;
   joinedAt: string;
   status: string;
   completionRate?: number;
@@ -53,35 +54,32 @@ export default function ParticipantsTab({
   adminChallenge
 }: ParticipantsTabProps) {
   const { id } = useParams();
+   
+      const { data, error } = useChallengeOverview(
+        id as string,
+        // active,
+      );
 
-  const participantIds = adminChallenge.publishedChallenge.participants.map(
-  (p) => p.user
+  // const participantIds = adminChallenge.publishedChallenge.participants.map(
+  // (p) => p.user
+      const participantIds = data?.data?.participantStatistics.map(
+    (p:any) => p.userId
+
 );
 const uniqueIds = Array.from(new Set(participantIds));
 
   const participants: Participant[] =
-    adminChallenge.publishedChallenge.participants ?? [];
+    // adminChallenge.publishedChallenge.participants ?? [];
+    data?.data?.participantStatistics ?? [];
 
-  // const userIds = useMemo(
-  //   () => (participants || []).map((p) => p.user),
-  //   [participants]
-  // );
+ 
    const userIds = useMemo(
-    () => (participants || []).map((p) => p.user),
+    () => (participants || []).map((p) => p.userId),
     [participants]
   );
   const { data: usersData = [], isLoading } = useChallengeUsers(userIds);
 
-// const { data: usersData, isLoading } = useChallengeUsers(uniqueIds);
 
-  // Map userId -> userDetails for quick lookup
-//  const userMap = useMemo(() => {
-//     const map: Record<string, any> = {};
-//     (usersData || []).forEach((user) => {
-//       map[user.id] = user;
-//     });
-//     return map;
-//   }, [usersData]);
 
  const userMap = useMemo<Record<string, ChallengeUser>>(() => {
     const map: Record<string, ChallengeUser> = {};
@@ -103,7 +101,7 @@ const uniqueIds = Array.from(new Set(participantIds));
     () =>
       (participants ?? []).map((p) => ({
         ...p,
-        userDetails: userMap[p.user] ?? null,
+        userDetails: userMap[p.userId] ?? null,
       })),
     [participants, userMap]
   );
@@ -199,18 +197,18 @@ const uniqueIds = Array.from(new Set(participantIds));
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
           {
-            title: "Total Participants",
-            value: `${adminChallenge.publishedChallenge.participantCount || 0}`,
+            title: "Eligible Participants",
+            value: data?.data?.participantMetrics?.totalParticipants || 0,
             subtitle: "+12% from 24 hours",
           },
           {
             title: "Active Participants",
-            value: `${adminChallenge.publishedChallenge.participants.filter((u) => u.status === "active").length || 0}`,
+            value: data?.data?.participantMetrics?.totalActiveParticipants || 0,
             subtitle: "Currently active",
           },
           {
             title: "Completed Challenge",
-            value: `${adminChallenge.publishedChallenge.participants.filter((u) => u.status === "completed").length || 0}`,
+            value: data?.data?.participantMetrics?.completedParticipants || 0,
             subtitle: "Marked complete",
           },
         ].map((item, idx) => (
@@ -229,7 +227,7 @@ const uniqueIds = Array.from(new Set(participantIds));
         ))}
       </div>
 
-      {paginatedParticipants.length >> 0 && (
+      {(
         // Filters
         <div className="bg-white p-4 rounded mt-6">
           <div className="flex justify-between items-center">
@@ -299,7 +297,7 @@ const uniqueIds = Array.from(new Set(participantIds));
               <tbody>
                 {paginatedParticipants.length > 0 ? (
                   paginatedParticipants.map((user) => (
-                    <tr key={user.user} className="border-b">
+                    <tr key={user.userId} className="border-b">
                       <td className="px-4 py-2 font-bold text-deepblue">
                         <div className="flex items-center gap-2">
                           <Image
@@ -343,7 +341,7 @@ const uniqueIds = Array.from(new Set(participantIds));
 
                       <td className="px-4 py-2 text-xs">
                         <Link
-                          href={`/users/${user.user}`}
+                          href={`/users/${user.userId}`}
                           className="w-[85px] h-[36px] rounded-full border bg-transparent border-[#E1E1E1] flex items-center justify-center cursor-pointer"
                         >
                           View details

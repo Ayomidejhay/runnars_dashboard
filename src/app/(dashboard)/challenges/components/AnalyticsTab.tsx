@@ -28,6 +28,16 @@ const getBarColor = (value: number) => {
 
 import { useChallengeAnalytics } from "@/hooks/useAnalyticsChallenge";
 
+
+interface ParticipationByDate {
+  date: string;
+  newParticipants: number;
+  activeParticipants: number;
+  completedActivities: number;
+  totalDistance: number;
+}
+
+
 // Utility to format date labels like "Today, 2:25pm"
 const formatDateLabel = (dateStr: string) => {
   const date = new Date(dateStr);
@@ -60,50 +70,99 @@ const formatDateLabel = (dateStr: string) => {
   });
 };
 
-const filterByDateRange = (items: { date: string }[], range: string) => {
-    const now = new Date();
-    let start: Date | null = null;
+// const filterByDateRange = (items: { date: string }[], range: string) => {
+//     const now = new Date();
+//     let start: Date | null = null;
 
-    switch (range) {
-      case "today":
-        start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        break;
+//     switch (range) {
+//       case "today":
+//         start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+//         break;
 
-      case "yesterday": {
-        const y = new Date(now);
-        y.setDate(now.getDate() - 1);
-        start = new Date(y.getFullYear(), y.getMonth(), y.getDate());
-        now.setDate(now.getDate() - 1);
-        break;
-      }
+//       case "yesterday": {
+//         const y = new Date(now);
+//         y.setDate(now.getDate() - 1);
+//         start = new Date(y.getFullYear(), y.getMonth(), y.getDate());
+//         now.setDate(now.getDate() - 1);
+//         break;
+//       }
 
-      case "last7":
-        start = new Date(now);
-        start.setDate(now.getDate() - 7);
-        break;
+//       case "last7":
+//         start = new Date(now);
+//         start.setDate(now.getDate() - 7);
+//         break;
 
-      case "last30":
-        start = new Date(now);
-        start.setDate(now.getDate() - 30);
-        break;
+//       case "last30":
+//         start = new Date(now);
+//         start.setDate(now.getDate() - 30);
+//         break;
 
-      case "thisMonth":
-        start = new Date(now.getFullYear(), now.getMonth(), 1);
-        break;
+//       case "thisMonth":
+//         start = new Date(now.getFullYear(), now.getMonth(), 1);
+//         break;
 
-      case "thisYear":
-        start = new Date(now.getFullYear(), 0, 1);
-        break;
+//       case "thisYear":
+//         start = new Date(now.getFullYear(), 0, 1);
+//         break;
 
-      default:
-        return items;
+//       default:
+//         return items;
+//     }
+
+//     return items.filter((i) => {
+//       const d = new Date(i.date);
+//       return d >= start! && d <= now;
+//     });
+//   };
+
+
+const filterByDateRange = (
+  items: ParticipationByDate[],
+  range: string
+) => {
+  const now = new Date();
+  let start: Date | null = null;
+
+  switch (range) {
+    case "today":
+      start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      break;
+
+    case "yesterday": {
+      const y = new Date(now);
+      y.setDate(now.getDate() - 1);
+      start = new Date(y.getFullYear(), y.getMonth(), y.getDate());
+      now.setDate(now.getDate() - 1);
+      break;
     }
 
-    return items.filter((i) => {
-      const d = new Date(i.date);
-      return d >= start! && d <= now;
-    });
-  };
+    case "last7":
+      start = new Date(now);
+      start.setDate(now.getDate() - 7);
+      break;
+
+    case "last30":
+      start = new Date(now);
+      start.setDate(now.getDate() - 30);
+      break;
+
+    case "thisMonth":
+      start = new Date(now.getFullYear(), now.getMonth(), 1);
+      break;
+
+    case "thisYear":
+      start = new Date(now.getFullYear(), 0, 1);
+      break;
+
+    default:
+      return items;
+  }
+
+  return items.filter((i) => {
+    const d = new Date(i.date);
+    return d >= start! && d <= new Date(); // exclude future dates
+  });
+};
 
 export default function AnalyticsTab() {
   const [active, setActive] = useState<"hourly" | "daily">("hourly");
@@ -129,21 +188,49 @@ export default function AnalyticsTab() {
   //     engagementRate: data.data.participantMetrics.engagementRate,
   //   }));
   // }, [data]);
-  const lineChartData = useMemo(() => {
-    if (!data?.success) return [];
+  // const lineChartData = useMemo(() => {
+  //   if (!data?.success) return [];
 
-    const filtered = filterByDateRange(
-      data.data.participationByDate,
-      dateRange
-    );
+  //   const filtered = filterByDateRange(
+  //     data.data.participationByDate,
+  //     dateRange
+  //   );
 
-    return filtered.map((p) => ({
+  //   return filtered.map((p) => ({
+  //     time: formatDateLabel(p.date),
+  //     completionRate: data.data.participantMetrics.completionRate,
+  //     avgDistance: data.data.participantMetrics.averageDistance,
+  //     engagementRate: data.data.participantMetrics.engagementRate,
+  //   }));
+  // }, [data, dateRange]);
+
+const lineChartData = useMemo(() => {
+  if (!data?.success) return [];
+
+  const filtered = filterByDateRange(
+    data.data.participationByDate as ParticipationByDate[],
+    dateRange
+  );
+
+  const now = new Date();
+
+  return filtered
+    .filter((p) => new Date(p.date) <= now) // future dates excluded
+    .map((p) => ({
       time: formatDateLabel(p.date),
-      completionRate: data.data.participantMetrics.completionRate,
-      avgDistance: data.data.participantMetrics.averageDistance,
-      engagementRate: data.data.participantMetrics.engagementRate,
+      completionRate: p.newParticipants
+        ? Math.round((p.completedActivities / p.newParticipants) * 100)
+        : 0,
+      avgDistance: p.activeParticipants
+        ? +(p.totalDistance / p.activeParticipants).toFixed(2)
+        : 0,
+      engagementRate: p.newParticipants
+        ? Math.round((p.activeParticipants / p.newParticipants) * 100)
+        : 0,
     }));
-  }, [data, dateRange]);
+}, [data, dateRange]);
+
+
 
   const barChartData = useMemo(() => {
     if (!data?.success) return [];

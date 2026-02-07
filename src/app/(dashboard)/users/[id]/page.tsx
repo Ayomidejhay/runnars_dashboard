@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { userMockData } from "@/mockdata";
+
 import { useUser } from "@/hooks/useUsers";
 import RecentActivity from "../components/RecentActivity";
 import { formatDates } from "@/lib/formatDates";
@@ -20,6 +20,7 @@ export default function page() {
   const userInfo = data?.data?.basicInfo;
   const userPets = data?.data?.pets;
   const userActivities = data?.data?.activitySummary;
+
 
   
 
@@ -166,15 +167,15 @@ export default function page() {
             <p className="text-deepblue font-bold">Activity Summary</p>
             <div className="grid grid-cols-3 gap-4 text-[14px]">
               <div className="border border-[#E1E1E1] p-6 rounded-[16px] bg-white flex flex-col gap-3 items-center text-center">
-                <p className="font-bold text-deepblue text-[24px]">24</p>
+                <p className="font-bold text-deepblue text-[24px]">{data?.data?.challengeSummary.completedChallenges ?? 0}</p>
                 <p>Challenges Completed</p>
               </div>
               <div className="border border-[#E1E1E1] p-6 rounded-[16px] bg-white flex flex-col gap-3 items-center text-center">
-                <p className="font-bold text-deepblue text-[24px]">24</p>
+                <p className="font-bold text-deepblue text-[24px]">{data?.data?.communitySummary.totalCommunitiesJoined ?? 0}</p>
                 <p>Communities Joined</p>
               </div>
               <div className="border border-[#E1E1E1] p-6 rounded-[16px] bg-white flex flex-col gap-3 text-center items-center">
-                <p className="font-bold text-deepblue text-[24px]">24</p>
+                <p className="font-bold text-deepblue text-[24px]">{data?.data?.engagementSummary.totalEngagementActions ?? 1}</p>
                 <p>Posts & Comments</p>
               </div>
             </div>

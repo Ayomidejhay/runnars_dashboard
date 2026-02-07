@@ -33,8 +33,6 @@
 //     });
 //   };
 
-  
-
 //   /* ------------------ Image Upload (Shared Hook) ------------------ */
 
 //   const {
@@ -221,7 +219,6 @@
 //   );
 // }
 
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -235,6 +232,19 @@ export default function BasicInfo() {
   const showError = touchedSteps[1];
 
   const [hashtagInput, setHashtagInput] = useState("");
+
+  //word count limit for description
+
+  const WORD_LIMIT = 300;
+  const trimToWordLimit = (text: string, limit: number) => {
+    const words = text.split(/\s+/);
+
+    if (words.length <= limit) {
+      return text; // preserve spaces while typing
+    }
+
+    return words.slice(0, limit).join(" ");
+  };
 
   /* ------------------ Hashtag Logic ------------------ */
   const addHashtag = () => {
@@ -324,10 +334,15 @@ export default function BasicInfo() {
           <label className="text-[16px] text-deepblue">Description</label>
           <textarea
             value={basicInfo.description}
+            // onChange={(e) => {
+            //   setBasicInfo({
+            //     description: trimToWordLimit(e.target.value, WORD_LIMIT),
+            //   });
+            // }}
             onChange={(e) => setBasicInfo({ description: e.target.value })}
             className="border border-[#E1E1E1] rounded-md p-2 h-[162px] resize-none"
             required
-            maxLength={500}
+            maxLength={3000}
           />
           {showError && !basicInfo.description && (
             <p className="text-red-500 text-sm">Description is required</p>
@@ -423,12 +438,11 @@ export default function BasicInfo() {
 
             {/* Compression loader overlay */}
             {compressing && (
-             <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-20 rounded-[6px]">
-              <p className="text-deepblue">Compressing image...</p>
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-20 rounded-[6px]">
+                <p className="text-deepblue">Compressing image...</p>
 
                 <div className="w-10 h-10 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-            
-             </div>
+              </div>
             )}
           </div>
         </div>

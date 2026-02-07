@@ -1,3 +1,4 @@
+import { time } from "console";
 import { create } from "zustand";
 
 /* =========================
@@ -357,15 +358,27 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
       }));
     },
 
-    setDistanceConfig: (p) =>
-      get().isGoalsEditable &&
+    // setDistanceConfig: (payload) =>
+    //   get().isGoalsEditable &&
+    //   set((s) => ({
+    //     goalsAndMetrics: {
+    //       ...s.goalsAndMetrics,
+    //       distanceGoal: payload,
+    //       selectedGoalConfiguration: payload.configurationType,
+    //     },
+    //   })),
+
+    setDistanceConfig: (payload) => {
+      if (!get().isGoalsEditable) return;
+
       set((s) => ({
         goalsAndMetrics: {
           ...s.goalsAndMetrics,
-          distanceGoal: p,
-          selectedGoalConfiguration: p.configurationType,
+          distanceGoal: payload,
+          selectedGoalConfiguration: payload.configurationType,
         },
-      })),
+      }));
+    },
 
     setFrequencyConfig: (p) =>
       get().isGoalsEditable &&
@@ -413,8 +426,6 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
     setRewards: (data) => set((s) => ({ rewards: { ...s.rewards, ...data } })),
 
     initializeFromApi: (apiData, challengeId) => {
-      //
-
       const admin = apiData?.adminChallenge;
       if (!admin) return;
 
@@ -427,6 +438,13 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
         "distance",
       ];
 
+      const distanceGoalFromApi = admin.goalsAndMetrics?.distanceGoals?.[0];
+
+      const frequencyGoalFromApi = admin.goalsAndMetrics?.frequencyGoals?.[0];
+      const timeGoalFromApi = admin.goalsAndMetrics?.timeGoals?.[0];
+      const streakGoalFromApi = admin.goalsAndMetrics?.streakGoals?.[0];
+      const photoGoalFromApi = admin.goalsAndMetrics?.photoGoals?.[0];
+
       const snapshot: Snapshot = {
         basicInfo: {
           challengeName: admin.basicInfo?.name ?? "",
@@ -436,11 +454,60 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
           coverImage: null,
           coverImageUrl: admin?.basicInfo?.coverImage ?? null,
         },
+        // goalsAndMetrics: {
+        //   ...admin.goalsAndMetrics,
+        //   selectedGoalTypes,
+        //   activeTab: selectedGoalTypes[0] as GoalType,
+        // },
+        // long edit
+
         goalsAndMetrics: {
-          ...admin.goalsAndMetrics,
           selectedGoalTypes,
           activeTab: selectedGoalTypes[0] as GoalType,
+
+          selectedGoalConfiguration:
+            distanceGoalFromApi?.configurationType ?? "",
+
+          selectedFrequencyConfiguration:
+            frequencyGoalFromApi?.configurationType ?? "",
+
+            selectedTimeConfiguration: timeGoalFromApi?.configurationType ?? "",
+      selectedStreakConfiguration: streakGoalFromApi?.configurationType ?? "",
+      selectedPhotoConfiguration: photoGoalFromApi?.configurationType ?? "",
+
+          distanceGoal: distanceGoalFromApi
+            ? {
+                configurationType: distanceGoalFromApi.configurationType,
+                config: distanceGoalFromApi.config,
+              }
+            : undefined,
+
+          frequencyGoal: frequencyGoalFromApi
+            ? {
+                configurationType: frequencyGoalFromApi.configurationType,
+                config: frequencyGoalFromApi.config,
+              }
+            : undefined,
+          timeGoal: timeGoalFromApi
+            ? {
+                configurationType: timeGoalFromApi.configurationType,
+                config: timeGoalFromApi.config,
+              }
+            : undefined,
+          streakGoal: streakGoalFromApi
+            ? {
+                configurationType: streakGoalFromApi.configurationType,
+                config: streakGoalFromApi.config,
+              }
+            : undefined,
+          photoGoal: photoGoalFromApi
+            ? {
+                configurationType: photoGoalFromApi.configurationType,
+                config: photoGoalFromApi.config,
+              }
+            : undefined,
         },
+
         schedule: {
           startDate: admin.scheduleAndDuration?.startDate ?? "",
           startTime: admin.scheduleAndDuration?.startTime ?? "",
@@ -460,6 +527,7 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
       set({
         mode: "edit",
         challengeId,
+        isGoalsEditable: false,
         ...snapshot,
         initialSnapshot: snapshot,
         hasHydratedFromServer: true,
@@ -485,11 +553,20 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
         diff.basicInfo = basicInfo;
       }
 
-      if (
-        JSON.stringify(stripUi(goalsAndMetrics)) !==
-        JSON.stringify(stripUi(initialSnapshot.goalsAndMetrics))
-      ) {
-        diff.goalsAndMetrics = goalsAndMetrics;
+      // if (
+      //   JSON.stringify(goalsAndMetrics) !==
+      //   JSON.stringify(initialSnapshot.goalsAndMetrics)
+      // ) {
+      //   diff.goalsAndMetrics = goalsAndMetrics;
+      // }
+
+      if (get().isGoalsEditable) {
+        if (
+          JSON.stringify(goalsAndMetrics) !==
+          JSON.stringify(initialSnapshot.goalsAndMetrics)
+        ) {
+          diff.goalsAndMetrics = goalsAndMetrics;
+        }
       }
 
       if (

@@ -12,27 +12,53 @@ const goalConfigurations = [
 ];
 
 export default function DistanceInputs() {
-  const { goalsAndMetrics, setDistanceConfig } = useChallengeBuilderStore();
+  const { goalsAndMetrics, setDistanceConfig, isGoalsEditable } = useChallengeBuilderStore();
 
 
   const [configurationType, setConfigurationType] = useState<string>("");
 
   const [form, setForm] = useState<any>({});
 
+  
+  /* =========================
+     HYDRATE LOCAL STATE ON LOAD
+  ========================= */
   useEffect(() => {
-    if (!configurationType) return;
+    const distanceGoal = goalsAndMetrics.distanceGoal;
+    if (!distanceGoal) return;
 
-    setDistanceConfig({
-      configurationType,
-      config: form,
-    });
-  }, [configurationType, form, setDistanceConfig]);
+    setConfigurationType(distanceGoal.configurationType);
+    setForm(distanceGoal.config ?? {});
+  }, [goalsAndMetrics.distanceGoal]);
+
+  // useEffect(() => {
+  //   if (!isGoalsEditable) return;
+  //   if (!configurationType) return;
+
+  //   setDistanceConfig({
+  //     configurationType,
+  //     config: form,
+  //   });
+  // }, [configurationType, form, setDistanceConfig, isGoalsEditable]);
+
+  useEffect(() => {
+  if (!isGoalsEditable) return;
+  if (!configurationType) return;
+  if (!Object.keys(form).length) return; // ✅ PREVENT EMPTY OVERWRITE
+
+  setDistanceConfig({
+    configurationType,
+    config: form,
+  });
+}, [configurationType, form, isGoalsEditable]);
+
 
   return (
     <div className="flex flex-col gap-2">
       <label className="text-[16px] text-deepblue">Goal Configuration</label>
 
-      <select
+      {/* <select
+      disabled={!isGoalsEditable}
         className="w-full border p-2 rounded mb-4"
         value={configurationType}
         onChange={(e) => {
@@ -40,6 +66,22 @@ export default function DistanceInputs() {
           setForm({});
         }}
         required
+      >
+        <option value="">Select goal configuration</option>
+        {goalConfigurations.map((goal) => (
+          <option key={goal} value={goal}>
+            {goal}
+          </option>
+        ))}
+      </select> */}
+      <select
+        disabled={!isGoalsEditable}
+        className="w-full border p-2 rounded mb-4 disabled:bg-gray-100"
+        value={configurationType}
+        onChange={(e) => {
+          setConfigurationType(e.target.value);
+          setForm({});
+        }}
       >
         <option value="">Select goal configuration</option>
         {goalConfigurations.map((goal) => (
@@ -60,6 +102,8 @@ export default function DistanceInputs() {
               <div className="border border-[#E1E1E1] rounded-[16px] flex items-center w-full">
                 
                 <input
+                 disabled={!isGoalsEditable}
+                 value={form.targetDistance ?? ''}
                   className="p-2 w-[80%] outline-none"
                   placeholder="E.g 10"
                   required
@@ -82,6 +126,9 @@ export default function DistanceInputs() {
               </label>
             
               <input
+              disabled={!isGoalsEditable}
+              value={form.numberOfWalks ?? ''}
+               
                 placeholder="E.g 12"
                 required
                 className="border border-[#E1E1E1] rounded-[16px] p-2 w-full"
@@ -100,6 +147,8 @@ export default function DistanceInputs() {
               <div className="border border-[#E1E1E1] rounded-[16px] flex items-center w-full">
               
                 <input
+                disabled={!isGoalsEditable}
+              value={form.duration ?? ''}
                   placeholder="E.g 10"
                   className="p-2 w-[80%] outline-none"
                   onChange={(e) =>
@@ -125,6 +174,8 @@ export default function DistanceInputs() {
             <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
             
               <input
+              disabled={!isGoalsEditable}
+              value={form.distancePerWeek ?? ''}
                 placeholder="E.g 200"
                 className="p-2 w-[80%] outline-none"
                 onChange={(e) =>
@@ -142,6 +193,8 @@ export default function DistanceInputs() {
             <label className="text-[16px] text-deepblue">Number of walks</label>
            
             <input
+            disabled={!isGoalsEditable}
+              value={form.numberOfWalks ?? ''}
               placeholder="E.g 10"
               className="border border-[#E1E1E1] rounded-[16px] p-2"
               onChange={(e) =>
@@ -163,6 +216,8 @@ export default function DistanceInputs() {
             <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
              
               <input
+              disabled={!isGoalsEditable}
+              value={form.distancePerWalk ?? ''}
                 placeholder="E.g 10"
                 className="p-2 w-[80%] outline-none"
                 onChange={(e) =>
@@ -180,12 +235,14 @@ export default function DistanceInputs() {
             <label className="text-[16px] text-deepblue">Number of walks</label>
            
             <input
+            disabled={!isGoalsEditable}
+            value={form.totalWalks ?? ''}
               placeholder="E.g 10"
               className="border border-[#E1E1E1] rounded-[16px] p-2"
               onChange={(e) =>
                 setForm((f: any) => ({
                   ...f,
-                  walksPerWeek: Number(e.target.value),
+                  totalWalks: Number(e.target.value),
                 }))
               }
             />
@@ -202,6 +259,8 @@ export default function DistanceInputs() {
               <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
               
                 <input
+                disabled={!isGoalsEditable}
+              value={form.startDistance ?? ''}
                   placeholder="E.g 10"
                   className="p-2 w-[80%] outline-none"
                   onChange={(e) =>
@@ -222,6 +281,8 @@ export default function DistanceInputs() {
               <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
                 
                 <input
+                disabled={!isGoalsEditable}
+              value={form.weeklyIncrease ?? ''}
                   placeholder="E.g 10"
                   className="p-2 w-[80%] outline-none"
                   onChange={(e) =>
@@ -242,6 +303,8 @@ export default function DistanceInputs() {
             </label>
             
             <input
+            disabled={!isGoalsEditable}
+            value={form.durationWeeks ?? ''}
               placeholder="E.g 10"
               className="border border-[#E1E1E1] rounded-md p-2"
               onChange={(e) =>
