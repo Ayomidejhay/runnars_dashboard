@@ -262,7 +262,7 @@ export default function Home() {
               <tr className="border-none">
                 <th className="px-4 py-3 ">Challenge Name</th>
                 <th className="px-4 py-3 ">Location</th>
-                <th className="px-4 py-3 ">Participants</th>
+                <th className="px-4 py-3 ">Eligible Participants</th>
                 <th className="px-4 py-3 ">Type</th>
                 <th className="px-4 py-3 ">Status</th>
                 <th className="px-4 py-3 ">Completion Rate</th>
@@ -407,7 +407,7 @@ export default function Home() {
                     </td>
                     <td className="px-4 py-3 ">Global</td>
 
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-center">
                       {Array.isArray(c.participants)
                         ? c.participants.length
                         : 0}

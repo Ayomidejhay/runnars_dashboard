@@ -355,7 +355,7 @@ const Page = () => {
           <thead className="bg-gray-100">
             <tr>
               <th className="px-4 py-3 text-left">Name</th>
-              <th className="px-4 py-3">Participants</th>
+              <th className="px-4 py-3">Eligible Participants</th>
               <th className="px-4 py-3">Type</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Start</th>

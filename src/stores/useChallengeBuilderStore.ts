@@ -292,9 +292,20 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
 
     /* ---------- Reward Actions ---------- */
     rewardActions: {
+      // setRewards: (data) =>
+      //   set((s) => ({
+      //     rewards: { ...s.rewards, ...data },
+      //   })),
       setRewards: (data) =>
         set((s) => ({
-          rewards: { ...s.rewards, ...data },
+          rewards: {
+            ...s.rewards,
+            ...data,
+            segmentCriteria: {
+              ...s.rewards.segmentCriteria,
+              ...data.segmentCriteria,
+            },
+          },
         })),
       resetRewards: () =>
         set(() => ({
@@ -471,9 +482,10 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
           selectedFrequencyConfiguration:
             frequencyGoalFromApi?.configurationType ?? "",
 
-            selectedTimeConfiguration: timeGoalFromApi?.configurationType ?? "",
-      selectedStreakConfiguration: streakGoalFromApi?.configurationType ?? "",
-      selectedPhotoConfiguration: photoGoalFromApi?.configurationType ?? "",
+          selectedTimeConfiguration: timeGoalFromApi?.configurationType ?? "",
+          selectedStreakConfiguration:
+            streakGoalFromApi?.configurationType ?? "",
+          selectedPhotoConfiguration: photoGoalFromApi?.configurationType ?? "",
 
           distanceGoal: distanceGoalFromApi
             ? {

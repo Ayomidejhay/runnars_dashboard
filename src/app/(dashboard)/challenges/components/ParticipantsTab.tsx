@@ -203,7 +203,7 @@ const uniqueIds = Array.from(new Set(participantIds));
           },
           {
             title: "Active Participants",
-            value: data?.data?.participantMetrics?.totalActiveParticipants || 0,
+            value: data?.data?.participantMetrics?.activeParticipants || 0,
             subtitle: "Currently active",
           },
           {

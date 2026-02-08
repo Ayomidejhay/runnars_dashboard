@@ -1,6 +1,6 @@
 // /hooks/useChallengeAnalytics.ts
 import { useQuery } from "@tanstack/react-query";
-import { getChallengeAnalytics, getChallengeOverview } from "@/services/challengeAnalyticsService";
+import { getChallengeAnalytics, getChallengeOverview, getChallengePost, GetChallengePostParams, getChallengePosts } from "@/services/challengeAnalyticsService";
 
 export const useChallengeAnalytics = (
   id: string,
@@ -25,13 +25,27 @@ export const useChallengeOverview = (
 };
 
 
-// export const useChallenge = (id: string) => {
-//   return useQuery({
-//     queryKey: ["challenge", id],
-//     queryFn: async () => {
-//       const res = await api.get(`/api/admin/challenges/${id}`);
-//       return res.data;
-//     },
-//     enabled: !!id,
-//   });
-// };
+export const useChallengePosts = (
+  id: string,
+  params: GetChallengePostParams
+) => {
+  return useQuery({
+    queryKey: ["challenge-posts", id, JSON.stringify(params)],
+    queryFn: () => getChallengePost(id, params),
+    enabled: !!id, // avoid firing when id is undefined
+    
+  });
+};
+
+
+export const useChallengePost = (
+  challengeId: string,
+  
+) => {
+  return useQuery({
+    queryKey: ["challenge-posts", challengeId],
+    queryFn: () => getChallengePosts(challengeId),
+    enabled: !!challengeId, // avoid firing when id is undefined
+    
+  });
+};

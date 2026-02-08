@@ -20,11 +20,11 @@ const participationOptions = [
 ] as const;
 
 const petTypes = [
-  { label: "Dog", value: "dog" },
-  { label: "Cat", value: "cat" },
-  { label: "Reptile", value: "reptile" },
-  { label: "Bird", value: "bird" },
-  { label: "Others", value: "others" },
+  { label: "Dog", value: "Dog" },
+  { label: "Cat", value: "Cat" },
+  { label: "Reptile", value: "Reptile" },
+  { label: "Bird", value: "Bird" },
+  { label: "Others", value: "Others" },
 ];
 
 const petFitScoreRanges = [
@@ -335,11 +335,11 @@ export default function Reward() {
                         segmentCriteria: {
                           petFitScoreRange:
                             nextType === "users_with_min_fit_score"
-                              ? segmentCriteria.petFitScoreRange || "all"
+                              ? segmentCriteria.petFitScoreRange
                               : "all", // reset to all if not using petFitScore
                           specificPetTypes:
                             nextType === "specific_pet_type"
-                              ? segmentCriteria.specificPetTypes || []
+                              ? segmentCriteria.specificPetTypes 
                               : [], // reset if not specific_pet_type
                         },
                       });
