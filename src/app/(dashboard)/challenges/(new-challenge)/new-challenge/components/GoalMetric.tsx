@@ -39,7 +39,7 @@ export default function GoalMetric() {
   return (
     <div className="flex flex-col gap-6">
       <p className="text-[20px] font-bold text-deepblue">Goals & metrics</p>
-
+      {}
       <div className="flex flex-col gap-5">
         <Tabs />
 
@@ -78,6 +78,7 @@ export default function GoalMetric() {
           />
         )}
       </div>
+      
     </div>
   );
 }

@@ -41,6 +41,9 @@ export default function Reward() {
     (state) => state.rewards,
   );
 
+  const mode = useChallengeBuilderStore((s) => s.mode);
+  const isEditMode = mode === "edit";
+
   const { touchedSteps, rewards } = useChallengeBuilderStore();
   const showError = touchedSteps[4];
 
@@ -48,34 +51,7 @@ export default function Reward() {
     (state) => state.rewardActions.setRewards,
   );
 
-  /* ------------------ Dropzone ------------------ */
-
-  // const onDrop = useCallback(
-  //   (acceptedFiles: File[]) => {
-  //     if (!acceptedFiles.length) return;
-
-  //     const file = acceptedFiles[0];
-  //     setPreviewUrl(URL.createObjectURL(file));
-
-  //     setRewards({ rewardFile: file });
-  //   },
-  //   [setRewards],
-  // );
-
-  // const onDrop = useCallback(
-  //    (acceptedFiles: File[]) => {
-  //     if (acceptedFiles.length > 0) {
-  //       setRewards({ rewardFile: acceptedFiles[0], rewardFileUrl: null });
-  //     }
-  //   },
-  //   [setRewards],
-  // );
-
-  // const { getRootProps, getInputProps, isDragActive } = useDropzone({
-  //   onDrop,
-  //   accept: { "image/*": [] },
-  //   multiple: false,
-  // });
+  // Dropzone
   const {
     getRootProps,
     getInputProps,
@@ -103,46 +79,6 @@ export default function Reward() {
       setPreviewFromUrl(null);
     }
   }, [rewards.rewardFile, rewards.rewardFileUrl, setPreviewFromUrl]);
-
-  //  useEffect(() => {
-  //     // New image selected (File)
-  //     if (rewards.rewardFile) {
-  //       const url = URL.createObjectURL(rewards.rewardFile);
-  //       setPreviewUrl(url);
-  //       return () => URL.revokeObjectURL(url);
-  //     }
-
-  //     // Existing image from backend (URL)
-  //     if (rewards.rewardFileUrl) {
-  //       setPreviewUrl(rewards.rewardFileUrl);
-  //       return;
-  //     }
-
-  //     setPreviewUrl(null);
-  //   }, [rewards.rewardFile, rewards.rewardFileUrl]);
-
-  //   useEffect(() => {
-  //   let objectUrl: string | null = null;
-
-  //   // If a new file is selected, use URL.createObjectURL
-  //   if (rewards.rewardFile) {
-  //     objectUrl = URL.createObjectURL(rewards.rewardFile);
-  //     setPreviewUrl(objectUrl);
-  //   }
-  //   // If editing and there is an existing URL, use it
-  //   else if (rewards.rewardFileUrl) {
-  //     setPreviewUrl(rewards.rewardFileUrl);
-  //   }
-  //   // No image
-  //   else {
-  //     setPreviewUrl(null);
-  //   }
-
-  //   return () => {
-  //     // Clean up only the object URL for newly selected files
-  //     if (objectUrl) URL.revokeObjectURL(objectUrl);
-  //   };
-  // }, [rewards.rewardFile, rewards.rewardFileUrl]);
 
   const participationType = participation.whoCanParticipate;
 
@@ -219,222 +155,113 @@ export default function Reward() {
       </div>
 
       {/* Participation */}
-      <div className="flex gap-5 items-start">
-        <div className="flex-1 border rounded-[16px] px-3 py-4">
-          <label className="text-[16px] text-deepblue">
-            Who can participate
-          </label>
+      <div className={isEditMode ? "opacity-30 pointer-events-none" : ""}>
+        <div className="flex gap-5 items-start">
+          
+            <div className="flex-1 border rounded-[16px] px-3 py-4">
+              <label className="text-[16px] text-deepblue">
+                Who can participate
+              </label>
 
-          {/* {participationOptions.map((opt) => {
-            const selected = participationType === opt.value;
+              {participationOptions.map((opt) => {
+                const selected = participationType === opt.value;
 
-            return (
-              <div className="mt-2" key={opt.value}>
-                <label
-                  key={opt.value}
-                  className={`flex items-center justify-between border rounded-lg px-4 py-3 cursor-pointer ${
-                    selected ? "border-blue-600 bg-blue-50" : "border-gray-300"
-                  }`}
-                >
-                  <span>{opt.label}</span>
+                return (
+                  <div className="mt-2" key={opt.value}>
+                    <label
+                      className={`flex items-center justify-between border rounded-lg px-4 py-3 cursor-pointer ${
+                        selected
+                          ? "border-blue-600 bg-blue-50"
+                          : "border-gray-300"
+                      }`}
+                    >
+                      <span>{opt.label}</span>
 
-                  <input
-                    type="radio"
-                    checked={selected}
-                    className="hidden"
-                    onChange={() =>
-                      setRewards({
-                        participation: { whoCanParticipate: opt.value },
-                        segmentCriteria: {
-                          petFitScoreRange: "all",
-                          specificPetTypes: [],
-                        },
-                      })
-                    }
-                  />
-                </label>
-              </div>
-            );
-          })} */}
-          {/* {participationOptions.map((opt) => {
-            const selected = participationType === opt.value;
+                      <input
+                        type="radio"
+                        disabled={isEditMode}
+                        checked={selected}
+                        className="hidden"
+                        onChange={() => {
+                          const nextType = opt.value;
 
-            return (
-              <div className="mt-2" key={opt.value}>
-                <label
-                  className={`flex items-center justify-between border rounded-lg px-4 py-3 cursor-pointer ${
-                    selected ? "border-blue-600 bg-blue-50" : "border-gray-300"
-                  }`}
-                >
-                  <span>{opt.label}</span>
+                          // Grab current segmentCriteria from store
+                          const { segmentCriteria } = rewards;
 
-                  <input
-                    type="radio"
-                    checked={selected}
-                    className="hidden"
-                    // onChange={() => {
-                    //   const nextType = opt.value;
+                          setRewards({
+                            participation: { whoCanParticipate: nextType },
+                            segmentCriteria: {
+                              petFitScoreRange:
+                                nextType === "users_with_min_fit_score"
+                                  ? segmentCriteria.petFitScoreRange
+                                  : "all", // reset to all if not using petFitScore
+                              specificPetTypes:
+                                nextType === "specific_pet_type"
+                                  ? segmentCriteria.specificPetTypes
+                                  : [], // reset if not specific_pet_type
+                            },
+                          });
+                        }}
+                      />
+                    </label>
+                  </div>
+                );
+              })}
 
-                    //   setRewards({
-                    //     participation: { whoCanParticipate: nextType },
+              {showError && !segmentCriteria && (
+                <p className="text-red-500 text-sm">
+                  Segment criteria is required
+                </p>
+              )}
+            </div>
+          
 
-                    //     ...(nextType === "all_users" || nextType === "new_users"
-                    //       ? {
-                    //           segmentCriteria: {
-                    //             petFitScoreRange: "all",
-                    //             specificPetTypes: [],
-                    //           },
-                    //         }
-                    //       : {}),
-                    //   });
-                    // }}
-                    onChange={() => {
-                      const nextType = opt.value;
+          {/* Segment Criteria */}
+          {(participationType === "specific_pet_type" ||
+            participationType === "users_with_min_fit_score") && (
+            <div className="flex-1 border rounded-[16px] px-3 py-4">
+              <label className="text-[16px] font-bold text-deepblue">
+                Segment Criteria
+              </label>
 
-                      setRewards({
-                        participation: { whoCanParticipate: nextType },
-                        segmentCriteria: {
-                          ...rewards.segmentCriteria,
-                          // reset irrelevant field
-                          ...(nextType === "all_users" ||
-                          nextType === "new_users"
-                            ? { petFitScoreRange: "all", specificPetTypes: [] }
-                            : {}),
-                        },
-                      });
-                    }}
-                  />
-                </label>
-              </div>
-            );
-          })} */}
-          {participationOptions.map((opt) => {
-            const selected = participationType === opt.value;
+              {/* Pet Types */}
 
-            return (
-              <div className="mt-2" key={opt.value}>
-                <label
-                  className={`flex items-center justify-between border rounded-lg px-4 py-3 cursor-pointer ${
-                    selected ? "border-blue-600 bg-blue-50" : "border-gray-300"
-                  }`}
-                >
-                  <span>{opt.label}</span>
+              {participationType === "specific_pet_type" && (
+                <div className="mt-4 flex flex-col gap-2">
+                  {petTypes.map((pet) => (
+                    <label key={pet.value} className="flex gap-3">
+                      <input
+                        type="checkbox"
+                        disabled={isEditMode}
+                        checked={rewards.segmentCriteria.specificPetTypes.includes(
+                          pet.value,
+                        )}
+                        onChange={(e) => {
+                          const updated = e.target.checked
+                            ? [
+                                ...rewards.segmentCriteria.specificPetTypes,
+                                pet.value,
+                              ]
+                            : rewards.segmentCriteria.specificPetTypes.filter(
+                                (p) => p !== pet.value,
+                              );
 
-                  <input
-                    type="radio"
-                    checked={selected}
-                    className="hidden"
-                    onChange={() => {
-                      const nextType = opt.value;
+                          setRewards({
+                            segmentCriteria: {
+                              ...rewards.segmentCriteria,
+                              specificPetTypes: updated,
+                            },
+                          });
+                        }}
+                      />
+                      {pet.label}
+                    </label>
+                  ))}
+                </div>
+              )}
 
-                      // Grab current segmentCriteria from store
-                      const { segmentCriteria } = rewards;
-
-                      setRewards({
-                        participation: { whoCanParticipate: nextType },
-                        segmentCriteria: {
-                          petFitScoreRange:
-                            nextType === "users_with_min_fit_score"
-                              ? segmentCriteria.petFitScoreRange
-                              : "all", // reset to all if not using petFitScore
-                          specificPetTypes:
-                            nextType === "specific_pet_type"
-                              ? segmentCriteria.specificPetTypes 
-                              : [], // reset if not specific_pet_type
-                        },
-                      });
-                    }}
-                  />
-                </label>
-              </div>
-            );
-          })}
-
-          {showError && !segmentCriteria && (
-            <p className="text-red-500 text-sm">Segment criteria is required</p>
-          )}
-        </div>
-
-        {/* Segment Criteria */}
-        {(participationType === "specific_pet_type" ||
-          participationType === "users_with_min_fit_score") && (
-          <div className="flex-1 border rounded-[16px] px-3 py-4">
-            <label className="text-[16px] font-bold text-deepblue">
-              Segment Criteria
-            </label>
-
-            {/* Pet Types */}
-            {/* {participationType === "specific_pet_type" && (
-              <div className="mt-4 flex flex-col gap-2">
-                {petTypes.map((pet) => (
-                  <label key={pet.label} className="flex gap-3">
-                    <input
-                      type="checkbox"
-                      checked={segmentCriteria.specificPetTypes.includes(
-                        pet.value,
-                      )}
-                      // onChange={(e) => {
-                      //   const updated = e.target.checked
-                      //     ? [...segmentCriteria.specificPetTypes, pet.value]
-                      //     : segmentCriteria.specificPetTypes.filter(
-                      //         (p) => p !== pet.value,
-                      //       );
-                      //   setRewards({
-                      //     segmentCriteria: {
-                      //       petFitScoreRange: "all",
-                      //       specificPetTypes: updated,
-                      //     },
-                      //   });
-                      // }}
-                      onChange={(e) => {
-                        const updated = e.target.checked
-                          ? [...segmentCriteria.specificPetTypes, pet.value]
-                          : segmentCriteria.specificPetTypes.filter(
-                              (p) => p !== pet.value,
-                            );
-
-                        setRewards({
-                          segmentCriteria: {
-                            ...segmentCriteria, // keep petFitScoreRange
-                            specificPetTypes: updated, // only update pet types
-                          },
-                        });
-                      }}
-                    />
-                    {pet.label}
-                  </label>
-                ))}
-              </div>
-            )} */}
-            {participationType === "specific_pet_type" && (
-  <div className="mt-4 flex flex-col gap-2">
-    {petTypes.map((pet) => (
-      <label key={pet.value} className="flex gap-3">
-        <input
-          type="checkbox"
-          checked={rewards.segmentCriteria.specificPetTypes.includes(pet.value)}
-          onChange={(e) => {
-            const updated = e.target.checked
-              ? [...rewards.segmentCriteria.specificPetTypes, pet.value]
-              : rewards.segmentCriteria.specificPetTypes.filter((p) => p !== pet.value);
-
-            setRewards({
-              segmentCriteria: {
-                ...rewards.segmentCriteria,
-                specificPetTypes: updated,
-              },
-            });
-          }}
-        />
-        {pet.label}
-      </label>
-    ))}
-  </div>
-)}
-
-
-            {/* PetFit Score */}
-            {/* {participationType === "users_with_min_fit_score" && (
+              {/* PetFit Score */}
+              {/* {participationType === "users_with_min_fit_score" && (
               <div className="mt-4 flex flex-col gap-2">
                 {petFitScoreRanges.map((range) => (
                   <label key={range.value} className="flex gap-3">
@@ -455,32 +282,41 @@ export default function Reward() {
                 ))}
               </div>
             )} */}
-            {participationType === "users_with_min_fit_score" && (
-  <div className="mt-4 flex flex-col gap-2">
-    {petFitScoreRanges.map((range) => (
-      <label key={range.value} className="flex gap-3">
-        <input
-          type="radio"
-          checked={rewards.segmentCriteria.petFitScoreRange === range.value}
-          onChange={() =>
-            setRewards({
-              segmentCriteria: {
-                ...rewards.segmentCriteria,
-                petFitScoreRange: range.value,
-                specificPetTypes: [], // reset pet types when using fit score
-              },
-            })
-          }
-        />
-        {range.label}
-      </label>
-    ))}
-  </div>
-)}
-
-          </div>
-        )}
+              {participationType === "users_with_min_fit_score" && (
+                <div className="mt-4 flex flex-col gap-2">
+                  {petFitScoreRanges.map((range) => (
+                    <label key={range.value} className="flex gap-3">
+                      <input
+                        type="radio"
+                        disabled={isEditMode}
+                        checked={
+                          rewards.segmentCriteria.petFitScoreRange ===
+                          range.value
+                        }
+                        onChange={() =>
+                          setRewards({
+                            segmentCriteria: {
+                              ...rewards.segmentCriteria,
+                              petFitScoreRange: range.value,
+                              specificPetTypes: [], // reset pet types when using fit score
+                            },
+                          })
+                        }
+                      />
+                      {range.label}
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
+      {isEditMode && (
+        <p className="text-xs text-red-500 mt-2">
+          Participation rules cannot be edited after challenge creation.
+        </p>
+      )}
     </div>
   );
 }
