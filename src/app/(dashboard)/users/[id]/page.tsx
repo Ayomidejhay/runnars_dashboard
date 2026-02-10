@@ -88,7 +88,7 @@ export default function page() {
               </div>
               <div className="text-[14px] mb-2">{userInfo.email}</div>
               <div
-                className={`px-2 py-2 w-[51px] mx-auto rounded-full text-xs  font-semibold ${getStatusBadge(
+                className={`px-2 py-2 w-[51px] flex justify-center mx-auto rounded-full text-xs  font-semibold ${getStatusBadge(
                   userInfo.status
                 )}`}
               >

@@ -199,7 +199,7 @@ const uniqueIds = Array.from(new Set(participantIds));
           {
             title: "Eligible Participants",
             value: data?.data?.participantMetrics?.totalParticipants || 0,
-            subtitle: "+12% from 24 hours",
+            subtitle: "",
           },
           {
             title: "Active Participants",

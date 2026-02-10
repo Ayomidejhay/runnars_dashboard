@@ -163,9 +163,9 @@ export default function Page() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "active":
+      case "Active":
         return "bg-[#ECF8F1] text-[#40B773]";
-      case "inactive":
+      case "Inactive":
         return "bg-[#FFE0B2] text-[#E65100]";
       default:
         return "bg-[#ECF8F1] text-[#40B773]";
@@ -251,7 +251,7 @@ export default function Page() {
           <StatCard
             title="New Pets"
             value={globalStats?.newPetsThisWeek.toString() || 0}
-            subtitle="This week"
+            subtitle="Last seven days"
           />
         </div>
 
@@ -448,7 +448,7 @@ export default function Page() {
                       <td className="px-4 py-4">
                         <span
                           className={`px-2 py-2 rounded-full text-xs font-semibold ${getStatusBadge(
-                            pet.status,
+                            pet.status
                           )}`}
                         >
                           {pet.status}

@@ -247,7 +247,7 @@ export default function Page() {
           <StatCard
             title="New Users"
             value={globalStats?.recentUsers || 0}
-            subtitle="This week"
+            subtitle="Last seven days"
           />
         </div>
 

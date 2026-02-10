@@ -16,10 +16,22 @@ import {
 import { LineChart } from "lucide-react";
 
 type PetInfoProps = {
-  petInfo: ChallengeParticipant | undefined;
+  petInfo: ChallengeParticipant | any;
 };
 
 const PetInfo = ({ petInfo }: PetInfoProps) => {
+
+    const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "Active":
+        return "bg-[#ECF8F1] text-[#40B773]";
+      case "Inactive":
+        return "bg-[#FFE0B2] text-[#E65100]";
+      default:
+        return "bg-[#ECF8F1] text-[#40B773]";
+    }
+  };
+  const badge = petInfo?.basicInfo?.status
   return (
     <div>
       <div className="flex flex-col gap-6">
@@ -50,7 +62,7 @@ const PetInfo = ({ petInfo }: PetInfoProps) => {
                   </span>
                 </div>
 
-                <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium w-fit mt-1">
+                <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${getStatusBadge(badge)}  font-medium w-fit mt-1`}>
                   {petInfo?.basicInfo?.status}
                 </span>
 

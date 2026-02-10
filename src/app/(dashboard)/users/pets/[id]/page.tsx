@@ -43,15 +43,15 @@ export default function page() {
                   <p className="text-deepblue font-bold">Overview</p>
                   <div className="grid grid-cols-3 gap-4 text-[14px]">
                     <div className="border border-[#E1E1E1] p-6 rounded-[16px] bg-white flex flex-col gap-3 items-center text-center">
-                      <p className="font-bold text-deepblue text-[24px]">43</p>
+                      <p className="font-bold text-deepblue text-[24px]"></p>
                       <p>Total Points</p>
                     </div>
                     <div className="border border-[#E1E1E1] p-6 rounded-[16px] bg-white flex flex-col gap-3 items-center text-center">
-                      <p className="font-bold text-deepblue text-[24px]">24</p>
+                      <p className="font-bold text-deepblue text-[24px]"></p>
                       <p>Days Streak</p>
                     </div>
                     <div className="border border-[#E1E1E1] p-6 rounded-[16px] bg-white flex flex-col gap-3 text-center items-center">
-                      <p className="font-bold text-deepblue text-[24px]">24</p>
+                      <p className="font-bold text-deepblue text-[24px]"></p>
                       <p>Badges</p>
                     </div>
                   </div>
