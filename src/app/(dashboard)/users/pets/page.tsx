@@ -92,7 +92,23 @@ export default function Page() {
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+   /* =========================
+     RESET PAGE WHEN FILTERS CHANGE ✅
+  ========================= */
+  useEffect(() => {
+    setCurrentPage(1);
+    setOpenRow(null);
+  }, [
+    searchTerm,
+    statusFilter,
+    petType,
+    breed,
+    dateRange,
+    customStartDate,
+    customEndDate,
+  ]);
 
   /* =========================
          Validate Custom Dates
@@ -281,7 +297,7 @@ export default function Page() {
                 >
                   <option value="all">Status</option>
                   <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
+                  <option value="Inactive">Inactive</option>
                 </select>
                 <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2">
                   <svg

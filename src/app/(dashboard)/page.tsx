@@ -105,25 +105,7 @@ export default function Home() {
     { id: 4, name: "Emily Davis", image: "/image.jpg" },
   ];
 
-  // const filteredChallenges = mockPetChallenges.filter((challenge) =>
-  //   challenge.name.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
-
-  // const totalChallengePages = Math.ceil(
-  //   filteredChallenges.length / challengeRowsPerPage
-  // );
-  // const paginatedChallenges = filteredChallenges.slice(
-  //   (challengePage - 1) * challengeRowsPerPage,
-  //   challengePage * challengeRowsPerPage
-  // );
-
-  // const totalCommunityPages = Math.ceil(
-  //   communityMockData.length / communityRowsPerPage,
-  // );
-  // const paginatedCommunity = communityMockData.slice(
-  //   (communityPage - 1) * communityRowsPerPage,
-  //   communityPage * communityRowsPerPage,
-  // );
+ 
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -262,7 +244,7 @@ export default function Home() {
               <tr className="border-none">
                 <th className="px-4 py-3 ">Challenge Name</th>
                 <th className="px-4 py-3 ">Location</th>
-                <th className="px-4 py-3 ">Eligible Participants</th>
+                <th className="px-4 py-3 ">Participants</th>
                 <th className="px-4 py-3 ">Type</th>
                 <th className="px-4 py-3 ">Status</th>
                 <th className="px-4 py-3 ">Completion Rate</th>

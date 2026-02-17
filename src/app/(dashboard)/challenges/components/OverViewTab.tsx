@@ -213,9 +213,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           <div className="mt-6 flex gap-4 w-full">
             <div className="flex-1 h-32 border border-[#E1E1E1] rounded-[16px] flex pl-6 pr-2 items-center">
               <div className="flex flex-col gap-1">
-                <p className="text-[14px]">Eligible Participants</p>
+                <p className="text-[14px]">Participants</p>
                 <p className="text-deepblue font-bold text-[24px]">
-                  {adminChallenge.publishedChallenge.participantCount}
+                  {data?.data?.participantMetrics?.totalParticipants || 0}
                 </p>
                 <p className="text-[12px] text-[#40B773]"></p>
               </div>

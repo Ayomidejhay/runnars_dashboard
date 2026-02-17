@@ -197,7 +197,7 @@ const uniqueIds = Array.from(new Set(participantIds));
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[
           {
-            title: "Eligible Participants",
+            title: "Participants",
             value: data?.data?.participantMetrics?.totalParticipants || 0,
             subtitle: "",
           },

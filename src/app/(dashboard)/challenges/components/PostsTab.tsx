@@ -107,7 +107,7 @@ export default function PostsTab() {
             </div>
 
             <div className="text-2xl font-bold text-deepblue">
-              {isLoading ? "—" : item.value}
+              {isLoading ? "0" : item.value}
             </div>
 
             <p className="text-xs text-[#40B773] flex items-center">

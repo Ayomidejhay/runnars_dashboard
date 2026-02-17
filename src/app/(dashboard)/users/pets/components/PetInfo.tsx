@@ -14,14 +14,14 @@ import {
   YAxis,
 } from "recharts";
 import { LineChart } from "lucide-react";
+import WalkHistoryChart from "./WalkHistoryChart";
 
 type PetInfoProps = {
   petInfo: ChallengeParticipant | any;
 };
 
 const PetInfo = ({ petInfo }: PetInfoProps) => {
-
-    const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case "Active":
         return "bg-[#ECF8F1] text-[#40B773]";
@@ -31,7 +31,14 @@ const PetInfo = ({ petInfo }: PetInfoProps) => {
         return "bg-[#ECF8F1] text-[#40B773]";
     }
   };
-  const badge = petInfo?.basicInfo?.status
+  const badge = petInfo?.basicInfo?.status;
+
+  const totalDistance = petInfo?.summary?.totalDistance || 0;
+  const totalWalks = petInfo?.summary?.totalWalks || 0;
+
+  const avgDistance =
+    totalWalks > 0 ? (totalDistance / totalWalks).toFixed(2) : "0.00";
+
   return (
     <div>
       <div className="flex flex-col gap-6">
@@ -62,7 +69,9 @@ const PetInfo = ({ petInfo }: PetInfoProps) => {
                   </span>
                 </div>
 
-                <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${getStatusBadge(badge)}  font-medium w-fit mt-1`}>
+                <span
+                  className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${getStatusBadge(badge)}  font-medium w-fit mt-1`}
+                >
                   {petInfo?.basicInfo?.status}
                 </span>
 
@@ -78,12 +87,14 @@ const PetInfo = ({ petInfo }: PetInfoProps) => {
               </div>
             </div>
 
-            {/* <PetFitScore
-          score={pet.petfitScore}
-          label="PetFit Score"
-          change={`${pet.scoreChange}`}
-          percentile={`${pet.percentile}`}
-        /> */}
+            <PetFitScore
+              score={petInfo?.activityStats?.currentFitScore || 0}
+              label="PetFit Score"
+              
+              // change={`${pet.scoreChange}`}
+
+              // percentile={`${pet.percentile}`}
+            />
           </div>
         </div>
         <div className=" p-6 bg-white  border border-neutral-200  rounded-lg">
@@ -91,26 +102,36 @@ const PetInfo = ({ petInfo }: PetInfoProps) => {
             Activities
           </h2>
           <div className="flex gap-6">
-            <div className=" bg-white p-6 rounded-2xl  border-[#FFFFFF] shadow-sm">
-            <h2 className="text-lg font-semibold mb-4">Overview</h2>
-            <div className="grid grid-cols-3 gap-2 mb-6">
-              <StatCard
-                title="Total Walks"
-                value="23"
-                subtitle="Since registration"
-              />
-              <StatCard
-                title="Total Distance"
-                value="433Km"
-                subtitle="Avg. 3.1 km per walk"
-              />
-              <StatCard title="Challenges" value="12" subtitle="8 completed" />
-            </div>
-            {/* <button className="w-full py-3 rounded-full border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors">
+            <div className=" bg-white flex-1 p-6 rounded-2xl  border-[#FFFFFF] shadow-sm">
+              <h2 className="text-lg font-semibold mb-4">Overview</h2>
+              <div className="grid grid-cols-3 gap-2 mb-6">
+                <StatCard
+                  title="Total Walks"
+                  value={totalWalks}
+                  subtitle="Since registration"
+                />
+                <StatCard
+                  title="Total Distance"
+                  value={totalDistance}
+                  subtitle={`Avg. ${avgDistance} mi per walk`}
+                />
+                <StatCard
+                  title="Challenges"
+                  value={petInfo?.summary?.challengesParticipated || 0}
+                  subtitle={`${petInfo?.summary?.challengesCompleted || 0} completed`}
+                />
+              </div>
+              {/* <button className="w-full py-3 rounded-full border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors">
             View walk history
           </button> */}
-            <div></div>
-          </div>
+              <div></div>
+            </div>
+            <div className="flex-1">
+              <WalkHistoryChart
+                activities={petInfo?.activityStats?.recentActivities}
+                petFitScore={petInfo?.activityStats?.currentFitScore}
+              />
+            </div>
           </div>
         </div>
       </div>

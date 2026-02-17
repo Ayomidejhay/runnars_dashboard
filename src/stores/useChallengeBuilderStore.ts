@@ -292,10 +292,7 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
 
     /* ---------- Reward Actions ---------- */
     rewardActions: {
-      // setRewards: (data) =>
-      //   set((s) => ({
-      //     rewards: { ...s.rewards, ...data },
-      //   })),
+      
       setRewards: (data) =>
         set((s) => ({
           rewards: {
@@ -369,15 +366,7 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
       }));
     },
 
-    // setDistanceConfig: (payload) =>
-    //   get().isGoalsEditable &&
-    //   set((s) => ({
-    //     goalsAndMetrics: {
-    //       ...s.goalsAndMetrics,
-    //       distanceGoal: payload,
-    //       selectedGoalConfiguration: payload.configurationType,
-    //     },
-    //   })),
+   
 
     setDistanceConfig: (payload) => {
       if (!get().isGoalsEditable) return;
@@ -465,11 +454,7 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
           coverImage: null,
           coverImageUrl: admin?.basicInfo?.coverImage ?? null,
         },
-        // goalsAndMetrics: {
-        //   ...admin.goalsAndMetrics,
-        //   selectedGoalTypes,
-        //   activeTab: selectedGoalTypes[0] as GoalType,
-        // },
+       
         // long edit
 
         goalsAndMetrics: {
@@ -565,12 +550,7 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
         diff.basicInfo = basicInfo;
       }
 
-      // if (
-      //   JSON.stringify(goalsAndMetrics) !==
-      //   JSON.stringify(initialSnapshot.goalsAndMetrics)
-      // ) {
-      //   diff.goalsAndMetrics = goalsAndMetrics;
-      // }
+     
 
       if (get().isGoalsEditable) {
         if (
