@@ -11,6 +11,7 @@ import { getParticipationDisplayValue } from "./ParticipationDisplay";
 import { useChallengeAnalytics, useChallengeOverview } from "@/hooks/useAnalyticsChallenge";
 import { useParams } from "next/navigation";
 import { humanizeAllGoals } from "@/lib/humanizeGoals";
+import DescriptionWithReadMore from "./DescriptionWithReadMore";
 
 interface OverviewTabProps {
   getStatusBadge: (status: string) => string;
@@ -139,25 +140,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         return "";
     }
   };
-  // const getWhoCanParticipateDisplay = (challenge: any) => {
-  //   const participation = challenge.rewards.participation;
-  //   const segment = challenge.rewards.segmentCriteria;
-
-  //   const baseValue = getParticipationDisplayValue(participation);
-
-  //   switch (participation) {
-  //     case "specific_pet_type":
-  //       return `${baseValue}: ${segment.specificPetTypes?.join(", ")}`;
-
-  //     case "users_with_min_fit_score":
-  //       return `${baseValue}: ${getFitScoreDisplay(segment.petFitScoreRange)}`;
-
-  //     case "all_users":
-  //     case "new_users":
-  //     default:
-  //       return baseValue;
-  //   }
-  // };
+ 
   const getWhoCanParticipateDisplay = (challenge: AdminChallenge) => {
     const whoCanParticipate = challenge.rewards.participation.whoCanParticipate;
 
@@ -165,9 +148,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 
     const baseValue = getParticipationDisplayValue(whoCanParticipate);
 
-    // if (whoCanParticipate === "specific_pet_type") {
-    //   return `${baseValue}: ${segment.specificPetTypes?.join(", ")}`;
-    // }
+   
     if (whoCanParticipate === "specific_pet_type") {
       const uniquePetTypes = Array.from(
         new Set(segment.specificPetTypes ?? []),
@@ -256,9 +237,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           {/* Description */}
           <div className="mt-4 p-5 bg-white rounded-2xl w-full">
             <p className="text-[14px] text-deepblue font-bold">Description</p>
-            <p className="text-[12px] mt-4">
+            {/* <p className="text-[12px] mt-4">
               {adminChallenge.basicInfo.description}
-            </p>
+            </p> */}
+              <DescriptionWithReadMore text={adminChallenge.basicInfo.description} limit={600} />
+
           </div>
 
           {/* Summary */}

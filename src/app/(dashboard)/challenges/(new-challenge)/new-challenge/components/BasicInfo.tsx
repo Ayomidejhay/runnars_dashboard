@@ -235,17 +235,6 @@ export default function BasicInfo() {
 
   //word count limit for description
 
-  const WORD_LIMIT = 300;
-  const trimToWordLimit = (text: string, limit: number) => {
-    const words = text.split(/\s+/);
-
-    if (words.length <= limit) {
-      return text; // preserve spaces while typing
-    }
-
-    return words.slice(0, limit).join(" ");
-  };
-
   /* ------------------ Hashtag Logic ------------------ */
   const addHashtag = () => {
     const trimmed = hashtagInput.trim().toLowerCase();
@@ -334,11 +323,6 @@ export default function BasicInfo() {
           <label className="text-[16px] text-deepblue">Description</label>
           <textarea
             value={basicInfo.description}
-            // onChange={(e) => {
-            //   setBasicInfo({
-            //     description: trimToWordLimit(e.target.value, WORD_LIMIT),
-            //   });
-            // }}
             onChange={(e) => setBasicInfo({ description: e.target.value })}
             className="border border-[#E1E1E1] rounded-md p-2 h-[162px] resize-none"
             required
@@ -347,6 +331,34 @@ export default function BasicInfo() {
           {showError && !basicInfo.description && (
             <p className="text-red-500 text-sm">Description is required</p>
           )}
+          {/* test */}
+          {/* Progress + Count */}
+          <div className="flex justify-between items-center mt-1">
+            {/* Character count */}
+            <p
+              className={`text-[12px] ${
+                basicInfo.description.length >= 3000
+                  ? "text-red-500"
+                  : "text-gray-500"
+              }`}
+            >
+              {basicInfo.description.length} / 3000
+            </p>
+
+            {/* Progress bar container */}
+            <div className="w-[60%] h-1 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full ${
+                  basicInfo.description.length >= 2700
+                    ? "bg-red-500"
+                    : "bg-brightblue"
+                }`}
+                style={{
+                  width: `${(basicInfo.description.length / 3000) * 100}%`,
+                }}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Hashtags */}

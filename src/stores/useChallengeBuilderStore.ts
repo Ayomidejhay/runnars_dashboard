@@ -511,7 +511,7 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
           endDate: admin.scheduleAndDuration?.endDate ?? "",
           endTime: admin.scheduleAndDuration?.endTime ?? "",
           recurrenceType: admin.scheduleAndDuration?.recurrenceType ?? "",
-          selectedDay: admin.scheduleAndDuration?.selectedDay ?? [],
+          selectedDay: admin.scheduleAndDuration?.challengeDays ?? [],
         },
         rewards: {
           ...initialRewards,

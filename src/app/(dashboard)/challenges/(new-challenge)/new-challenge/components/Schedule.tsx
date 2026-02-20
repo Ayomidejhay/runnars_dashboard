@@ -286,6 +286,12 @@ export default function Schedule() {
     setErrors(newErrors);
   }, [schedule.startDate, schedule.startTime, schedule.endDate, schedule.endTime]);
 
+  //normalize dates before setting store
+  function formatDateForInput(date?: string) {
+  if (!date) return "";
+  return date.split("T")[0];
+}
+
   return (
     <div className="grid grid-cols-2 gap-5">
       {/* Start Date */}
@@ -294,7 +300,7 @@ export default function Schedule() {
         <input
           type="date"
           min={todayDate}
-          value={schedule.startDate}
+          value={schedule.startDate?.split("T")[0]}
           onChange={(e) => setSchedule({ startDate: e.target.value })}
           required
           className="border border-[#E1E1E1] rounded-md p-2 w-full"
@@ -326,7 +332,7 @@ export default function Schedule() {
         <input
           type="date"
           min={schedule.startDate || todayDate}
-          value={schedule.endDate}
+          value={schedule.endDate?.split("T")[0]}
           onChange={(e) => setSchedule({ endDate: e.target.value })}
           required
           className="border border-[#E1E1E1] rounded-md p-2 w-full"

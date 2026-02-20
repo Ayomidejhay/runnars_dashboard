@@ -190,7 +190,7 @@ const uniqueIds = Array.from(new Set(participantIds));
   }
 
      if (isLoading) return <p>Loading participants...</p>;
-     if (!participants.length) return <p>No participants found.</p>;
+    //  if (!participants.length) return <p>No participants found.</p>;
   return (
     <div>
       {/* Summary Cards */}
