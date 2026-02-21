@@ -20,7 +20,7 @@ export default function page() {
   const userInfo = data?.data?.basicInfo;
   const userPets = data?.data?.pets;
   const userActivities = data?.data?.activitySummary;
-
+  const challengesCompleted = data?.data?.challengeSummary;
 
   
 
@@ -105,10 +105,10 @@ export default function page() {
                 <p>Member Since</p>
                 <p className="text-deepblue font-bold">{formatDates(userInfo.joinDate)}</p>
               </div>
-              <div className="flex justify-between ">
+              {/* <div className="flex justify-between ">
                 <p>Last Login</p>
                 <p className="text-deepblue font-bold">{formatDates(userInfo.lastActive)}</p>
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="flex flex-col gap-6">
@@ -180,7 +180,9 @@ export default function page() {
               </div>
             </div>
           </div>
-          <RecentActivity activities={userActivities?.recentActivities}/>
+          {/* <RecentActivity activities={userActivities?.recentActivities}/> */}
+          {/* <RecentActivity challenges={challengesCompleted?.recentlyCompletedChallenges}/> */}
+          <RecentActivity challenges={data?.data?.challengeSummary?.recentCompletedChallenges} />
         </div>
       </div>
     </div>
