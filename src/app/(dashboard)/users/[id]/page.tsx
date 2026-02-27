@@ -128,7 +128,7 @@ export default function page() {
                     className="rounded-full"
                   />
                   <p className="text-[12px]">
-                    <span className="font-bold text-deepblue text-[14px]">
+                    <span className="font-bold text-deepblue text-[14px] capitalize">
                       {pet.name}
                     </span>{" "}
                     {pet.breed}
