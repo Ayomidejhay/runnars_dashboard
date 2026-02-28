@@ -11,6 +11,7 @@ import { useImageUpload } from "@/hooks/useImageUpload";
 
 const participationOptions = [
   { label: "All users", value: "all_users" as const },
+  { label: "Global", value: "global" as const },
   { label: "New users", value: "new_users" as const },
   { label: "Specific pet type", value: "specific_pet_type" as const },
   {

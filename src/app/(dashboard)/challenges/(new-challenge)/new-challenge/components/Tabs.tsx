@@ -8,7 +8,7 @@ export default function Tabs() {
   const { goalsAndMetrics, setGoalType } = useChallengeBuilderStore();
   const { activeTab } = goalsAndMetrics;
 
-  const tabs: GoalType[] = ["distance", "frequency", "time", "streak", "photo"];
+  const tabs: GoalType[] = ["distance", "frequency", "time", "streak", "photo", "global"];
 
   return (
     <div className="flex gap-4">

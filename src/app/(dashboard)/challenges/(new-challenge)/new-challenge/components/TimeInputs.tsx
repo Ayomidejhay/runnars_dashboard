@@ -129,7 +129,7 @@ export default function TimeInputs({
 
             <div className="flex flex-col gap-2 flex-1">
               <label className="text-[16px] text-deepblue">
-                Number of weeks
+                Number of walks
               </label>
               <input
                 type="number"

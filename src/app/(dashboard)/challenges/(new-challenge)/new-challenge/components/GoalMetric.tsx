@@ -77,6 +77,8 @@ export default function GoalMetric() {
             }
           />
         )}
+
+        {activeTab === "global" && <DistanceInputs />}
       </div>
       
     </div>

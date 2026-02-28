@@ -1,5 +1,1073 @@
-import { time } from "console";
-import { create } from "zustand";
+// import { time } from "console";
+// import { create } from "zustand";
+
+// /* =========================
+//    STORE MODE
+// ========================= */
+
+// type BuilderMode = "create" | "edit";
+
+// /* =========================
+//    GOAL TYPES
+// ========================= */
+
+// export type GoalType = "distance" | "frequency" | "time" | "streak" | "photo" | "global"; // new global metric type
+
+// /* =========================
+//    GOAL CONFIGS
+// ========================= */
+
+// export interface DistanceGoalConfig {
+//   targetDistance?: number;
+//   numberOfWalks?: number;
+//   duration?: number;
+//   distancePerWeek?: number;
+//   walksPerWeek?: number;
+//   distancePerWalk?: number;
+//   startDistance?: number;
+//   weeklyIncrease?: number;
+//   durationWeeks?: number;
+// }
+
+// export interface FrequencyGoalConfig {
+//   numberOfWalks?: number;
+//   walksPerWeek?: number;
+//   numberOfWeeks?: number;
+//   selectedDay?: string;
+//   timePeriod?: string;
+//   timeRange?: {
+//     start: string;
+//     end: string;
+//   };
+//   walksPerPeriod?: number;
+//   minimumWalkDuration?: number;
+//   minDuration?: number;
+//   selectedDays?: string[];
+//   weeksCount?: number;
+//   minimumDuration?: number;
+//   minWalkDuration?: number;
+// }
+
+// export interface TimeGoalConfig {
+//   totalWalkingTime?: number;
+//   minimumWalkDuration?: number;
+//   numberOfWalks?: number;
+//   distancePerWalk?: number;
+//   startDistance?: number;
+//   weeklyIncrease?: number;
+//   durationWeeks?: number;
+//   timePerWeek?: number;
+//   numberOfWeeks?: number;
+// }
+
+// export interface StreakGoalConfig {
+//   consecutiveDaysTarget?: number;
+//   allowJokerDay?: boolean;
+//   minimumStreakTarget?: number;
+//   minimumStreakValue?: number;
+//   challengeDuration?: number;
+//   numberOfStreaks?: number;
+//   streakLength?: number;
+//   restDays?: number;
+//   selectedDays?: string[];
+//   minimumWalkDuration?: number;
+//   numberOfWeeks?: number;
+// }
+
+// export interface PhotoGoalConfig {
+//   numberOfPhotos?: number;
+//   challengeDuration?: number;
+//   frequency?: string;
+//   photoRequirements?: string[];
+// }
+
+// /* =========================
+//    PAYLOAD
+// ========================= */
+
+// export interface GoalPayload<T> {
+//   configurationType: string;
+//   config: T;
+// }
+
+// /* =========================
+//    STATE INTERFACES
+// ========================= */
+
+// export interface BasicInfoState {
+//   challengeName: string;
+//   challengeType: string;
+//   description: string;
+//   primaryHashtags: string[];
+//   coverImage: File | null;
+//   coverImageUrl: string | null;
+// }
+
+// export interface GoalsAndMetricsState {
+//   selectedGoalTypes: GoalType[];
+//   activeTab: GoalType;
+
+//   selectedGoalConfiguration: string;
+//   selectedFrequencyConfiguration: string;
+//   selectedTimeConfiguration: string;
+//   selectedStreakConfiguration: string;
+//   selectedPhotoConfiguration: string;
+
+//   distanceGoal?: GoalPayload<DistanceGoalConfig>;
+//   frequencyGoal?: GoalPayload<FrequencyGoalConfig>;
+//   timeGoal?: GoalPayload<TimeGoalConfig>;
+//   streakGoal?: GoalPayload<StreakGoalConfig>;
+//   photoGoal?: GoalPayload<PhotoGoalConfig>;
+// }
+
+// export interface ScheduleState {
+//   startDate: string;
+//   startTime: string;
+//   endDate: string;
+//   endTime: string;
+//   recurrenceType: string;
+//   selectedDay: string[];
+// }
+
+// export interface RewardState {
+//   points: number;
+//   participation: {
+//     whoCanParticipate:
+//       | "all_users"
+//       | "new_users"
+//       | "global"
+//       | "specific_pet_type"
+//       | "users_with_min_fit_score";
+//   };
+//   segmentCriteria: {
+//     petFitScoreRange: "all" | "low" | "medium" | "high";
+//     specificPetTypes: string[];
+//   };
+//   rewardFile: File | null;
+//   rewardFileUrl?: string | null;
+// }
+
+// export interface RewardActions {
+//   setRewards: (data: Partial<RewardState>) => void;
+//   resetRewards: () => void;
+// }
+
+// /* =========================
+//    SNAPSHOT (EDIT DIFF)
+// ========================= */
+
+// type Snapshot = {
+//   basicInfo: BasicInfoState;
+//   goalsAndMetrics: GoalsAndMetricsState;
+//   schedule: ScheduleState;
+//   rewards: RewardState;
+// };
+
+// /* =========================
+//    ROOT STORE
+// ========================= */
+
+// export interface ChallengeBuilderState {
+//   mode: BuilderMode;
+//   challengeId?: string;
+//   initialSnapshot?: Snapshot;
+
+//   step: number;
+//   touchedSteps: Record<number, boolean>;
+
+//   isGoalsEditable: boolean;
+
+//   basicInfo: BasicInfoState;
+//   goalsAndMetrics: GoalsAndMetricsState;
+//   schedule: ScheduleState;
+//   rewards: RewardState;
+//   rewardActions: RewardActions;
+
+//   hasHydratedFromServer: boolean;
+
+//   //new
+  
+
+//   /* navigation */
+//   setStep: (step: number) => void;
+//   markStepTouched: (step: number) => void;
+//   isStepValid: (step: number) => boolean;
+
+//   /* setters */
+//   setBasicInfo: (data: Partial<BasicInfoState>) => void;
+//   setGoalType: (type: GoalType) => void;
+//   setGoalsAndMetrics: (data: Partial<GoalsAndMetricsState>) => void;
+//   setDistanceConfig: (payload: GoalPayload<DistanceGoalConfig>) => void;
+//   setFrequencyConfig: (payload: GoalPayload<FrequencyGoalConfig>) => void;
+//   setTimeConfig: (payload: GoalPayload<TimeGoalConfig>) => void;
+//   setStreakConfig: (payload: GoalPayload<StreakGoalConfig>) => void;
+//   setPhotoConfig: (payload: GoalPayload<PhotoGoalConfig>) => void;
+//   setSchedule: (data: Partial<ScheduleState>) => void;
+//   setRewards: (data: Partial<RewardState>) => void;
+
+//   /* edit flow */
+//   initializeFromApi: (data: any, challengeId: string) => void;
+//   getUpdatePayload: () => Partial<Snapshot>;
+
+//   reset: () => void;
+// }
+
+// /* =========================
+//    INITIAL STATE
+// ========================= */
+
+// const initialRewards: RewardState = {
+//   points: 0,
+//   participation: { whoCanParticipate: "all_users" },
+//   segmentCriteria: { petFitScoreRange: "all", specificPetTypes: [] },
+//   rewardFile: null,
+//   rewardFileUrl: null,
+// };
+
+// const initialState: Omit<
+//   ChallengeBuilderState,
+//   | "setStep"
+//   | "markStepTouched"
+//   | "isStepValid"
+//   | "setBasicInfo"
+//   | "setGoalType"
+//   | "setGoalsAndMetrics"
+//   | "setDistanceConfig"
+//   | "setFrequencyConfig"
+//   | "setTimeConfig"
+//   | "setStreakConfig"
+//   | "setPhotoConfig"
+//   | "setSchedule"
+//   | "setRewards"
+//   | "initializeFromApi"
+//   | "getUpdatePayload"
+//   | "reset"
+//   | "rewardActions"
+// > = {
+//   mode: "create",
+//   challengeId: undefined,
+
+//   initialSnapshot: undefined,
+
+//   step: 1,
+//   touchedSteps: {},
+
+//   isGoalsEditable: true,
+
+//   basicInfo: {
+//     challengeName: "",
+//     challengeType: "",
+//     description: "",
+//     primaryHashtags: [],
+//     coverImage: null,
+//     coverImageUrl: null,
+//   },
+
+//   goalsAndMetrics: {
+//     selectedGoalTypes: ["distance" as GoalType],
+//     activeTab: "distance",
+//     selectedGoalConfiguration: "",
+//     selectedFrequencyConfiguration: "",
+//     selectedTimeConfiguration: "",
+//     selectedStreakConfiguration: "",
+//     selectedPhotoConfiguration: "",
+//   },
+
+//   schedule: {
+//     startDate: "",
+//     startTime: "",
+//     endDate: "",
+//     endTime: "",
+//     recurrenceType: "",
+//     selectedDay: [],
+//   },
+
+//   rewards: initialRewards,
+//   hasHydratedFromServer: false,
+// };
+
+// /* =========================
+//    STORE
+// ========================= */
+
+// export const useChallengeBuilderStore = create<ChallengeBuilderState>(
+//   (set, get) => ({
+//     ...initialState,
+
+//     /* ---------- Reward Actions ---------- */
+//     rewardActions: {
+      
+//       setRewards: (data) =>
+//         set((s) => ({
+//           rewards: {
+//             ...s.rewards,
+//             ...data,
+//             segmentCriteria: {
+//               ...s.rewards.segmentCriteria,
+//               ...data.segmentCriteria,
+//             },
+//           },
+//         })),
+//       resetRewards: () =>
+//         set(() => ({
+//           rewards: initialRewards,
+//         })),
+//     },
+
+//     /* navigation */
+//     setStep: (step) => set({ step }),
+
+//     markStepTouched: (step) =>
+//       set((s) => ({
+//         touchedSteps: { ...s.touchedSteps, [step]: true },
+//       })),
+
+//     isStepValid: (step) => {
+//       const s = get();
+//       if (step === 1)
+//         return Boolean(
+//           s.basicInfo.challengeName &&
+//           s.basicInfo.challengeType &&
+//           s.basicInfo.description,
+//           // s.basicInfo.primaryHashtags.length,
+//         );
+
+//       if (step === 2) return true;
+//       // return Boolean(s.goalsAndMetrics.selectedGoalTypes.length);
+
+//       if (step === 3)
+//         return Boolean(
+//           s.schedule.startDate &&
+//           s.schedule.startTime &&
+//           s.schedule.endDate &&
+//           s.schedule.endTime,
+//         );
+
+//       if (step === 4) return s.rewards.points > 0;
+
+//       return true;
+//     },
+
+//     /* setters */
+//     setBasicInfo: (data) =>
+//       set((s) => ({ basicInfo: { ...s.basicInfo, ...data } })),
+
+//     setGoalType: (type) => {
+//       if (!get().isGoalsEditable) return;
+//       set((s) => ({
+//         goalsAndMetrics: {
+//           ...s.goalsAndMetrics,
+//           selectedGoalTypes: [type],
+//           activeTab: type,
+//         },
+//       }));
+//     },
+
+//     setGoalsAndMetrics: (data) => {
+//       if (!get().isGoalsEditable) return;
+//       set((s) => ({
+//         goalsAndMetrics: { ...s.goalsAndMetrics, ...data },
+//       }));
+//     },
+
+   
+
+//     setDistanceConfig: (payload) => {
+//       if (!get().isGoalsEditable) return;
+
+//       set((s) => ({
+//         goalsAndMetrics: {
+//           ...s.goalsAndMetrics,
+//           distanceGoal: payload,
+//           selectedGoalConfiguration: payload.configurationType,
+//         },
+//       }));
+//     },
+
+//     setFrequencyConfig: (p) =>
+//       get().isGoalsEditable &&
+//       set((s) => ({
+//         goalsAndMetrics: {
+//           ...s.goalsAndMetrics,
+//           frequencyGoal: p,
+//           selectedFrequencyConfiguration: p.configurationType,
+//         },
+//       })),
+
+//     setTimeConfig: (p) =>
+//       get().isGoalsEditable &&
+//       set((s) => ({
+//         goalsAndMetrics: {
+//           ...s.goalsAndMetrics,
+//           timeGoal: p,
+//           selectedTimeConfiguration: p.configurationType,
+//         },
+//       })),
+
+//     setStreakConfig: (p) =>
+//       get().isGoalsEditable &&
+//       set((s) => ({
+//         goalsAndMetrics: {
+//           ...s.goalsAndMetrics,
+//           streakGoal: p,
+//           selectedStreakConfiguration: p.configurationType,
+//         },
+//       })),
+
+//     setPhotoConfig: (p) =>
+//       get().isGoalsEditable &&
+//       set((s) => ({
+//         goalsAndMetrics: {
+//           ...s.goalsAndMetrics,
+//           photoGoal: p,
+//           selectedPhotoConfiguration: p.configurationType,
+//         },
+//       })),
+
+//     setSchedule: (data) =>
+//       set((s) => ({ schedule: { ...s.schedule, ...data } })),
+
+//     setRewards: (data) => set((s) => ({ rewards: { ...s.rewards, ...data } })),
+
+//     initializeFromApi: (apiData, challengeId) => {
+//       const admin = apiData?.adminChallenge;
+//       if (!admin) return;
+
+//       // if (get().hasHydratedFromServer) return;
+
+//       // Prevent re-hydrating same challenge
+//       if (get().challengeId === challengeId) return;
+
+//       const selectedGoalTypes = admin.goalsAndMetrics?.selectedGoalTypes ?? [
+//         "distance",
+//       ];
+
+//       const distanceGoalFromApi = admin.goalsAndMetrics?.distanceGoals?.[0];
+
+//       const frequencyGoalFromApi = admin.goalsAndMetrics?.frequencyGoals?.[0];
+//       const timeGoalFromApi = admin.goalsAndMetrics?.timeGoals?.[0];
+//       const streakGoalFromApi = admin.goalsAndMetrics?.streakGoals?.[0];
+//       const photoGoalFromApi = admin.goalsAndMetrics?.photoGoals?.[0];
+
+//       const snapshot: Snapshot = {
+//         basicInfo: {
+//           challengeName: admin.basicInfo?.name ?? "",
+//           challengeType: admin.basicInfo?.type ?? "",
+//           description: admin.basicInfo?.description ?? "",
+//           primaryHashtags: admin.basicInfo?.primaryHashtags ?? [],
+//           coverImage: null,
+//           coverImageUrl: admin?.basicInfo?.coverImage ?? null,
+//         },
+       
+//         // long edit
+
+//         goalsAndMetrics: {
+//           selectedGoalTypes,
+//           activeTab: selectedGoalTypes[0] as GoalType,
+
+//           selectedGoalConfiguration:
+//             distanceGoalFromApi?.configurationType ?? "",
+
+//           selectedFrequencyConfiguration:
+//             frequencyGoalFromApi?.configurationType ?? "",
+
+//           selectedTimeConfiguration: timeGoalFromApi?.configurationType ?? "",
+//           selectedStreakConfiguration:
+//             streakGoalFromApi?.configurationType ?? "",
+//           selectedPhotoConfiguration: photoGoalFromApi?.configurationType ?? "",
+
+//           distanceGoal: distanceGoalFromApi
+//             ? {
+//                 configurationType: distanceGoalFromApi.configurationType,
+//                 config: distanceGoalFromApi.config,
+//               }
+//             : undefined,
+
+//           frequencyGoal: frequencyGoalFromApi
+//             ? {
+//                 configurationType: frequencyGoalFromApi.configurationType,
+//                 config: frequencyGoalFromApi.config,
+//               }
+//             : undefined,
+//           timeGoal: timeGoalFromApi
+//             ? {
+//                 configurationType: timeGoalFromApi.configurationType,
+//                 config: timeGoalFromApi.config,
+//               }
+//             : undefined,
+//           streakGoal: streakGoalFromApi
+//             ? {
+//                 configurationType: streakGoalFromApi.configurationType,
+//                 config: streakGoalFromApi.config,
+//               }
+//             : undefined,
+//           photoGoal: photoGoalFromApi
+//             ? {
+//                 configurationType: photoGoalFromApi.configurationType,
+//                 config: photoGoalFromApi.config,
+//               }
+//             : undefined,
+//         },
+
+//         schedule: {
+//           startDate: admin.scheduleAndDuration?.startDate ?? "",
+//           startTime: admin.scheduleAndDuration?.startTime ?? "",
+//           endDate: admin.scheduleAndDuration?.endDate ?? "",
+//           endTime: admin.scheduleAndDuration?.endTime ?? "",
+//           recurrenceType: admin.scheduleAndDuration?.recurrenceType ?? "",
+//           selectedDay: admin.scheduleAndDuration?.challengeDays ?? [],
+//         },
+//         rewards: {
+//           ...initialRewards,
+//           ...admin.rewards,
+//           rewardFile: null,
+//           rewardFileUrl: admin.rewards?.achievementBadge?.image ?? null,
+//         },
+//       };
+
+//       set({
+//         mode: "edit",
+//         challengeId,
+//         isGoalsEditable: false,
+//         ...snapshot,
+//         initialSnapshot: snapshot,
+//         hasHydratedFromServer: true,
+//       });
+//     },
+
+//     getUpdatePayload: () => {
+//       const { initialSnapshot, basicInfo, goalsAndMetrics, schedule, rewards } =
+//         get();
+
+//       if (!initialSnapshot) return {};
+
+//       const diff: Partial<Snapshot> = {};
+
+//       const stripUi = (obj: any) => {
+//         const { activeTab, ...rest } = obj;
+//         return rest;
+//       };
+
+//       if (
+//         JSON.stringify(basicInfo) !== JSON.stringify(initialSnapshot.basicInfo)
+//       ) {
+//         diff.basicInfo = basicInfo;
+//       }
+
+     
+
+//       if (get().isGoalsEditable) {
+//         if (
+//           JSON.stringify(goalsAndMetrics) !==
+//           JSON.stringify(initialSnapshot.goalsAndMetrics)
+//         ) {
+//           diff.goalsAndMetrics = goalsAndMetrics;
+//         }
+//       }
+
+//       if (
+//         JSON.stringify(schedule) !== JSON.stringify(initialSnapshot.schedule)
+//       ) {
+//         diff.schedule = schedule;
+//       }
+
+//       if (JSON.stringify(rewards) !== JSON.stringify(initialSnapshot.rewards)) {
+//         diff.rewards = rewards;
+//       }
+
+//       return diff;
+//     },
+
+//     reset: () => set(initialState),
+//   }),
+// );
+
+
+
+// import { create } from "zustand";
+
+// /* =========================
+//    STORE MODE
+// ========================= */
+
+// type BuilderMode = "create" | "edit";
+
+// /* =========================
+//    GOAL TYPES
+// ========================= */
+
+// export type GoalType =
+//   | "distance"
+//   | "frequency"
+//   | "time"
+//   | "streak"
+//   | "photo"
+//   | "global";
+
+// /* =========================
+//    GOAL CONFIGS
+// ========================= */
+
+// export interface DistanceGoalConfig {
+//   targetDistance?: number;
+//   numberOfWalks?: number;
+//   duration?: number;
+//   distancePerWeek?: number;
+//   walksPerWeek?: number;
+//   distancePerWalk?: number;
+//   startDistance?: number;
+//   weeklyIncrease?: number;
+//   durationWeeks?: number;
+// }
+
+// export interface FrequencyGoalConfig {
+//   numberOfWalks?: number;
+//   walksPerWeek?: number;
+//   numberOfWeeks?: number;
+//   selectedDay?: string;
+//   timePeriod?: string;
+//   timeRange?: { start: string; end: string };
+//   walksPerPeriod?: number;
+//   minimumWalkDuration?: number;
+//   minDuration?: number;
+//   selectedDays?: string[];
+//   weeksCount?: number;
+//   minimumDuration?: number;
+//   minWalkDuration?: number;
+// }
+
+// export interface TimeGoalConfig {
+//   totalWalkingTime?: number;
+//   minimumWalkDuration?: number;
+//   numberOfWalks?: number;
+//   distancePerWalk?: number;
+//   startDistance?: number;
+//   weeklyIncrease?: number;
+//   durationWeeks?: number;
+//   timePerWeek?: number;
+//   numberOfWeeks?: number;
+// }
+
+// export interface StreakGoalConfig {
+//   consecutiveDaysTarget?: number;
+//   allowJokerDay?: boolean;
+//   minimumStreakTarget?: number;
+//   minimumStreakValue?: number;
+//   challengeDuration?: number;
+//   numberOfStreaks?: number;
+//   streakLength?: number;
+//   restDays?: number;
+//   selectedDays?: string[];
+//   minimumWalkDuration?: number;
+//   numberOfWeeks?: number;
+// }
+
+// export interface PhotoGoalConfig {
+//   numberOfPhotos?: number;
+//   challengeDuration?: number;
+//   frequency?: string;
+//   photoRequirements?: string[];
+// }
+
+// /* =========================
+//    PAYLOAD
+// ========================= */
+
+// export interface GoalPayload<T> {
+//   configurationType: string;
+//   config: T;
+// }
+
+// /* =========================
+//    STATE INTERFACES
+// ========================= */
+
+// export interface BasicInfoState {
+//   challengeName: string;
+//   challengeType: string;
+//   description: string;
+//   primaryHashtags: string[];
+//   coverImage: File | null;
+//   coverImageUrl: string | null;
+// }
+
+// export interface GoalsAndMetricsState {
+//   selectedGoalTypes: GoalType[];
+//   activeTab: GoalType;
+
+//   selectedGoalConfiguration: string;
+//   selectedFrequencyConfiguration: string;
+//   selectedTimeConfiguration: string;
+//   selectedStreakConfiguration: string;
+//   selectedPhotoConfiguration: string;
+
+//   distanceGoal?: GoalPayload<DistanceGoalConfig>;
+//   frequencyGoal?: GoalPayload<FrequencyGoalConfig>;
+//   timeGoal?: GoalPayload<TimeGoalConfig>;
+//   streakGoal?: GoalPayload<StreakGoalConfig>;
+//   photoGoal?: GoalPayload<PhotoGoalConfig>;
+// }
+
+// export interface ScheduleState {
+//   startDate: string;
+//   startTime: string;
+//   endDate: string;
+//   endTime: string;
+//   recurrenceType: string;
+//   selectedDay: string[];
+// }
+
+// export interface RewardState {
+//   points: number;
+//   participation: {
+//     whoCanParticipate:
+//       | "all_users"
+//       | "new_users"
+//       | "global"
+//       | "specific_pet_type"
+//       | "users_with_min_fit_score";
+//   };
+//   segmentCriteria: {
+//     petFitScoreRange: "all" | "low" | "medium" | "high";
+//     specificPetTypes: string[];
+//   };
+//   rewardFile: File | null;
+//   rewardFileUrl?: string | null;
+// }
+
+// export interface RewardActions {
+//   setRewards: (data: Partial<RewardState>) => void;
+//   resetRewards: () => void;
+// }
+
+// type Snapshot = {
+//   basicInfo: BasicInfoState;
+//   goalsAndMetrics: GoalsAndMetricsState;
+//   schedule: ScheduleState;
+//   rewards: RewardState;
+// };
+
+// export interface ChallengeBuilderState {
+//   mode: BuilderMode;
+//   challengeId?: string;
+//   initialSnapshot?: Snapshot;
+
+//   step: number;
+//   touchedSteps: Record<number, boolean>;
+
+//   isGoalsEditable: boolean;
+
+//   basicInfo: BasicInfoState;
+//   goalsAndMetrics: GoalsAndMetricsState;
+//   schedule: ScheduleState;
+//   rewards: RewardState;
+//   rewardActions: RewardActions;
+
+//   hasHydratedFromServer: boolean;
+
+//   /* NEW DERIVED */
+//   isGlobalConfiguration: () => boolean;
+
+//   /* navigation */
+//   setStep: (step: number) => void;
+//   markStepTouched: (step: number) => void;
+//   isStepValid: (step: number) => boolean;
+
+//   /* setters */
+//   setBasicInfo: (data: Partial<BasicInfoState>) => void;
+//   setGoalType: (type: GoalType) => void;
+//   setGoalsAndMetrics: (data: Partial<GoalsAndMetricsState>) => void;
+//   setDistanceConfig: (payload: GoalPayload<DistanceGoalConfig>) => void;
+//   setFrequencyConfig: (payload: GoalPayload<FrequencyGoalConfig>) => void;
+//   setTimeConfig: (payload: GoalPayload<TimeGoalConfig>) => void;
+//   setStreakConfig: (payload: GoalPayload<StreakGoalConfig>) => void;
+//   setPhotoConfig: (payload: GoalPayload<PhotoGoalConfig>) => void;
+//   setSchedule: (data: Partial<ScheduleState>) => void;
+//   setRewards: (data: Partial<RewardState>) => void;
+
+//   initializeFromApi: (data: any, challengeId: string) => void;
+//   getUpdatePayload: () => Partial<Snapshot>;
+//   reset: () => void;
+// }
+
+// /* =========================
+//    INITIAL STATE
+// ========================= */
+
+// const initialRewards: RewardState = {
+//   points: 0,
+//   participation: { whoCanParticipate: "all_users" },
+//   segmentCriteria: { petFitScoreRange: "all", specificPetTypes: [] },
+//   rewardFile: null,
+//   rewardFileUrl: null,
+// };
+
+// const initialState = {
+//   mode: "create" as BuilderMode,
+//   challengeId: undefined,
+//   initialSnapshot: undefined,
+//   step: 1,
+//   touchedSteps: {},
+//   isGoalsEditable: true,
+//   hasHydratedFromServer: false,
+
+//   basicInfo: {
+//     challengeName: "",
+//     challengeType: "",
+//     description: "",
+//     primaryHashtags: [],
+//     coverImage: null,
+//     coverImageUrl: null,
+//   },
+
+//   goalsAndMetrics: {
+//     selectedGoalTypes: ["distance" as GoalType],
+//     activeTab: "distance" as GoalType,
+//     selectedGoalConfiguration: "",
+//     selectedFrequencyConfiguration: "",
+//     selectedTimeConfiguration: "",
+//     selectedStreakConfiguration: "",
+//     selectedPhotoConfiguration: "",
+//   },
+
+//   schedule: {
+//     startDate: "",
+//     startTime: "",
+//     endDate: "",
+//     endTime: "",
+//     recurrenceType: "",
+//     selectedDay: [],
+//   },
+
+//   rewards: initialRewards,
+// };
+
+// /* =========================
+//    STORE
+// ========================= */
+
+// export const useChallengeBuilderStore =
+//   create<ChallengeBuilderState>((set, get) => ({
+//     ...initialState,
+
+//     /* =========================
+//        DERIVED
+//     ========================= */
+
+//     isGlobalConfiguration: () =>
+//       get().goalsAndMetrics.selectedGoalConfiguration === "global",
+
+//     /* =========================
+//        REWARD ACTIONS
+//     ========================= */
+
+//     rewardActions: {
+//       setRewards: (data) =>
+//         set((s) => ({
+//           rewards: {
+//             ...s.rewards,
+//             ...data,
+//             segmentCriteria: {
+//               ...s.rewards.segmentCriteria,
+//               ...data.segmentCriteria,
+//             },
+//           },
+//         })),
+//       resetRewards: () => set(() => ({ rewards: initialRewards })),
+//     },
+
+//     /* =========================
+//        NAVIGATION
+//     ========================= */
+
+//     setStep: (step) => {
+//       if (step === 3 && get().isGlobalConfiguration()) {
+//         set({ step: 4 });
+//         return;
+//       }
+//       set({ step });
+//     },
+
+//     markStepTouched: (step) =>
+//       set((s) => ({
+//         touchedSteps: { ...s.touchedSteps, [step]: true },
+//       })),
+
+//     isStepValid: (step) => {
+//       const s = get();
+
+//       if (step === 1)
+//         return Boolean(
+//           s.basicInfo.challengeName &&
+//             s.basicInfo.challengeType &&
+//             s.basicInfo.description
+//         );
+
+//       if (step === 2) return true;
+
+//       if (step === 3) {
+//         if (get().isGlobalConfiguration()) return true;
+
+//         return Boolean(
+//           s.schedule.startDate &&
+//             s.schedule.startTime &&
+//             s.schedule.endDate &&
+//             s.schedule.endTime
+//         );
+//       }
+
+//       if (step === 4) return s.rewards.points > 0;
+
+//       return true;
+//     },
+
+//     /* =========================
+//        SETTERS
+//     ========================= */
+
+//     setBasicInfo: (data) =>
+//       set((s) => ({ basicInfo: { ...s.basicInfo, ...data } })),
+
+//     setGoalType: (type) => {
+//       if (!get().isGoalsEditable) return;
+//       set((s) => ({
+//         goalsAndMetrics: {
+//           ...s.goalsAndMetrics,
+//           selectedGoalTypes: [type],
+//           activeTab: type,
+//         },
+//       }));
+//     },
+
+//     setGoalsAndMetrics: (data) => {
+//       if (!get().isGoalsEditable) return;
+//       set((s) => ({
+//         goalsAndMetrics: { ...s.goalsAndMetrics, ...data },
+//       }));
+//     },
+
+//     setDistanceConfig: (payload) => {
+//       if (!get().isGoalsEditable) return;
+
+//       const isGlobal = payload.configurationType === "global";
+
+//       set((s) => ({
+//         goalsAndMetrics: {
+//           ...s.goalsAndMetrics,
+//           distanceGoal: payload,
+//           selectedGoalConfiguration: payload.configurationType,
+//         },
+
+//         schedule: isGlobal
+//           ? {
+//               ...s.schedule,
+//               startDate: "",
+//               startTime: "",
+//               endDate: "",
+//               endTime: "",
+//             }
+//           : s.schedule,
+
+//         rewards: isGlobal
+//           ? {
+//               ...s.rewards,
+//               participation: { whoCanParticipate: "global" },
+//             }
+//           : s.rewards,
+//       }));
+//     },
+
+//     setFrequencyConfig: (p) =>
+//       get().isGoalsEditable &&
+//       set((s) => ({
+//         goalsAndMetrics: {
+//           ...s.goalsAndMetrics,
+//           frequencyGoal: p,
+//           selectedFrequencyConfiguration: p.configurationType,
+//         },
+//       })),
+
+//     setTimeConfig: (p) =>
+//       get().isGoalsEditable &&
+//       set((s) => ({
+//         goalsAndMetrics: {
+//           ...s.goalsAndMetrics,
+//           timeGoal: p,
+//           selectedTimeConfiguration: p.configurationType,
+//         },
+//       })),
+
+//     setStreakConfig: (p) =>
+//       get().isGoalsEditable &&
+//       set((s) => ({
+//         goalsAndMetrics: {
+//           ...s.goalsAndMetrics,
+//           streakGoal: p,
+//           selectedStreakConfiguration: p.configurationType,
+//         },
+//       })),
+
+//     setPhotoConfig: (p) =>
+//       get().isGoalsEditable &&
+//       set((s) => ({
+//         goalsAndMetrics: {
+//           ...s.goalsAndMetrics,
+//           photoGoal: p,
+//           selectedPhotoConfiguration: p.configurationType,
+//         },
+//       })),
+
+//     setSchedule: (data) =>
+//       set((s) => ({ schedule: { ...s.schedule, ...data } })),
+
+//     setRewards: (data) =>
+//       set((s) => ({ rewards: { ...s.rewards, ...data } })),
+
+//     initializeFromApi: () => {},
+
+//     getUpdatePayload: () => {
+//       const { initialSnapshot, basicInfo, goalsAndMetrics, schedule, rewards } =
+//         get();
+
+//       if (!initialSnapshot) return {};
+
+//       const diff: Partial<Snapshot> = {};
+
+//       if (
+//         JSON.stringify(basicInfo) !==
+//         JSON.stringify(initialSnapshot.basicInfo)
+//       ) {
+//         diff.basicInfo = basicInfo;
+//       }
+
+//       if (
+//         JSON.stringify(goalsAndMetrics) !==
+//         JSON.stringify(initialSnapshot.goalsAndMetrics)
+//       ) {
+//         diff.goalsAndMetrics = goalsAndMetrics;
+//       }
+
+//       if (!get().isGlobalConfiguration()) {
+//         if (
+//           JSON.stringify(schedule) !==
+//           JSON.stringify(initialSnapshot.schedule)
+//         ) {
+//           diff.schedule = schedule;
+//         }
+//       }
+
+//       if (JSON.stringify(rewards) !== JSON.stringify(initialSnapshot.rewards)) {
+//         diff.rewards = rewards;
+//       }
+
+//       return diff;
+//     },
+
+//     reset: () => set(initialState),
+//   }));
+
+
+  import { create } from "zustand";
 
 /* =========================
    STORE MODE
@@ -11,7 +1079,7 @@ type BuilderMode = "create" | "edit";
    GOAL TYPES
 ========================= */
 
-export type GoalType = "distance" | "frequency" | "time" | "streak" | "photo";
+export type GoalType = "distance" | "frequency" | "time" | "streak" | "photo" | "global";
 
 /* =========================
    GOAL CONFIGS
@@ -35,10 +1103,7 @@ export interface FrequencyGoalConfig {
   numberOfWeeks?: number;
   selectedDay?: string;
   timePeriod?: string;
-  timeRange?: {
-    start: string;
-    end: string;
-  };
+  timeRange?: { start: string; end: string };
   walksPerPeriod?: number;
   minimumWalkDuration?: number;
   minDuration?: number;
@@ -132,11 +1197,7 @@ export interface ScheduleState {
 export interface RewardState {
   points: number;
   participation: {
-    whoCanParticipate:
-      | "all_users"
-      | "new_users"
-      | "specific_pet_type"
-      | "users_with_min_fit_score";
+    whoCanParticipate: "all_users" | "new_users" | "global" | "specific_pet_type" | "users_with_min_fit_score";
   };
   segmentCriteria: {
     petFitScoreRange: "all" | "low" | "medium" | "high";
@@ -206,6 +1267,9 @@ export interface ChallengeBuilderState {
   getUpdatePayload: () => Partial<Snapshot>;
 
   reset: () => void;
+
+  /* utility */
+  isGlobalConfiguration: () => boolean;
 }
 
 /* =========================
@@ -239,15 +1303,14 @@ const initialState: Omit<
   | "getUpdatePayload"
   | "reset"
   | "rewardActions"
+  | "isGlobalConfiguration"
 > = {
   mode: "create",
   challengeId: undefined,
-
   initialSnapshot: undefined,
 
   step: 1,
   touchedSteps: {},
-
   isGoalsEditable: true,
 
   basicInfo: {
@@ -260,7 +1323,7 @@ const initialState: Omit<
   },
 
   goalsAndMetrics: {
-    selectedGoalTypes: ["distance" as GoalType],
+    selectedGoalTypes: ["distance"],
     activeTab: "distance",
     selectedGoalConfiguration: "",
     selectedFrequencyConfiguration: "",
@@ -286,146 +1349,49 @@ const initialState: Omit<
    STORE
 ========================= */
 
-export const useChallengeBuilderStore = create<ChallengeBuilderState>(
-  (set, get) => ({
-    ...initialState,
+export const useChallengeBuilderStore = create<ChallengeBuilderState>((set, get) => ({
+  ...initialState,
 
-    /* ---------- Reward Actions ---------- */
-    rewardActions: {
-      
-      setRewards: (data) =>
-        set((s) => ({
-          rewards: {
-            ...s.rewards,
-            ...data,
-            segmentCriteria: {
-              ...s.rewards.segmentCriteria,
-              ...data.segmentCriteria,
-            },
-          },
-        })),
-      resetRewards: () =>
-        set(() => ({
-          rewards: initialRewards,
-        })),
-    },
-
-    /* navigation */
-    setStep: (step) => set({ step }),
-
-    markStepTouched: (step) =>
+  rewardActions: {
+    setRewards: (data) =>
       set((s) => ({
-        touchedSteps: { ...s.touchedSteps, [step]: true },
+        rewards: { ...s.rewards, ...data, segmentCriteria: { ...s.rewards.segmentCriteria, ...data.segmentCriteria } },
       })),
+    resetRewards: () => set(() => ({ rewards: initialRewards })),
+  },
 
-    isStepValid: (step) => {
-      const s = get();
-      if (step === 1)
-        return Boolean(
-          s.basicInfo.challengeName &&
-          s.basicInfo.challengeType &&
-          s.basicInfo.description,
-          // s.basicInfo.primaryHashtags.length,
-        );
+  /* navigation */
+  setStep: (step) => set({ step }),
+  markStepTouched: (step) => set((s) => ({ touchedSteps: { ...s.touchedSteps, [step]: true } })),
+  isStepValid: (step) => {
+    const s = get();
+    if (step === 1) return Boolean(s.basicInfo.challengeName && s.basicInfo.challengeType && s.basicInfo.description);
+    if (step === 2) return true;
+    if (step === 3) return !get().isGlobalConfiguration() && Boolean(s.schedule.startDate && s.schedule.startTime && s.schedule.endDate && s.schedule.endTime);
+    if (step === 4) return s.rewards.points > 0;
+    return true;
+  },
 
-      if (step === 2) return true;
-      // return Boolean(s.goalsAndMetrics.selectedGoalTypes.length);
+  /* setters */
+  setBasicInfo: (data) => set((s) => ({ basicInfo: { ...s.basicInfo, ...data } })),
+  setGoalType: (type) => {
+    if (!get().isGoalsEditable) return;
+    set((s) => ({ goalsAndMetrics: { ...s.goalsAndMetrics, selectedGoalTypes: [type], activeTab: type } }));
+  },
+  setGoalsAndMetrics: (data) => { if (!get().isGoalsEditable) return; set((s) => ({ goalsAndMetrics: { ...s.goalsAndMetrics, ...data } })); },
+  setDistanceConfig: (payload) => { if (!get().isGoalsEditable) return; set((s) => ({ goalsAndMetrics: { ...s.goalsAndMetrics, distanceGoal: payload, selectedGoalConfiguration: payload.configurationType } })); },
+  setFrequencyConfig: (payload) => { if (!get().isGoalsEditable) return; set((s) => ({ goalsAndMetrics: { ...s.goalsAndMetrics, frequencyGoal: payload, selectedFrequencyConfiguration: payload.configurationType } })); },
+  setTimeConfig: (payload) => { if (!get().isGoalsEditable) return; set((s) => ({ goalsAndMetrics: { ...s.goalsAndMetrics, timeGoal: payload, selectedTimeConfiguration: payload.configurationType } })); },
+  setStreakConfig: (payload) => { if (!get().isGoalsEditable) return; set((s) => ({ goalsAndMetrics: { ...s.goalsAndMetrics, streakGoal: payload, selectedStreakConfiguration: payload.configurationType } })); },
+  setPhotoConfig: (payload) => { if (!get().isGoalsEditable) return; set((s) => ({ goalsAndMetrics: { ...s.goalsAndMetrics, photoGoal: payload, selectedPhotoConfiguration: payload.configurationType } })); },
+  setSchedule: (data) => set((s) => ({ schedule: { ...s.schedule, ...data } })),
+  setRewards: (data) => set((s) => ({ rewards: { ...s.rewards, ...data } })),
 
-      if (step === 3)
-        return Boolean(
-          s.schedule.startDate &&
-          s.schedule.startTime &&
-          s.schedule.endDate &&
-          s.schedule.endTime,
-        );
+  /* utility */
+  isGlobalConfiguration: () => get().goalsAndMetrics.activeTab === "global",
 
-      if (step === 4) return s.rewards.points > 0;
-
-      return true;
-    },
-
-    /* setters */
-    setBasicInfo: (data) =>
-      set((s) => ({ basicInfo: { ...s.basicInfo, ...data } })),
-
-    setGoalType: (type) => {
-      if (!get().isGoalsEditable) return;
-      set((s) => ({
-        goalsAndMetrics: {
-          ...s.goalsAndMetrics,
-          selectedGoalTypes: [type],
-          activeTab: type,
-        },
-      }));
-    },
-
-    setGoalsAndMetrics: (data) => {
-      if (!get().isGoalsEditable) return;
-      set((s) => ({
-        goalsAndMetrics: { ...s.goalsAndMetrics, ...data },
-      }));
-    },
-
-   
-
-    setDistanceConfig: (payload) => {
-      if (!get().isGoalsEditable) return;
-
-      set((s) => ({
-        goalsAndMetrics: {
-          ...s.goalsAndMetrics,
-          distanceGoal: payload,
-          selectedGoalConfiguration: payload.configurationType,
-        },
-      }));
-    },
-
-    setFrequencyConfig: (p) =>
-      get().isGoalsEditable &&
-      set((s) => ({
-        goalsAndMetrics: {
-          ...s.goalsAndMetrics,
-          frequencyGoal: p,
-          selectedFrequencyConfiguration: p.configurationType,
-        },
-      })),
-
-    setTimeConfig: (p) =>
-      get().isGoalsEditable &&
-      set((s) => ({
-        goalsAndMetrics: {
-          ...s.goalsAndMetrics,
-          timeGoal: p,
-          selectedTimeConfiguration: p.configurationType,
-        },
-      })),
-
-    setStreakConfig: (p) =>
-      get().isGoalsEditable &&
-      set((s) => ({
-        goalsAndMetrics: {
-          ...s.goalsAndMetrics,
-          streakGoal: p,
-          selectedStreakConfiguration: p.configurationType,
-        },
-      })),
-
-    setPhotoConfig: (p) =>
-      get().isGoalsEditable &&
-      set((s) => ({
-        goalsAndMetrics: {
-          ...s.goalsAndMetrics,
-          photoGoal: p,
-          selectedPhotoConfiguration: p.configurationType,
-        },
-      })),
-
-    setSchedule: (data) =>
-      set((s) => ({ schedule: { ...s.schedule, ...data } })),
-
-    setRewards: (data) => set((s) => ({ rewards: { ...s.rewards, ...data } })),
-
-    initializeFromApi: (apiData, challengeId) => {
+  /* edit flow */
+ initializeFromApi: (apiData, challengeId) => {
       const admin = apiData?.adminChallenge;
       if (!admin) return;
 
@@ -530,8 +1496,8 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
         hasHydratedFromServer: true,
       });
     },
-
-    getUpdatePayload: () => {
+ 
+  getUpdatePayload: () => {
       const { initialSnapshot, basicInfo, goalsAndMetrics, schedule, rewards } =
         get();
 
@@ -574,6 +1540,5 @@ export const useChallengeBuilderStore = create<ChallengeBuilderState>(
       return diff;
     },
 
-    reset: () => set(initialState),
-  }),
-);
+  reset: () => set(initialState),
+}));
