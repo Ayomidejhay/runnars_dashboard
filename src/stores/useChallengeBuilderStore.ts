@@ -1105,12 +1105,12 @@ export interface FrequencyGoalConfig {
   timePeriod?: string;
   timeRange?: { start: string; end: string };
   walksPerPeriod?: number;
-  minimumWalkDuration?: number;
-  minDuration?: number;
+  minimumWalkDistance?: number;
+  minDistance?: number;
   selectedDays?: string[];
   weeksCount?: number;
-  minimumDuration?: number;
-  minWalkDuration?: number;
+  minimumDistance?: number;
+  minWalkDistance?: number;
 }
 
 export interface TimeGoalConfig {
@@ -1118,7 +1118,7 @@ export interface TimeGoalConfig {
   minimumWalkDuration?: number;
   numberOfWalks?: number;
   distancePerWalk?: number;
-  startDistance?: number;
+  startingDuration?: number;
   weeklyIncrease?: number;
   durationWeeks?: number;
   timePerWeek?: number;
@@ -1137,6 +1137,7 @@ export interface StreakGoalConfig {
   selectedDays?: string[];
   minimumWalkDuration?: number;
   numberOfWeeks?: number;
+  weeklyPatternDays?: string[];
 }
 
 export interface PhotoGoalConfig {

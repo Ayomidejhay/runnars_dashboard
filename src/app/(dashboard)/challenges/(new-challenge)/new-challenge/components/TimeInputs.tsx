@@ -37,8 +37,8 @@ export default function TimeInputs({
   const [distancePerWalk, setDistancePerWalk] = useState(
     timeGoal?.config.distancePerWalk || "",
   );
-  const [startDistance, setStartDistance] = useState(
-    timeGoal?.config.startDistance || "",
+  const [startingDuration, setStartingDuration] = useState(
+    timeGoal?.config.startingDuration || "",
   );
   const [weeklyIncrease, setWeeklyIncrease] = useState(
     timeGoal?.config.weeklyIncrease || "",
@@ -61,7 +61,7 @@ export default function TimeInputs({
         minimumWalkDuration: Number(minimumWalkDuration) || undefined,
         numberOfWalks: Number(numberOfWalks) || undefined,
         distancePerWalk: Number(distancePerWalk) || undefined,
-        startDistance: Number(startDistance) || undefined,
+        startingDuration: Number(startingDuration) || undefined,
         weeklyIncrease: Number(weeklyIncrease) || undefined,
         durationWeeks: Number(durationWeeks) || undefined,
         timePerWeek: Number(timePerWeek) || undefined,
@@ -74,7 +74,7 @@ export default function TimeInputs({
     minimumWalkDuration,
     numberOfWalks,
     distancePerWalk,
-    startDistance,
+    startingDuration,
     weeklyIncrease,
     durationWeeks,
     selected,
@@ -155,7 +155,7 @@ export default function TimeInputs({
                   className="p-2 w-[80%] outline-none"
                 />
                 <div className="border-l border-[#E1E1E1] h-full" />
-                <p className="w-[20%] text-center text-[10px]">Mins</p>
+                <p className="w-[20%] text-center text-[10px]">Hours</p>
               </div>
             
             </div>
@@ -186,8 +186,8 @@ export default function TimeInputs({
                 <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
                 <input
                   type="number"
-                  value={startDistance}
-                  onChange={(e) => setStartDistance(e.target.value)}
+                  value={startingDuration}
+                  onChange={(e) => setStartingDuration(e.target.value)}
                   placeholder="E.g 1-50"
                   className="p-2 w-[80%] outline-none"
                 />

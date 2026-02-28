@@ -21,8 +21,8 @@ export default function FrequencyInputs() {
 
   // Local states for input fields
   const [numberOfWalks, setNumberOfWalks] = useState("");
-  const [minimumWalkDuration, setMinimumWalkDuration] = useState("");
-  const [minDuration, setMinDuration] = useState("");
+  const [minimumWalkDistance, setMinimumWalkDistance] = useState("");
+  const [minDistance, setMinDistance] = useState("");
   const [walksPerWeek, setWalksPerWeek] = useState("");
   const [numberOfWeeks, setNumberOfWeeks] = useState("");
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -31,8 +31,8 @@ export default function FrequencyInputs() {
   // const [timeRange, setTimeRange] = useState("");
   const [walksPerPeriod, setWalksPerPeriod] = useState("");
   const [weeksCount, setWeeksCount] = useState("");
-  const [minimumDuration, setMinimumDuration] = useState("");
-  const [minWalkDuration, setMinWalkDuration] = useState("");
+  const [minimumDistance, setMinimumDistance] = useState("");
+  const [minWalkDistance, setMinWalkDistance] = useState("");
   const [timeRange, setTimeRange] = useState<{
     start: string;
     end: string;
@@ -187,19 +187,19 @@ export default function FrequencyInputs() {
     config: {
       // Total walks
       numberOfWalks: numberOfWalks ? Number(numberOfWalks) : undefined,
-      minimumWalkDuration: minimumWalkDuration
-        ? Number(minimumWalkDuration)
+      minimumWalkDistance: minimumWalkDistance
+        ? Number(minimumWalkDistance)
         : undefined,
 
       // Per week
       walksPerWeek: walksPerWeek ? Number(walksPerWeek) : undefined,
       numberOfWeeks: numberOfWeeks ? Number(numberOfWeeks) : undefined,
-      minDuration: minDuration ? Number(minDuration) : undefined,
+      minDistance: minDistance ? Number(minDistance) : undefined,
 
       // Specific days
       selectedDays: selectedDays.length ? selectedDays : undefined,
-      // weeksCount: weeksCount ? Number(weeksCount) : undefined,
-      // minimumDuration: minimumDuration ? Number(minimumDuration) : undefined,
+      weeksCount: weeksCount ? Number(weeksCount) : undefined,
+      minimumDistance: minimumDistance ? Number(minimumDistance) : undefined,
 
       // Time-of-day (STRICT)
       timePeriod: isTimeOfDay ? timePeriod : undefined,
@@ -209,9 +209,9 @@ export default function FrequencyInputs() {
           ? Number(walksPerPeriod)
           : undefined
         : undefined,
-      minWalkDuration: isTimeOfDay
-        ? minWalkDuration
-          ? Number(minWalkDuration)
+      minWalkDistance: isTimeOfDay
+        ? minWalkDistance
+          ? Number(minWalkDistance)
           : undefined
         : undefined,
     },
@@ -219,18 +219,18 @@ export default function FrequencyInputs() {
 }, [
   selected,
   numberOfWalks,
-  minimumWalkDuration,
+  minimumWalkDistance,
   walksPerWeek,
   numberOfWeeks,
-  minDuration,
+  minDistance,
   selectedDays,
   weeksCount,
-  minimumDuration,
+  minimumDistance,
   timePeriod,
   timeRange.start,
   timeRange.end,
   walksPerPeriod,
-  minWalkDuration,
+  minWalkDistance,
   setFrequencyConfig,
 ]);
 
@@ -243,17 +243,17 @@ export default function FrequencyInputs() {
           <div className="flex flex-row-reverse justify-between items-start gap-5">
             <div className="flex flex-col gap-2 flex-1">
               <label className="text-[16px] text-deepblue">
-                Minimum Walk Duration (Optional)
+                Minimum Walk Distance (Optional)
               </label>
               <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
                 <input
-                  value={minimumWalkDuration}
-                  onChange={(e) => setMinimumWalkDuration(e.target.value)}
+                  value={minimumWalkDistance}
+                  onChange={(e) => setMinimumWalkDistance(e.target.value)}
                   className="p-2 w-[80%] outline-none"
                   placeholder="E.g 5-12"
                 />
                 <div className="border-l border-[#E1E1E1] h-full" />
-                <p className="w-[20%] text-center text-[10px]">Mins</p>
+                <p className="w-[20%] text-center text-[10px]">Miles</p>
               </div>
             </div>
             <div className="flex flex-col gap-2 flex-1">
@@ -305,18 +305,18 @@ export default function FrequencyInputs() {
 
             <div className="flex flex-col gap-2">
               <label className="text-[16px] text-deepblue">
-                Minimum Walk Duration (Optional)
+                Minimum Walk Distance (Optional)
               </label>
               <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
                 <input
                   type="text"
-                  value={minDuration}
-                  onChange={(e) => setMinDuration(e.target.value)}
+                  value={minDistance}
+                  onChange={(e) => setMinDistance(e.target.value)}
                   className="p-2 w-[80%] outline-none"
                   placeholder="E.g 5-12"
                 />
                 <div className="border-l border-[#E1E1E1] h-full" />
-                <p className="w-[20%] text-center text-[10px]">Mins</p>
+                <p className="w-[20%] text-center text-[10px]">Miles</p>
               </div>
             </div>
           </div>
@@ -374,18 +374,18 @@ export default function FrequencyInputs() {
 
             <div className="flex flex-col gap-2">
               <label className="text-[16px] text-deepblue">
-                Minimum Walk Duration (Optional)
+                Minimum Walk Distance (Optional)
               </label>
               <div className="border border-[#E1E1E1] rounded-[16px] flex items-center">
                 <input
                   type="text"
-                  value={minimumDuration}
-                  onChange={(e) => setMinimumDuration(e.target.value)}
+                  value={minimumDistance}
+                  onChange={(e) => setMinimumDistance(e.target.value)}
                   className="p-2 w-[80%] outline-none"
                   placeholder="E.g 5-12"
                 />
                 <div className="border-l border-[#E1E1E1] h-full" />
-                <p className="w-[20%] text-center text-[10px]">Mins</p>
+                <p className="w-[20%] text-center text-[10px]">Miles</p>
               </div>
             </div>
           </div>
@@ -476,12 +476,12 @@ export default function FrequencyInputs() {
 
             <div className="flex flex-col gap-2">
               <label className="text-[16px] text-deepblue">
-                Minimum Walk Duration (Optional)
+                Minimum Walk Distance (Optional)
               </label>
               <input
                 type="text"
-                value={minWalkDuration}
-                onChange={(e) => setMinWalkDuration(e.target.value)}
+                value={minWalkDistance}
+                onChange={(e) => setMinWalkDistance(e.target.value)}
                 className="border border-[#E1E1E1] rounded-[16px] p-2"
                 placeholder="E.g 5-12"
               />

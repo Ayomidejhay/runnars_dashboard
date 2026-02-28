@@ -44,8 +44,8 @@ export default function StreakInputs({
   // const [selectedDay, setSelectedDay] = useState(
   //   streakGoal?.config.selectedDay || "M",
   // );
-  const [selectedDays, setSelectedDays] = useState<string[]>(
-    streakGoal?.config.selectedDays || [],
+  const [weeklyPatternDays, setWeeklyPatternDays] = useState<string[]>(
+    streakGoal?.config.weeklyPatternDays || [],
   );
 
   const [minimumWalkDuration, setMinimumWalkDuration] = useState(
@@ -90,7 +90,7 @@ export default function StreakInputs({
         consecutiveDaysTarget: Number(consecutiveDaysTarget) || undefined,
         allowJokerDay: allowJokerDay === "Yes",
         // selectedDay,
-        selectedDays,
+        weeklyPatternDays,
         minimumWalkDuration: Number(minimumWalkDuration) || undefined,
         numberOfWeeks: Number(numberOfWeeks) || undefined,
         minimumStreakTarget: Number(minimumStreakTarget) || undefined,
@@ -106,7 +106,7 @@ export default function StreakInputs({
     consecutiveDaysTarget,
     allowJokerDay,
     // selectedDay,
-    selectedDays,
+    weeklyPatternDays,
     minimumWalkDuration,
     numberOfWeeks,
     minimumStreakTarget,
@@ -120,7 +120,7 @@ export default function StreakInputs({
   ]);
 
   const toggleDay = (day: string) => {
-    setSelectedDays((prev) =>
+    setWeeklyPatternDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
     );
   };
@@ -180,7 +180,7 @@ export default function StreakInputs({
               <label className="text-[16px] text-deepblue">Days Selection</label>
               <div className="flex gap-2">
                 {days.map((day) => {
-                  const isSelected = selectedDays.includes(day.value);
+                  const isSelected = weeklyPatternDays.includes(day.value);
 
                   return (
                     <label key={day.value} className="cursor-pointer">
@@ -337,8 +337,8 @@ export default function StreakInputs({
                   className="p-2 w-[80%] outline-none"
                   placeholder="E.g 1-7"
                 />
-                <div className="border-l border-[#E1E1E1] h-full" />
-                <p className="w-[20%] text-center">Days</p>
+                {/* <div className="border-l border-[#E1E1E1] h-full" />
+                <p className="w-[20%] text-center">Days</p> */}
               </div>
             </div>
           </div>
