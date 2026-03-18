@@ -1,6 +1,7 @@
 import api from "@/lib/api";
 import { getAllPets, GetPetsParams } from "@/services/petService";
 import { useQuery } from "@tanstack/react-query";
+import { fetchPetChallenges } from "@/services/petService";
 
 export const useAllPets = (params: GetPetsParams) => {
     return useQuery({
@@ -18,5 +19,13 @@ export const usePet = (id: string) => {
       return res.data;
     },
     enabled: !!id,
+  });
+};
+
+export const useChallenges = (petId: string) => {
+  return useQuery({
+    queryKey: ["challenges", petId],
+    queryFn: () => fetchPetChallenges(petId),
+    enabled: !!petId, // prevents call when undefined
   });
 };
