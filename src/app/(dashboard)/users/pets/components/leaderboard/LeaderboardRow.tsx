@@ -21,7 +21,7 @@ export default function LeaderboardRow({ pet }: Props) {
           alt={pet.name}
           width={32}
           height={32}
-          className="rounded-full"
+          className="w-8 h-8 rounded-full object-cover"
         />
 
         <div className="flex flex-col ">

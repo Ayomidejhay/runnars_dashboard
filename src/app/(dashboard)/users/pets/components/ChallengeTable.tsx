@@ -35,9 +35,9 @@ export default function ChallengesTable({
                 <Image
                           src={challenge.image || "/petmock.svg"}
                           alt={challenge.title}
-                          width={42}
-                          height={42}
-                          className="rounded-full object-cover"
+                          width={32}
+                          height={32}
+                          className="w-8 h-8 rounded-full object-cover"
                         />
                
                 {challenge.title}

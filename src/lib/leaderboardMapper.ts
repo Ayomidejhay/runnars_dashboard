@@ -9,7 +9,8 @@ export function mapLeaderboard(
   return pets.map((pet, index) => ({
     id: pet._id,
     name: pet.name,
-    avatar: pet.photo || "/pets/default.png",
+    avatar: pet.photo || "/petmock.svg",
+    photo: pet.photo || "/petmock.svg",
     ownerName: pet.owner.fullName,
     ownerAvatar: pet.owner.profilePicture || "/avatars/default.png",
     breed: pet.breed,
