@@ -1,9 +1,10 @@
 // "use client";
 
-// import React from "react";
+// import React, { useEffect, useState } from "react";
 // import { useParams, useRouter } from "next/navigation";
 // import Image from "next/image";
 // import toast from "react-hot-toast";
+
 // import BasicInfo from "../../(new-challenge)/new-challenge/components/BasicInfo";
 // import Reward from "../../(new-challenge)/new-challenge/components/Reward";
 // import Schedule from "../../(new-challenge)/new-challenge/components/Schedule";
@@ -13,11 +14,10 @@
 // import { useSubmitChallenge } from "@/hooks/useSubmitChallenge";
 // import { useChallenge } from "@/hooks/useChallenges";
 
-// export default function Page({ params }: { params: { id: string } }) {
-//   const { id } = params;
+// export default function Page() {
+//   const params = useParams();
 //   const router = useRouter();
-
-//   const { submit, isLoading } = useSubmitChallenge({ mode: "edit" });
+//   const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
 //   const {
 //     step,
@@ -25,44 +25,83 @@
 //     isStepValid,
 //     markStepTouched,
 //     basicInfo,
+//     initializeFromApi,
+//     hasHydratedFromServer,
+//     reset,
 //   } = useChallengeBuilderStore();
 
-//   const [showDiscardModal, setShowDiscardModal] = React.useState(false);
+//   const { submit, isLoading: isSubmitting } = useSubmitChallenge({
+//     mode: "edit",
+//     challengeId: id ?? "",
+//   });
 
+//   const { data: challengeData, isLoading, error } = useChallenge(id as string);
+
+//   const mode = useChallengeBuilderStore((s) => s.mode);
+
+//   const [loadedChallengeId, setLoadedChallengeId] = useState<string | null>(null);
+
+//   const [showDiscardModal, setShowDiscardModal] = useState(false);
 //   const steps = ["Basic Info", "Goal & Metric", "Schedule", "Rewards"];
 
-//   /* -----------------------------
-//      Navigation (same as create)
-//   ------------------------------ */
+//   // useEffect(() => {
+//   //   if (!challengeData || !id || hasHydratedFromServer) return;
+
+//   //   initializeFromApi(challengeData.data, id);
+//   //   toast.success("Challenge loaded for editing");
+//   // }, [
+//   //   challengeData,
+//   //   id,
+//   //   hasHydratedFromServer,
+//   //   initializeFromApi,
+//   //   reset,
+//   //   mode,
+//   // ]);
+
+//     useEffect(() => {
+//     if (!challengeData || !id) return;
+
+//     // Only reset + load if it's a new challenge ID
+//     if (loadedChallengeId !== id) {
+//       reset(); // clear previous challenge state
+//       initializeFromApi(challengeData.data, id);
+//       setLoadedChallengeId(id);
+//       toast.success("Challenge loaded for editing");
+//     }
+//   }, [challengeData, id, initializeFromApi, reset,mode, loadedChallengeId]);
+
 //   const nextStep = () => {
 //     markStepTouched(step);
 //     if (!isStepValid(step)) return;
 //     setStep(Math.min(step + 1, steps.length));
 //   };
-
 //   const prevStep = () => setStep(Math.max(step - 1, 1));
 
-//   /* -----------------------------
-//      Discard (NO reset yet)
-//   ------------------------------ */
+//   // Discard changes
 //   const handleDiscard = () => {
+//     reset();
 //     router.push("/challenges");
 //   };
 
-//   if (!id) return null;
+//   if (isLoading) return <p>Loading...</p>;
+//   if (error) return <p>Error loading challenge: {error.message}</p>;
 
 //   return (
 //     <div>
 //       {/* HEADER */}
-//       <div className="flex justify-between items-center border-b border-[#E1E1E1] px-10">
-//         <div className="flex gap-4 items-center h-14">
-//           <button onClick={() => setShowDiscardModal(true)}>
-//             <Image src="/close.svg" alt="close" width={24} height={24} />
-//           </button>
+//       <div className="flex gap-4 items-center border-b border-[#E1E1E1] px-10 mb-5">
+//         <button
+//           //cursor-pointer
+//           onClick={() => router.back()}
+//           className="flex gap-4 items-center text-deepblue"
+//         >
+//           <Image src="/arrow-back.svg" alt="icon" width={18} height={14} />
 
-//           <p className="text-[24px] text-deepblue capitalize font-bold">
-//             edit challenge
-//           </p>
+//         </button>
+//         <div className="flex justify-between items-center">
+//           <h1 className="capitalize text-[24px] font-bold text-deepblue">
+//             edit challenges details
+//           </h1>
 //         </div>
 //       </div>
 
@@ -82,8 +121,16 @@
 
 //           <div className="relative flex justify-center mt-14">
 //             <Image src="/iphone.svg" alt="phone" width={308} height={622} />
-
 //             <div className="absolute top-[50px] w-[250px] bg-white z-10 rounded-xl shadow">
+//               {basicInfo.coverImage && (
+//                 <Image
+//                   src={URL.createObjectURL(basicInfo.coverImage)}
+//                   alt="cover"
+//                   width={260}
+//                   height={120}
+//                   className="rounded-t-xl object-cover"
+//                 />
+//               )}
 //               <div className="p-3">
 //                 <h2 className="mt-4 text-[18px] font-bold text-deepblue">
 //                   {basicInfo.challengeName}
@@ -91,9 +138,7 @@
 
 //                 <p className="text-[14px] text-gray-500 mt-1">
 //                   Challenge Type :{" "}
-//                   <span className="capitalize">
-//                     {basicInfo.challengeType}
-//                   </span>
+//                   <span className="capitalize">{basicInfo.challengeType}</span>
 //                 </p>
 
 //                 <p className="text-[14px] text-gray-700 mt-3 line-clamp-4">
@@ -107,9 +152,7 @@
 
 //       {/* NAVIGATION */}
 //       <div
-//         className={`flex mt-6 px-10 ${
-//           step === 1 ? "justify-end" : "justify-between"
-//         }`}
+//         className={`flex mt-6 px-10 ${step === 1 ? "justify-end" : "justify-between"}`}
 //       >
 //         {step > 1 && (
 //           <button
@@ -136,10 +179,15 @@
 
 //         {step === steps.length && (
 //           <button
-//             disabled
-//             className="bg-gray-300 rounded-[32px] text-gray-500 w-[120px] h-[48px]"
+//             onClick={submit}
+//             disabled={!isStepValid(step) || isSubmitting}
+//             className={`rounded-[32px] w-[120px] h-[48px] ${
+//               isStepValid(step) && !isSubmitting
+//                 ? "bg-brightblue text-white"
+//                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
+//             }`}
 //           >
-//             Update
+//             {isSubmitting ? "Updating..." : "Update"}
 //           </button>
 //         )}
 //       </div>
@@ -174,7 +222,6 @@
 //     </div>
 //   );
 // }
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -183,9 +230,9 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 
 import BasicInfo from "../../(new-challenge)/new-challenge/components/BasicInfo";
-import Reward from "../../(new-challenge)/new-challenge/components/Reward";
-import Schedule from "../../(new-challenge)/new-challenge/components/Schedule";
 import GoalMetric from "../../(new-challenge)/new-challenge/components/GoalMetric";
+import Schedule from "../../(new-challenge)/new-challenge/components/Schedule";
+import Reward from "../../(new-challenge)/new-challenge/components/Reward";
 
 import { useChallengeBuilderStore } from "@/stores/useChallengeBuilderStore";
 import { useSubmitChallenge } from "@/hooks/useSubmitChallenge";
@@ -199,97 +246,170 @@ export default function Page() {
   const {
     step,
     setStep,
-    isStepValid,
     markStepTouched,
     basicInfo,
+    schedule,
+    rewards,
+    goalsAndMetrics,
     initializeFromApi,
     hasHydratedFromServer,
     reset,
+    isGlobalConfiguration,
+    mode,
+    isStepValid: storeIsStepValid,
   } = useChallengeBuilderStore();
 
-  const { submit, isLoading: isSubmitting } = useSubmitChallenge({
+  const { data: challengeData, isLoading, error } = useChallenge(id as string);
+  const [loadedChallengeId, setLoadedChallengeId] = useState<string | null>(null);
+  const [showDiscardModal, setShowDiscardModal] = useState(false);
+
+  const isGlobal = isGlobalConfiguration();
+
+  const visibleSteps = isGlobal
+    ? ["Basic Info", "Goal & Metric", "Rewards"]
+    : ["Basic Info", "Goal & Metric", "Schedule", "Rewards"];
+  const currentStepIndex = step - 1;
+
+  const { submit: submitChallenge, isLoading: isSubmitting } = useSubmitChallenge({
     mode: "edit",
     challengeId: id ?? "",
   });
 
-  const { data: challengeData, isLoading, error } = useChallenge(id as string);
-
-  const mode = useChallengeBuilderStore((s) => s.mode);
-
-  const [loadedChallengeId, setLoadedChallengeId] = useState<string | null>(null);
-
-  const [showDiscardModal, setShowDiscardModal] = useState(false);
-  const steps = ["Basic Info", "Goal & Metric", "Schedule", "Rewards"];
-
-  // useEffect(() => {
-  //   if (!challengeData || !id || hasHydratedFromServer) return;
-
-
-
-  //   initializeFromApi(challengeData.data, id);
-  //   toast.success("Challenge loaded for editing");
-  // }, [
-  //   challengeData,
-  //   id,
-  //   hasHydratedFromServer,
-  //   initializeFromApi,
-  //   reset,
-  //   mode,
-  // ]);
-
-    useEffect(() => {
+  // =========================
+  // Load challenge for editing
+  // =========================
+  useEffect(() => {
     if (!challengeData || !id) return;
 
-    // Only reset + load if it's a new challenge ID
     if (loadedChallengeId !== id) {
-      reset(); // clear previous challenge state
+      reset();
       initializeFromApi(challengeData.data, id);
       setLoadedChallengeId(id);
       toast.success("Challenge loaded for editing");
     }
-  }, [challengeData, id, initializeFromApi, reset,mode, loadedChallengeId]);
+  }, [challengeData, id, initializeFromApi, reset, loadedChallengeId]);
 
+  // =========================
+  // Skip Schedule for global challenges
+  // =========================
+  useEffect(() => {
+    if (!hasHydratedFromServer) return;
+    if (isGlobal && visibleSteps[currentStepIndex] === "Schedule") {
+      setStep(step + 1);
+    }
+  }, [hasHydratedFromServer, isGlobal, step, visibleSteps, currentStepIndex, setStep]);
+
+  // =========================
+  // Navigation
+  // =========================
   const nextStep = () => {
     markStepTouched(step);
     if (!isStepValid(step)) return;
-    setStep(Math.min(step + 1, steps.length));
+    setStep(Math.min(step + 1, visibleSteps.length));
   };
-  const prevStep = () => setStep(Math.max(step - 1, 1));
 
-  // Discard changes
+  const prevStep = () => {
+    setStep(Math.max(step - 1, 1));
+  };
+
+  const isLastStep = step === visibleSteps.length;
+
+  // =========================
+  // Fix: Update button validation
+  // =========================
+  const isStepValid = (currentStep: number) => {
+    const isGlobal = isGlobalConfiguration();
+
+    if (currentStep === 1) {
+      return Boolean(
+        basicInfo.challengeName &&
+          basicInfo.challengeType &&
+          basicInfo.description
+      );
+    }
+
+    if (currentStep === 2) return true; // Goals always valid
+
+    if (currentStep === 3) {
+      // Schedule step
+      if (isGlobal) return true; // skip validation for global
+      return Boolean(
+        schedule.startDate &&
+          schedule.startTime &&
+          schedule.endDate &&
+          schedule.endTime
+      );
+    }
+
+    if (currentStep === 4) {
+      // Rewards step
+      if (isGlobal) return true; // optional for global
+      return rewards.points > 0; // required for non-global
+    }
+
+    return true;
+  };
+
+  // =========================
+  // Submit handler
+  // =========================
+  const handleSubmit = async () => {
+    markStepTouched(step);
+
+    if (!isStepValid(step)) return;
+
+    try {
+      await submitChallenge();
+      toast.success("Challenge updated successfully!");
+      router.push("/challenges");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update challenge");
+    }
+  };
+
   const handleDiscard = () => {
     reset();
     router.push("/challenges");
   };
 
-  if (isLoading) return <p>Loading...</p>;
+  // =========================
+  // Loading/Error states
+  // =========================
+  if (isLoading || (mode === "edit" && !hasHydratedFromServer)) {
+    return (
+      <div className="h-[400px] flex items-center justify-center">
+        <p className="text-gray-500">Loading challenge...</p>
+      </div>
+    );
+  }
+
   if (error) return <p>Error loading challenge: {error.message}</p>;
 
+  // =========================
+  // Render
+  // =========================
   return (
     <div>
       {/* HEADER */}
       <div className="flex gap-4 items-center border-b border-[#E1E1E1] px-10 mb-5">
         <button
-          //cursor-pointer
           onClick={() => router.back()}
           className="flex gap-4 items-center text-deepblue"
         >
           <Image src="/arrow-back.svg" alt="icon" width={18} height={14} />
-          
         </button>
-        <div className="flex justify-between items-center">
-          <h1 className="capitalize text-[24px] font-bold text-deepblue">
-            edit challenges details
-          </h1>
-        </div>
+        <h1 className="capitalize text-[24px] font-bold text-deepblue">
+          Edit Challenge Details
+        </h1>
       </div>
 
       <div className="flex border-b border-[#E1E1E1]">
+        {/* FORM STEPS */}
         <div className="basis-[60%] pt-6 px-10 flex flex-col gap-6">
-          {step === 1 && <BasicInfo />}
-          {step === 2 && <GoalMetric />}
-          {step === 3 && <Schedule />}
-          {step === 4 && <Reward />}
+          {visibleSteps[currentStepIndex] === "Basic Info" && <BasicInfo />}
+          {visibleSteps[currentStepIndex] === "Goal & Metric" && <GoalMetric />}
+          {visibleSteps[currentStepIndex] === "Schedule" && <Schedule />}
+          {visibleSteps[currentStepIndex] === "Rewards" && <Reward />}
         </div>
 
         {/* MOBILE PREVIEW */}
@@ -297,7 +417,6 @@ export default function Page() {
           <p className="font-bold text-deepblue text-[20px] mb-14">
             Preview mobile
           </p>
-
           <div className="relative flex justify-center mt-14">
             <Image src="/iphone.svg" alt="phone" width={308} height={622} />
             <div className="absolute top-[50px] w-[250px] bg-white z-10 rounded-xl shadow">
@@ -314,12 +433,10 @@ export default function Page() {
                 <h2 className="mt-4 text-[18px] font-bold text-deepblue">
                   {basicInfo.challengeName}
                 </h2>
-
                 <p className="text-[14px] text-gray-500 mt-1">
-                  Challenge Type :{" "}
+                  Challenge Type:{" "}
                   <span className="capitalize">{basicInfo.challengeType}</span>
                 </p>
-
                 <p className="text-[14px] text-gray-700 mt-3 line-clamp-4">
                   {basicInfo.description}
                 </p>
@@ -342,7 +459,7 @@ export default function Page() {
           </button>
         )}
 
-        {step < steps.length && (
+        {!isLastStep && (
           <button
             onClick={nextStep}
             disabled={!isStepValid(step)}
@@ -352,13 +469,13 @@ export default function Page() {
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
           >
-            Next: {steps[step]} →
+            Next: {visibleSteps[currentStepIndex + 1]} →
           </button>
         )}
 
-        {step === steps.length && (
+        {isLastStep && (
           <button
-            onClick={submit}
+            onClick={handleSubmit}
             disabled={!isStepValid(step) || isSubmitting}
             className={`rounded-[32px] w-[120px] h-[48px] ${
               isStepValid(step) && !isSubmitting

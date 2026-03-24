@@ -81,7 +81,7 @@ export default function page() {
                 alt={userInfo.fullName}
                 width={120}
                 height={120}
-                className="rounded-full mb-2 mx-auto"
+                className="rounded-full mb-2 mx-auto w-30 h-30 object-cover"
               />
               <div className="text-[18px] text-deepblue font-bold mb-1">
                 {userInfo.fullName}
@@ -92,7 +92,7 @@ export default function page() {
                   userInfo.status
                 )}`}
               >
-                {userInfo.status}
+                <p>{userInfo.status}</p>
               </div>
             </div>
             <div className="w-full h-[1px] bg-[#E1E1E1] -mt-1"></div>

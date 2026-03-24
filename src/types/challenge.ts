@@ -28,6 +28,7 @@ export interface AdminChallenge {
 
   createdBy: AdminUser;
   publishedChallenge: PublishedChallenge;
+  progressPercentage: number;
 }
 
 /* =========================

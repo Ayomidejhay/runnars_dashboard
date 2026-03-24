@@ -305,7 +305,7 @@ const uniqueIds = Array.from(new Set(participantIds));
                             alt={user.userDetails?.basicInfo?.fullName || "user"}
                             width={32}
                             height={32}
-                            className="rounded-full"
+                            className="rounded-full w-8 h-8 object-cover"
                           />
                           <div className="flex flex-col gap-1">
                             <p>{user.userDetails?.basicInfo?.fullName}</p>

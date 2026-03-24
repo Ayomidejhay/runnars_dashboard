@@ -22,10 +22,28 @@ export const usePet = (id: string) => {
   });
 };
 
+// export const useChallenges = (petId: string) => {
+//   return useQuery({
+//     queryKey: ["challenges", petId],
+//     queryFn: () => fetchPetChallenges(petId),
+//     enabled: !!petId, // prevents call when undefined
+//   });
+// };
+
+
+
 export const useChallenges = (petId: string) => {
   return useQuery({
     queryKey: ["challenges", petId],
     queryFn: () => fetchPetChallenges(petId),
-    enabled: !!petId, // prevents call when undefined
+    enabled: !!petId,
+
+    // 🔑 Important settings
+    staleTime: 0, // always stale → forces refetch
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+
+    // optional but useful for UX
+    retry: 1,
   });
 };

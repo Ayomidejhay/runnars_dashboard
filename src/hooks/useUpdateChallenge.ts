@@ -7,33 +7,7 @@ interface UpdateChallengeArgs {
   id: string;
    data: FormData;
 }
-
-// export const useUpdateChallenge = () =>
-//   useMutation<void, any, UpdateChallengeArgs>({
-//     mutationFn: async ({ id, data }) => {
-//       const res = await fetch(`/api/admin/challenges/${id}`, {
-//         method: "PUT",
-//         body: data,
-//       });
-//       if (!res.ok) throw new Error("Failed to update challenge");
-//       return;
-//     },
-//   });
-
-// export const useUpdateChallenge = () =>
-//   useMutation<void, any, UpdateChallengeArgs>({
-    
-//     mutationFn: async ({ id, data }) => {
-//       await api.put(`/api/admin/challenges/${id}`, data);
-//     },
-//   });
-// export const useUpdateChallenge = () =>
-//   useMutation<void, any, UpdateChallengeArgs>({
-//     mutationFn: async ({ id, data }) => {
-//       const res = await api.put(`/api/admin/challenges/${id}`, data);
-//       if (!res.data) throw new Error("Failed to update challenge");
-//     },
-//   });
+``
 
 
 export const useUpdateChallenge = () => {

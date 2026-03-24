@@ -205,13 +205,15 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               <div className="flex flex-col gap-1">
                 <p className="text-[14px]">Completion rate</p>
                 <p className="text-deepblue font-bold text-[24px]">
-                  {data?.data?.participantMetrics.completionRate ?? 0}%
+                  {/* {data?.data?.participantMetrics.completionRate ?? 0}% */}
+                  {adminChallenge.publishedChallenge.progressPercentage ?? 0}%
                 </p>
                 <div className="w-full bg-gray-200 h-1 rounded-full overflow-hidden mt-1">
                   <div
                     className="bg-brightblue h-full"
                     style={{
-                      width: `${data?.data?.participantMetrics.completionRate ?? 0}%`,
+                      // width: `${data?.data?.participantMetrics.completionRate ?? 0}%`,
+                      width: `${adminChallenge.publishedChallenge.progressPercentage}%`,
                     }}
                   ></div>
                 </div>

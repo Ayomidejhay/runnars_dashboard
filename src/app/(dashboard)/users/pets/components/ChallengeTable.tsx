@@ -1,14 +1,10 @@
 "use client";
 
 import { useChallenges } from "@/hooks/usePets";
-import { formatDateRange , getStatusColor} from "@/lib/format";
+import { formatDateRange, getStatusColor } from "@/lib/format";
 import Image from "next/image";
 
-export default function ChallengesTable({
-  petId,
-}: {
-  petId: string;
-}) {
+export default function ChallengesTable({ petId }: { petId: string }) {
   const { data, isLoading } = useChallenges(petId);
 
   if (isLoading) return <p>Loading...</p>;
@@ -33,21 +29,18 @@ export default function ChallengesTable({
             <tr key={challenge.id} className="border-t hover:bg-gray-50">
               <td className="px-4 py-3 font-bold  flex items-center gap-3">
                 <Image
-                          src={challenge.image || "/petmock.svg"}
-                          alt={challenge.title}
-                          width={32}
-                          height={32}
-                          className="w-8 h-8 rounded-full object-cover"
-                        />
-               
+                  src={challenge.image || "/petmock.svg"}
+                  alt={challenge.title}
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+
                 {challenge.title}
               </td>
 
               <td className="px-4 py-3">
-                {formatDateRange(
-                  challenge.startDate,
-                  challenge.endDate
-                )}
+                {formatDateRange(challenge.startDate, challenge.endDate)}
               </td>
 
               <td className="px-4 py-3">
@@ -59,7 +52,7 @@ export default function ChallengesTable({
               <td className="px-4 py-3">
                 <span
                   className={`px-2 py-1 rounded-full text-xs capitalize ${getStatusColor(
-                    challenge.status
+                    challenge.status,
                   )}`}
                 >
                   {challenge.status}
