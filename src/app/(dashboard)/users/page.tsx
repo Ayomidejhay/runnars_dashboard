@@ -6,7 +6,6 @@ import Link from "next/link";
 import Image from "next/image";
 import StatCard from "./components/StatsCard";
 import { Calendar, Search } from "lucide-react";
-// import PaginationControls from "@/app/components/PaginationControls";
 import PaginationControls from "../components/PaginationControls";
 import DropdownMenu from "../components/DropdownMenu";
 import { useQueryClient } from "@tanstack/react-query";

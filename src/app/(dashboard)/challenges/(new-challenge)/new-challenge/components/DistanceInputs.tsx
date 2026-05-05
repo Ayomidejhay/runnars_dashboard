@@ -57,23 +57,7 @@ export default function DistanceInputs() {
     <div className="flex flex-col gap-2">
       <label className="text-[16px] text-deepblue">Goal Configuration</label>
 
-      {/* <select
-      disabled={!isGoalsEditable}
-        className="w-full border p-2 rounded mb-4"
-        value={configurationType}
-        onChange={(e) => {
-          setConfigurationType(e.target.value);
-          setForm({});
-        }}
-        required
-      >
-        <option value="">Select goal configuration</option>
-        {goalConfigurations.map((goal) => (
-          <option key={goal} value={goal}>
-            {goal}
-          </option>
-        ))}
-      </select> */}
+     
       <select
         disabled={!isGoalsEditable}
         className="w-full border p-2 rounded mb-4 disabled:bg-gray-100"
@@ -142,7 +126,7 @@ export default function DistanceInputs() {
             </div>
 
             {/* Duration */}
-            <div className="flex flex-col gap-2 flex-1">
+            {/* <div className="flex flex-col gap-2 flex-1">
               <label className="text-[16px] text-deepblue">Duration</label>
               <div className="border border-[#E1E1E1] rounded-[16px] flex items-center w-full">
               
@@ -161,7 +145,7 @@ export default function DistanceInputs() {
                 <div className="border-l border-[#E1E1E1] h-full" />
                 <p className="w-[20%] text-center text-[12px]">Mins</p>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       )}

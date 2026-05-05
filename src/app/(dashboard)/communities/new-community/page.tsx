@@ -111,7 +111,7 @@ export default function page() {
           </div>
 
           <p className="text-[14px] text-center mt-4 text-gray-500">
-            Preview updates as you configure your challenge
+            Preview updates as you configure your community
           </p>
         </div>
       </div>

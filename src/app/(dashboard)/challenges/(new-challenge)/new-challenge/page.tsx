@@ -420,14 +420,13 @@ export default function Page() {
           <div className="relative flex justify-center mt-14">
             <Image src="/iphone.svg" alt="phone" width={308} height={622} />
 
-            <div className="absolute top-[50px] w-[250px] bg-white z-10 rounded-xl shadow">
+            <div className="absolute top-[50px] w-60 bg-white z-10 rounded-xl shadow p-3 text-gray-800">
               {basicInfo.coverImage && (
                 <Image
                   src={URL.createObjectURL(basicInfo.coverImage)}
                   alt="cover"
-                  width={260}
+                  width={300}
                   height={120}
-                  className="rounded-t-xl object-cover"
                 />
               )}
 
@@ -436,17 +435,28 @@ export default function Page() {
                   {basicInfo.challengeName}
                 </h2>
 
-                <p className="text-[14px] text-gray-500 mt-1">
-                  Challenge Type :{" "}
-                  <span className="capitalize">{basicInfo.challengeType}</span>
-                </p>
+                {basicInfo.challengeType && (
+                  <p className="text-[14px] text-gray-500 mt-1">
+                    Challenge Type :{" "}
+                    <span className="capitalize">{basicInfo.challengeType}</span>
+                  </p>
+                )}
 
                 <p className="text-[14px] text-gray-700 mt-3 line-clamp-4">
                   {basicInfo.description}
                 </p>
+
+                <div className="text-brightblue text-[12px] flex items-center gap-1">
+                  <p>Runnars</p>
+                  <div className="h-1.5 w-1.5 bg-brightblue rounded-full mt-1"></div>
+                  <p>now</p>
+                </div>
               </div>
             </div>
           </div>
+          <p className="text-[14px] text-center mt-4 text-gray-500">
+            Preview updates as you configure your challenge
+          </p>
         </div>
       </div>
 
