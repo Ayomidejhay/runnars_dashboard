@@ -191,8 +191,8 @@ const BannerFormModal: React.FC<{
                 isSubmitting ? "cursor-not-allowed opacity-55" : ""
               } ${
                 file
-                  ? "border-[#3fb950] bg-[#3fb95010]"
-                  : "border-[#30363d] bg-[#0d1117] hover:border-[#58a6ff]"
+                  ? "border-[#3fb950]"
+                  : "border-[#30363d]  hover:border-[#58a6ff]"
               }`}
             >
               <input
@@ -223,7 +223,7 @@ const BannerFormModal: React.FC<{
                 </>
               ) : (
                 <>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#21262d]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full ">
                     <Upload size={20} className="text-[#8b949e]" />
                   </div>
                   <div>
@@ -250,7 +250,7 @@ const BannerFormModal: React.FC<{
 
             <div
               onClick={() => !isSubmitting && fileRef.current?.click()}
-              className={`group relative overflow-hidden rounded-xl border border-[#30363d] bg-[#0d1117] cursor-pointer transition-all ${
+              className={`group relative overflow-hidden rounded-xl border border-[#30363d] cursor-pointer transition-all ${
                 isSubmitting ? "pointer-events-none opacity-60" : ""
               }`}
             >
