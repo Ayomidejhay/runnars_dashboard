@@ -1,49 +1,438 @@
 
 
+// "use client";
+
+// import React, { useEffect, useMemo, useState } from "react";
+// import Image from "next/image";
+// import { Search } from "lucide-react";
+// import { createPortal } from "react-dom";
+// import CommentsModal from "../../content-moderation/components/CommentsModal";
+// import { useChallengePosts } from "@/hooks/useAnalyticsChallenge";
+// import { useParams } from "next/navigation";
+// import { useFlagPost } from "@/hooks/useFlagPost";
+// import toast from "react-hot-toast";
+
+// type MenuPos = { top: number; left: number };
+
+// const PostDetails = () => {
+//   //   const params = useParams();
+//   //   const challengeId = params.challengeId as string;
+//   const { id } = useParams();
+
+//   const [searchTerm, setSearchTerm] = useState("");
+//   const [openRow, setOpenRow] = useState<string | null>(null);
+//   const [menuPos, setMenuPos] = useState<MenuPos | null>(null);
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [rowsPerPage, setRowsPerPage] = useState(5);
+//   const [showCommentsModal, setShowCommentsModal] = useState(false);
+
+//   const MENU_WIDTH = 160;
+//   const MENU_GAP = 8;
+
+//   // ✅ Fetch posts
+//   const { data, isLoading, isError } = useChallengePosts(id as any, {
+//     page: currentPage,
+//     limit: rowsPerPage,
+//   });
+
+//   const posts = data?.data?.posts ?? [];
+//   const pagination = data?.data?.pagination;
+
+//   const totalPages = pagination?.totalPages ?? 1;
+//   const totalPosts = pagination?.totalPosts ?? 0;
+
+//   // Client-side search filter
+//   const filteredPost = useMemo(() => {
+//     return posts.filter((post: any) => {
+//       const content = post.content?.toLowerCase() || "";
+//       const username = post.author?.username?.toLowerCase() || "";
+//       return (
+//         content.includes(searchTerm.toLowerCase()) ||
+//         username.includes(searchTerm.toLowerCase())
+//       );
+//     });
+//   }, [posts, searchTerm]);
+
+//   // Close dropdown logic
+//   useEffect(() => {
+//     if (!openRow) return;
+
+//     const onDocClick = (e: MouseEvent) => {
+//       const menu = document.getElementById("row-actions-menu");
+//       if (menu && !menu.contains(e.target as Node)) setOpenRow(null);
+//     };
+
+//     const onEsc = (e: KeyboardEvent) => e.key === "Escape" && setOpenRow(null);
+//     const onScrollOrResize = () => setOpenRow(null);
+
+//     document.addEventListener("mousedown", onDocClick);
+//     window.addEventListener("keydown", onEsc);
+//     window.addEventListener("scroll", onScrollOrResize, true);
+//     window.addEventListener("resize", onScrollOrResize);
+
+//     return () => {
+//       document.removeEventListener("mousedown", onDocClick);
+//       window.removeEventListener("keydown", onEsc);
+//       window.removeEventListener("scroll", onScrollOrResize, true);
+//       window.removeEventListener("resize", onScrollOrResize);
+//     };
+//   }, [openRow]);
+
+//   // Dropdown positioning
+//   const openMenuForTarget = (
+//     evt: React.MouseEvent<HTMLButtonElement>,
+//     id: string,
+//   ) => {
+//     const rect = evt.currentTarget.getBoundingClientRect();
+//     const tentativeLeft = rect.right - MENU_WIDTH;
+//     const left = Math.max(
+//       8,
+//       Math.min(tentativeLeft, window.innerWidth - MENU_WIDTH - 8),
+//     );
+//     const top = rect.bottom + MENU_GAP;
+
+//     setMenuPos({ top, left });
+//     setOpenRow((prev) => (prev === id ? null : id));
+//   };
+
+//   const { mutate: flagPost, isPending: isFlagging } = useFlagPost();
+
+//   const handleFlagPost = (postId: string) => {
+//   flagPost(postId, {
+//     onSuccess: () => {
+//       toast.success("Post flagged successfully"); // replace with toast
+//       setOpenRow(null);
+//     },
+//     onError: () => {
+//       toast.error("Failed to flag post");
+//       setOpenRow(null);
+//     },
+//   });
+// };
+
+
+
+//   return (
+//     <div className="bg-white p-4 rounded mt-6">
+//       {/* Header */}
+//       <div className="flex justify-between items-center">
+//         <h2 className="text-lg font-semibold text-gray-800 capitalize">
+//           All Posts ({totalPosts})
+//         </h2>
+
+//         <div className="relative h-10 rounded-[32px]">
+//           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+//           <input
+//             type="text"
+//             placeholder="Search post..."
+//             value={searchTerm}
+//             onChange={(e) => setSearchTerm(e.target.value)}
+//             className="pl-10 pr-4 py-2 border rounded-[32px] w-[240px] text-sm"
+//           />
+//         </div>
+//       </div>
+
+//       {/* Loading / Error */}
+//       {isLoading && <p className="py-6 text-gray-500">Loading posts...</p>}
+//       {isError && <p className="py-6 text-red-500">Failed to load posts</p>}
+
+//       {/* Table */}
+//       {!isLoading && (
+//         <div className="overflow-x-auto mt-4">
+//           <table className="w-full text-sm text-left border-collapse">
+//             <thead>
+//               <tr className="bg-tableheader text-tableheadertext text-xs uppercase">
+//                 <th className="px-4 py-3">Post</th>
+//                 <th className="px-4 py-3">User</th>
+//                 <th className="px-4 py-3">Engagements</th>
+//                 <th className="px-4 py-3 text-center">Actions</th>
+//               </tr>
+//             </thead>
+
+//             <tbody className="divide-y divide-gray-200">
+//               {filteredPost.length > 0 ? (
+//                 filteredPost.map((post: any) => (
+//                   <tr key={post._id} className="hover:bg-gray-50">
+//                     {/* Post Info */}
+//                     <td className="px-4 py-4 align-top">
+//                       <p className="font-medium text-sm truncate max-w-[220px]">
+//                         {post.content}
+//                       </p>
+
+//                       <p className="text-xs text-gray-500">
+//                         Posted: {new Date(post.createdAt).toLocaleString()}
+//                         {" • "}
+//                         {post.challenge?.type}
+//                       </p>
+
+//                       {/* <p className="text-xs text-blue-500 truncate">
+//                         {post.hashtags?.join(" ")}
+//                       </p> */}
+//                       <p className="text-xs text-blue-500 truncate">
+//                         {post.hashtags
+//                           ?.map((tag: string) =>
+//                             tag.startsWith("#") ? tag : `#${tag}`,
+//                           )
+//                           .join(" ")}
+//                       </p>
+                     
+
+//                     </td>
+
+//                     {/* User */}
+//                     <td className="px-4 py-4 align-top">
+//                       <div className="flex items-center gap-2">
+//                         <Image
+//                           src={post.author?.profilePicture || "/image.png"}
+//                           alt="user"
+//                           width={32}
+//                           height={32}
+//                           className="rounded-full"
+//                         />
+//                         <div>
+//                           <p className="text-sm font-bold">
+//                             {post.author?.username}
+//                           </p>
+//                           <p className="text-xs text-gray-500">
+//                             {post.author?.email}
+//                           </p>
+//                         </div>
+//                       </div>
+//                     </td>
+
+//                     {/* Engagement */}
+//                     <td className="px-4 py-4">
+//                       <p>{post.engagement.likesCount} Likes</p>
+//                       <p>{post.engagement.commentsCount} Comments</p>
+//                       <p>{post.engagement.repostsCount} Reposts</p>
+//                     </td>
+
+//                     {/* Actions */}
+//                     <td className="px-4 py-4 text-center">
+//                       <button onClick={(e) => openMenuForTarget(e, post._id)}>
+//                         <Image
+//                           src="/Button-table.svg"
+//                           alt="actions"
+//                           width={20}
+//                           height={20}
+//                         />
+//                       </button>
+//                     </td>
+//                   </tr>
+//                 ))
+//               ) : (
+//                 <tr>
+//                   <td colSpan={4} className="text-center py-8 text-gray-500">
+//                     No posts found.
+//                   </td>
+//                 </tr>
+//               )}
+//             </tbody>
+//           </table>
+//         </div>
+//       )}
+
+//       {/* Pagination */}
+//       {totalPages > 1 && (
+//         <div className="flex justify-between items-center mt-4">
+//           <div className="flex gap-2 items-center">
+//             <span className="text-sm">Rows per page:</span>
+//             <select
+//               value={rowsPerPage}
+//               onChange={(e) => {
+//                 setRowsPerPage(Number(e.target.value));
+//                 setCurrentPage(1);
+//               }}
+//               className="text-sm font-bold px-2 py-1"
+//             >
+//               {[5, 10, 20, 50].map((num) => (
+//                 <option key={num}>{num}</option>
+//               ))}
+//             </select>
+//           </div>
+
+//           <div className="flex gap-2 items-center">
+//             <button
+//               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+//               disabled={currentPage === 1}
+//             >
+//               <Image src="/prev.svg" alt="prev" height={32} width={32} />
+//             </button>
+
+//             <span className="text-sm">
+//               Page {currentPage} of {totalPages}
+//             </span>
+
+//             <button
+//               onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+//               disabled={currentPage === totalPages}
+//             >
+//               <Image src="/next.svg" alt="next" height={32} width={32} />
+//             </button>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* Dropdown Menu */}
+//       {openRow &&
+//         menuPos &&
+//         createPortal(
+//           <div
+//             id="row-actions-menu"
+//             style={{ top: menuPos.top, left: menuPos.left, position: "fixed" }}
+//             className="w-40 bg-white shadow-lg rounded-md z-[9999] border"
+//           >
+//             <button
+//               onClick={() => {
+//                 setShowCommentsModal(true);
+//                 setOpenRow(null);
+//               }}
+//               className="w-full px-4 py-2 text-sm hover:bg-gray-50 flex gap-2"
+//             >
+//               <Image src="/eye.svg" alt="" width={20} height={20} />
+//               See comments
+//             </button>
+
+//             {/* <button className="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex gap-2">
+//               <Image src="/edit.svg" alt="" width={20} height={20} />
+//               Flag post
+//             </button> */}
+//             <button
+//   onClick={() => handleFlagPost(openRow)}
+//   disabled={isFlagging}
+//   className="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex gap-2 disabled:opacity-50"
+// >
+//   <Image src="/edit.svg" alt="" width={20} height={20} />
+//   {isFlagging ? "Flagging..." : "Flag post"}
+// </button>
+
+
+//             <button className="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex gap-2">
+//               <Image src="/user.svg" alt="" width={20} height={20} />
+//               Delete post
+//             </button>
+//           </div>,
+//           document.body,
+//         )}
+
+//       {/* Comments Modal */}
+//       {showCommentsModal && (
+//         <CommentsModal onClose={() => setShowCommentsModal(false)} />
+//       )}
+//     </div>
+//   );
+// };
+
+// export default PostDetails;
+
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Image from "next/image";
-import { Search } from "lucide-react";
-import { createPortal } from "react-dom";
+import { useParams } from "next/navigation";
+import toast from "react-hot-toast";
+import DataTable, { ColumnDef } from "../../components/DataTable";
 import CommentsModal from "../../content-moderation/components/CommentsModal";
 import { useChallengePosts } from "@/hooks/useAnalyticsChallenge";
-import { useParams } from "next/navigation";
 import { useFlagPost } from "@/hooks/useFlagPost";
-import toast from "react-hot-toast";
 
-type MenuPos = { top: number; left: number };
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface Post {
+  _id: string;
+  content: string;
+  createdAt: string;
+  hashtags?: string[];
+  challenge?: { type: string };
+  author?: {
+    username: string;
+    email: string;
+    profilePicture?: string;
+  };
+  engagement: {
+    likesCount: number;
+    commentsCount: number;
+    repostsCount: number;
+  };
+}
+
+// ── Column definitions ────────────────────────────────────────────────────────
+
+const columns: ColumnDef<Post>[] = [
+  {
+    header: "Post",
+    cell: (post) => (
+      <div className="align-top">
+        <p className="font-medium text-sm truncate max-w-[220px]">{post.content}</p>
+        <p className="text-xs text-gray-500">
+          Posted: {new Date(post.createdAt).toLocaleString()}
+          {" • "}
+          {post.challenge?.type}
+        </p>
+        <p className="text-xs text-blue-500 truncate">
+          {post.hashtags
+            ?.map((tag) => (tag.startsWith("#") ? tag : `#${tag}`))
+            .join(" ")}
+        </p>
+      </div>
+    ),
+  },
+  {
+    header: "User",
+    cell: (post) => (
+      <div className="flex items-center gap-2">
+        <Image
+          src={post.author?.profilePicture || "/image.png"}
+          alt="user"
+          width={32}
+          height={32}
+          className="rounded-full w-8 h-8 object-cover"
+        />
+        <div>
+          <p className="text-sm font-bold">{post.author?.username}</p>
+          <p className="text-xs text-gray-500">{post.author?.email}</p>
+        </div>
+      </div>
+    ),
+  },
+  {
+    header: "Engagements",
+    cell: (post) => (
+      <div className="text-sm">
+        <p>{post.engagement.likesCount} Likes</p>
+        <p>{post.engagement.commentsCount} Comments</p>
+        <p>{post.engagement.repostsCount} Reposts</p>
+      </div>
+    ),
+  },
+];
+
+// ── Component ─────────────────────────────────────────────────────────────────
 
 const PostDetails = () => {
-  //   const params = useParams();
-  //   const challengeId = params.challengeId as string;
   const { id } = useParams();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [openRow, setOpenRow] = useState<string | null>(null);
-  const [menuPos, setMenuPos] = useState<MenuPos | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
-  const MENU_WIDTH = 160;
-  const MENU_GAP = 8;
-
-  // ✅ Fetch posts
-  const { data, isLoading, isError } = useChallengePosts(id as any, {
+  const { data, isLoading, isError } = useChallengePosts(id as string, {
     page: currentPage,
     limit: rowsPerPage,
   });
 
-  const posts = data?.data?.posts ?? [];
-  const pagination = data?.data?.pagination;
+  const { mutate: flagPost, isPending: isFlagging } = useFlagPost();
 
-  const totalPages = pagination?.totalPages ?? 1;
-  const totalPosts = pagination?.totalPosts ?? 0;
+  const posts: Post[] = data?.data?.posts ?? [];
+  const totalPages = data?.data?.pagination?.totalPages ?? 1;
+  const totalPosts = data?.data?.pagination?.totalPosts ?? 0;
 
-  // Client-side search filter
-  const filteredPost = useMemo(() => {
-    return posts.filter((post: any) => {
+  // Client-side search filter (server handles pagination)
+  const filteredPosts = useMemo(() => {
+    if (!searchTerm) return posts;
+    return posts.filter((post) => {
       const content = post.content?.toLowerCase() || "";
       const username = post.author?.username?.toLowerCase() || "";
       return (
@@ -53,273 +442,61 @@ const PostDetails = () => {
     });
   }, [posts, searchTerm]);
 
-  // Close dropdown logic
-  useEffect(() => {
-    if (!openRow) return;
-
-    const onDocClick = (e: MouseEvent) => {
-      const menu = document.getElementById("row-actions-menu");
-      if (menu && !menu.contains(e.target as Node)) setOpenRow(null);
-    };
-
-    const onEsc = (e: KeyboardEvent) => e.key === "Escape" && setOpenRow(null);
-    const onScrollOrResize = () => setOpenRow(null);
-
-    document.addEventListener("mousedown", onDocClick);
-    window.addEventListener("keydown", onEsc);
-    window.addEventListener("scroll", onScrollOrResize, true);
-    window.addEventListener("resize", onScrollOrResize);
-
-    return () => {
-      document.removeEventListener("mousedown", onDocClick);
-      window.removeEventListener("keydown", onEsc);
-      window.removeEventListener("scroll", onScrollOrResize, true);
-      window.removeEventListener("resize", onScrollOrResize);
-    };
-  }, [openRow]);
-
-  // Dropdown positioning
-  const openMenuForTarget = (
-    evt: React.MouseEvent<HTMLButtonElement>,
-    id: string,
-  ) => {
-    const rect = evt.currentTarget.getBoundingClientRect();
-    const tentativeLeft = rect.right - MENU_WIDTH;
-    const left = Math.max(
-      8,
-      Math.min(tentativeLeft, window.innerWidth - MENU_WIDTH - 8),
-    );
-    const top = rect.bottom + MENU_GAP;
-
-    setMenuPos({ top, left });
-    setOpenRow((prev) => (prev === id ? null : id));
+  const handleFlagPost = (postId: string) => {
+    flagPost(postId, {
+      onSuccess: () => toast.success("Post flagged successfully"),
+      onError: () => toast.error("Failed to flag post"),
+    });
   };
 
-  const { mutate: flagPost, isPending: isFlagging } = useFlagPost();
-
-  const handleFlagPost = (postId: string) => {
-  flagPost(postId, {
-    onSuccess: () => {
-      toast.success("Post flagged successfully"); // replace with toast
-      setOpenRow(null);
-    },
-    onError: () => {
-      toast.error("Failed to flag post");
-      setOpenRow(null);
-    },
-  });
-};
-
-
+  if (isError) return <p className="py-6 text-red-500">Failed to load posts</p>;
 
   return (
-    <div className="bg-white p-4 rounded mt-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-gray-800 capitalize">
-          All Posts ({totalPosts})
-        </h2>
+    <>
+      <DataTable
+        data={filteredPosts}
+        columns={columns}
+        rowKey={(post) => post._id}
+        isLoading={isLoading}
+        emptyMessage="No posts found."
+        loadingMessage="Loading posts..."
+        title={`All Posts (${totalPosts})`}
+        searchPlaceholder="Search post..."
+        searchValue={searchTerm}
+        onSearchChange={(val) => { setSearchTerm(val); setCurrentPage(1); }}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        rowsPerPage={rowsPerPage}
+        onPageChange={setCurrentPage}
+        onRowsPerPageChange={(rows) => { setRowsPerPage(rows); setCurrentPage(1); }}
+        getRowActions={(post) => [
+          {
+            label: "See comments",
+            icon: "/eye.svg",
+            onClick: () => {
+              setSelectedPostId(post._id);
+              setShowCommentsModal(true);
+            },
+          },
+          {
+            label: isFlagging ? "Flagging..." : "Flag post",
+            icon: "/edit.svg",
+            danger: true,
+            onClick: () => handleFlagPost(post._id),
+          },
+          {
+            label: "Delete post",
+            icon: "/user.svg",
+            danger: true,
+            onClick: () => console.log("Delete", post._id),
+          },
+        ]}
+      />
 
-        <div className="relative h-10 rounded-[32px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
-            type="text"
-            placeholder="Search post..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 border rounded-[32px] w-[240px] text-sm"
-          />
-        </div>
-      </div>
-
-      {/* Loading / Error */}
-      {isLoading && <p className="py-6 text-gray-500">Loading posts...</p>}
-      {isError && <p className="py-6 text-red-500">Failed to load posts</p>}
-
-      {/* Table */}
-      {!isLoading && (
-        <div className="overflow-x-auto mt-4">
-          <table className="w-full text-sm text-left border-collapse">
-            <thead>
-              <tr className="bg-tableheader text-tableheadertext text-xs uppercase">
-                <th className="px-4 py-3">Post</th>
-                <th className="px-4 py-3">User</th>
-                <th className="px-4 py-3">Engagements</th>
-                <th className="px-4 py-3 text-center">Actions</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-gray-200">
-              {filteredPost.length > 0 ? (
-                filteredPost.map((post: any) => (
-                  <tr key={post._id} className="hover:bg-gray-50">
-                    {/* Post Info */}
-                    <td className="px-4 py-4 align-top">
-                      <p className="font-medium text-sm truncate max-w-[220px]">
-                        {post.content}
-                      </p>
-
-                      <p className="text-xs text-gray-500">
-                        Posted: {new Date(post.createdAt).toLocaleString()}
-                        {" • "}
-                        {post.challenge?.type}
-                      </p>
-
-                      {/* <p className="text-xs text-blue-500 truncate">
-                        {post.hashtags?.join(" ")}
-                      </p> */}
-                      <p className="text-xs text-blue-500 truncate">
-                        {post.hashtags
-                          ?.map((tag: string) =>
-                            tag.startsWith("#") ? tag : `#${tag}`,
-                          )
-                          .join(" ")}
-                      </p>
-                     
-
-                    </td>
-
-                    {/* User */}
-                    <td className="px-4 py-4 align-top">
-                      <div className="flex items-center gap-2">
-                        <Image
-                          src={post.author?.profilePicture || "/image.png"}
-                          alt="user"
-                          width={32}
-                          height={32}
-                          className="rounded-full"
-                        />
-                        <div>
-                          <p className="text-sm font-bold">
-                            {post.author?.username}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {post.author?.email}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Engagement */}
-                    <td className="px-4 py-4">
-                      <p>{post.engagement.likesCount} Likes</p>
-                      <p>{post.engagement.commentsCount} Comments</p>
-                      <p>{post.engagement.repostsCount} Reposts</p>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="px-4 py-4 text-center">
-                      <button onClick={(e) => openMenuForTarget(e, post._id)}>
-                        <Image
-                          src="/Button-table.svg"
-                          alt="actions"
-                          width={20}
-                          height={20}
-                        />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={4} className="text-center py-8 text-gray-500">
-                    No posts found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-between items-center mt-4">
-          <div className="flex gap-2 items-center">
-            <span className="text-sm">Rows per page:</span>
-            <select
-              value={rowsPerPage}
-              onChange={(e) => {
-                setRowsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-              className="text-sm font-bold px-2 py-1"
-            >
-              {[5, 10, 20, 50].map((num) => (
-                <option key={num}>{num}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex gap-2 items-center">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              <Image src="/prev.svg" alt="prev" height={32} width={32} />
-            </button>
-
-            <span className="text-sm">
-              Page {currentPage} of {totalPages}
-            </span>
-
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
-              <Image src="/next.svg" alt="next" height={32} width={32} />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Dropdown Menu */}
-      {openRow &&
-        menuPos &&
-        createPortal(
-          <div
-            id="row-actions-menu"
-            style={{ top: menuPos.top, left: menuPos.left, position: "fixed" }}
-            className="w-40 bg-white shadow-lg rounded-md z-[9999] border"
-          >
-            <button
-              onClick={() => {
-                setShowCommentsModal(true);
-                setOpenRow(null);
-              }}
-              className="w-full px-4 py-2 text-sm hover:bg-gray-50 flex gap-2"
-            >
-              <Image src="/eye.svg" alt="" width={20} height={20} />
-              See comments
-            </button>
-
-            {/* <button className="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex gap-2">
-              <Image src="/edit.svg" alt="" width={20} height={20} />
-              Flag post
-            </button> */}
-            <button
-  onClick={() => handleFlagPost(openRow)}
-  disabled={isFlagging}
-  className="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex gap-2 disabled:opacity-50"
->
-  <Image src="/edit.svg" alt="" width={20} height={20} />
-  {isFlagging ? "Flagging..." : "Flag post"}
-</button>
-
-
-            <button className="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-50 flex gap-2">
-              <Image src="/user.svg" alt="" width={20} height={20} />
-              Delete post
-            </button>
-          </div>,
-          document.body,
-        )}
-
-      {/* Comments Modal */}
       {showCommentsModal && (
-        <CommentsModal onClose={() => setShowCommentsModal(false)} />
+        <CommentsModal onClose={() => { setShowCommentsModal(false); setSelectedPostId(null); }} />
       )}
-    </div>
+    </>
   );
 };
 

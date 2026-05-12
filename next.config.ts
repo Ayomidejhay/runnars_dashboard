@@ -12,6 +12,24 @@ const nextConfig = {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",
       },
+      {
+        protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com', // Whitelists Firebase Storage
+        port: '',
+        pathname: '/**',
+      },
+       {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.w3schools.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };

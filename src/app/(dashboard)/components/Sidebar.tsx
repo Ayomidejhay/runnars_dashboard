@@ -56,6 +56,12 @@ const mainItems = [
     icon: "/sms-tracking.svg",
     activeIcon: "/sms-tracking2.svg",
   },
+   {
+    title: "Advertisements",
+    url: "/advertisements",
+    icon: "/dashbord.svg",
+    activeIcon: "/Dashboard.svg",
+  },
   {
     title: "Settings",
     url: "/settings",
