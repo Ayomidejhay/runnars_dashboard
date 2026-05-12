@@ -146,7 +146,7 @@ const BannerFormModal: React.FC<{
             disabled={isSubmitting}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Summer sale 2026"
-            className="rounded-md border border-[#E1E1E1] bg-[#0d1117] p-2 disabled:opacity-50 text-deepblue"
+            className="rounded-md border border-[#E1E1E1]  p-2 disabled:opacity-50 text-deepblue"
           />
         </div>
 
@@ -207,8 +207,8 @@ const BannerFormModal: React.FC<{
               />
               {file ? (
                 <>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#3fb95020]">
-                    <FileCheck2 size={20} className="text-[#3fb950]" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brightblue">
+                    <FileCheck2 size={20} className="text-white" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-[#e6edf3]">
@@ -311,7 +311,7 @@ const BannerFormModal: React.FC<{
         <button
           onClick={handleSubmit}
           disabled={!canSubmit}
-          className="bg-brightblue text-white px-4 py-2 rounded-lg flex items-center gap-2 disabled:cursor-not-allowed disabled:bg-[#21262d] disabled:text-[#484f58]"
+          className="bg-brightblue text-white px-4 py-2 rounded-lg flex items-center gap-2 disabled:cursor-not-allowed "
         >
           {isSubmitting && <Loader2 size={16} className="animate-spin" />}
           {isEditing ? "Save changes" : "Upload"}
@@ -707,7 +707,7 @@ const BannerAdmin = () => {
                       onClick={() => {
                         setEditBanner(banner);
                       }}
-                      className="flex items-center gap-1.5 cursor-pointer rounded-lg bg-[#21262d] px-3 py-1.5 text-[16px] font-medium text-[#58a6ff] transition-colors hover:bg-[#30363d]"
+                      className="flex items-center gap-1.5 cursor-pointer rounded-lg bg-brightblue px-3 py-1.5 text-[16px] font-medium text-white transition-colors "
                     >
                       <Pencil size={16} />
                       Edit
